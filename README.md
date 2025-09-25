@@ -20,9 +20,6 @@ A clean, modern portfolio website built with Next.js and Tailwind CSS, featuring
 ## 📦 Getting Started
 
 \`\`\`bash
-# Clone the repository
-git clone https://github.com/felixmacaspac/v0-minimalist-portfolio.git
-
 # Install dependencies
 npm install
 
@@ -46,4 +43,4 @@ Open source and available under the [MIT License](LICENSE).
 
 ---
 
-**Built with ❤️ using [v0.dev](https://v0.dev) by Felix Macaspac**
+**Built with ❤️ using [v0.dev](https://v0.dev) by Kenichiro Goto**

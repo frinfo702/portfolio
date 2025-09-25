@@ -163,11 +163,9 @@ export default function Home() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { name: "GitHub", handle: "@felixmacaspac", url: "#" },
-                  { name: "v0.dev", handle: "@felixmacaspac", url: "#" },
-                  { name: "HubSpot Community", handle: "@felixmacaspac", url: "#" },
-                  { name: "LinkedIn", handle: "felixmacaspac", url: "#" },
-                  { name: "Blog", handle: "Personal thoughts & insights", url: "#" },
+                  { name: "GitHub", handle: "@frinfo702", url: "https://github.com/frinfo702" },
+                  { name: "LinkedIn", handle: "frinfo702", url: "https://www.linkedin.com/in/frinfo702/" },
+                  { name: "Blog", handle: "Personal thoughts & insights", url: "https://zenn.dev/" },
                 ].map((social) => (
                   <Link
                     key={social.name}
@@ -208,8 +206,8 @@ export default function Home() {
         <footer className="py-12 sm:py-16 border-t border-border">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 sm:gap-8">
             <div className="space-y-2">
-              <div className="text-sm text-muted-foreground">© 2025 Felix Macaspac. All rights reserved.</div>
-              <div className="text-xs text-muted-foreground">Built with v0.dev by Felix Macaspac</div>
+              <div className="text-sm text-muted-foreground">© 2025 Kenichiro Goto. All rights reserved.</div>
+              <div className="text-xs text-muted-foreground">Built with v0.dev by Kenichiro Goto </div>
             </div>
 
             <div className="flex items-center gap-4">
