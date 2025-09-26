@@ -108,7 +108,6 @@ export default function Home() {
                 <div className="space-y-2">
                   <div className="text-foreground">Undergrad student</div>
                   <div className="text-muted-foreground">@ Japan</div>
-                  <div className="text-xs text-muted-foreground">2023 — Present</div>
                 </div>
               </div>
 
@@ -182,24 +181,6 @@ export default function Home() {
                 ))}
               </div>
             </div>
-          </div>
-        </section>
-
-        <section id="projects" ref={(el) => (sectionsRef.current[2] = el)} className="py-20 sm:py-32 opacity-0">
-          <div className="grid lg:grid-cols-2 gap-12 sm:gap-16">
-            <div className="space-y-6 sm:space-y-8">
-              <h2 className="text-3xl sm:text-4xl font-light">Projects</h2>
-
-              <div className="space-y-6">
-                <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
-                  Explore some of the projects I've worked on.
-                </p>
-
-                <div className="space-y-4">{/* Project links will go here */}</div>
-              </div>
-            </div>
-
-            <div className="space-y-6 sm:space-y-8">{/* Project details will go here */}</div>
           </div>
         </section>
 

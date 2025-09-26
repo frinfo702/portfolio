@@ -60,7 +60,7 @@ export default function Work() {
           <div className="space-y-12 sm:space-y-16">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
               <h1 className="text-4xl sm:text-5xl font-light">Selected Work</h1>
-              <div className="text-sm text-muted-foreground font-mono">2023 — 2025</div>
+              <div className="text-sm text-muted-foreground font-mono">2024 — 2025</div>
             </div>
 
             <div className="space-y-8 sm:space-y-12">
