@@ -162,9 +162,10 @@ export default function Home() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { name: "GitHub", handle: "@frinfo702", url: "https://github.com/frinfo702" },
-                  { name: "LinkedIn", handle: "frinfo702", url: "https://www.linkedin.com/in/frinfo702/" },
-                  { name: "Blog", handle: "Personal thoughts & insights", url: "https://zenn.dev/" },
+                  { name: "GitHub", handle: "Code repositories & projects", url: "https://github.com/frinfo702" },
+                  { name: "LinkedIn", handle: "Professional network & experience", url: "https://www.linkedin.com/in/frinfo702/" },
+                  { name: "Blog", handle: "Technical insights & learnings", url: "https://zenn.dev/" },
+                  { name: "What I've done", handle: "Achievements", url: "https://deserted-bat-b50.notion.site/27ccff96ac7080d996f1e28de0f3b7ef" },
                 ].map((social) => (
                   <Link
                     key={social.name}
