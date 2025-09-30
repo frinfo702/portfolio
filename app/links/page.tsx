@@ -37,7 +37,7 @@ export default function Links() {
   const socialLinks = [
     { name: "GitHub", handle: "Code repositories & projects", url: "https://github.com/frinfo702" },
     { name: "LinkedIn", handle: "Professional network & experience", url: "https://www.linkedin.com/in/frinfo702/" },
-    { name: "Blog", handle: "Technical insights & learnings", url: "https://zenn.dev/" },
+    { name: "Blog", handle: "Technical insights & learnings", url: "https://frinfo702-blog.kenichiro3114.workers.dev/" },
     { name: "What I've done", handle: "Achievements", url: "https://deserted-bat-b50.notion.site/27ccff96ac7080d996f1e28de0f3b7ef" },
   ]
 
