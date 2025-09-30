@@ -36,7 +36,7 @@ export default function Work() {
 
   return (
     <div className="min-h-screen bg-background text-foreground relative">
-      <main className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-16">
+      <main className="min-h-screen max-w-4xl mx-auto px-6 sm:px-8 lg:px-16 flex flex-col">
         {/* Navigation */}
         <nav className="py-8 border-b border-border/50">
           <div className="flex items-center justify-between">
@@ -51,13 +51,21 @@ export default function Work() {
               <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">
                 Projects
               </Link>
+              <Link href="/links" className="text-muted-foreground hover:text-foreground transition-colors">
+                Links
+              </Link>
             </div>
           </div>
         </nav>
 
         {/* Work Section */}
-        <section ref={(el) => { sectionsRef.current[0] = el }} className="py-20 sm:py-32 opacity-0">
-          <div className="space-y-12 sm:space-y-16">
+        <section
+          ref={(el) => {
+            sectionsRef.current[0] = el
+          }}
+          className="flex-1 flex flex-col justify-center gap-12 sm:gap-16 py-16 sm:py-20 opacity-0"
+        >
+          <div className="w-full space-y-8 sm:space-y-12">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
               <h1 className="text-4xl sm:text-5xl font-light">Selected Work</h1>
               <div className="text-sm text-muted-foreground font-mono">2024 — 2025</div>

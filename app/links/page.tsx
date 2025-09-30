@@ -3,9 +3,8 @@
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 
-export default function Home() {
+export default function Links() {
   const [isDark, setIsDark] = useState(true)
-  const [activeSection, setActiveSection] = useState("")
   const sectionsRef = useRef<(HTMLElement | null)[]>([])
 
   useEffect(() => {
@@ -18,7 +17,6 @@ export default function Home() {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add("animate-fade-in-up")
-            setActiveSection(entry.target.id)
           }
         })
       },
@@ -36,100 +34,92 @@ export default function Home() {
     setIsDark(!isDark)
   }
 
+  const socialLinks = [
+    { name: "GitHub", handle: "Code repositories & projects", url: "https://github.com/frinfo702" },
+    { name: "LinkedIn", handle: "Professional network & experience", url: "https://www.linkedin.com/in/frinfo702/" },
+    { name: "Blog", handle: "Technical insights & learnings", url: "https://zenn.dev/" },
+    { name: "What I've done", handle: "Achievements", url: "https://deserted-bat-b50.notion.site/27ccff96ac7080d996f1e28de0f3b7ef" },
+  ]
+
   return (
     <div className="min-h-screen bg-background text-foreground relative">
-      <nav className="fixed left-8 top-1/2 -translate-y-1/2 z-10 hidden lg:block">
-        <div className="flex flex-col gap-4">
-          {["intro"].map((section) => (
-            <button
-              key={section}
-              onClick={() => document.getElementById(section)?.scrollIntoView({ behavior: "smooth" })}
-              className={`w-2 h-8 rounded-full transition-all duration-500 ${activeSection === section ? "bg-foreground" : "bg-muted-foreground/30 hover:bg-muted-foreground/60"
-                }`}
-              aria-label={`Navigate to ${section}`}
-            />
-          ))}
-        </div>
-      </nav>
-
       <main className="min-h-screen max-w-4xl mx-auto px-6 sm:px-8 lg:px-16 flex flex-col">
         <nav className="py-8 border-b border-border/50">
           <div className="flex items-center justify-between">
-            <div className="text-xl font-light">Homepage</div>
+            <Link href="/" className="text-xl font-light hover:text-muted-foreground transition-colors">
+              Homepage
+            </Link>
             <div className="flex items-center gap-4">
-              <span className="text-foreground">Home</span>
+              <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+                Home
+              </Link>
               <Link href="/work" className="text-muted-foreground hover:text-foreground transition-colors">
                 Work
               </Link>
               <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">
                 Projects
               </Link>
-              <Link href="/links" className="text-muted-foreground hover:text-foreground transition-colors">
-                Links
-              </Link>
+              <span className="text-foreground">Links</span>
             </div>
           </div>
         </nav>
 
-        <header
-          id="intro"
-          ref={(el) => (sectionsRef.current[0] = el)}
-          className="flex-1 flex items-center opacity-0"
+        <section
+          ref={(el) => {
+            sectionsRef.current[0] = el
+          }}
+          className="flex-1 flex items-center py-16 sm:py-20 opacity-0"
         >
-          <div className="grid lg:grid-cols-5 gap-12 sm:gap-16 w-full">
-            <div className="lg:col-span-3 space-y-6 sm:space-y-8">
-              <div className="space-y-3 sm:space-y-2">
-                <div className="text-sm text-muted-foreground font-mono tracking-wider">PORTFOLIO / 2025</div>
-                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight">
-                  Kenichiro
-                  <br />
-                  <span className="text-muted-foreground">Goto</span>
-                </h1>
-              </div>
+          <div className="grid lg:grid-cols-2 gap-12 sm:gap-16 w-full">
+            <div className="space-y-6 sm:space-y-8">
+              <h1 className="text-3xl sm:text-4xl font-light">Links</h1>
 
-              <div className="space-y-6 max-w-md">
+              <div className="space-y-6">
                 <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
-                  Frontend Developer crafting digital experiences at the intersection of
-                  <span className="text-foreground"> design</span>,<span className="text-foreground"> technology</span>,
-                  and
-                  <span className="text-foreground"> user experience</span>.
+                  Always interested in new opportunities, collaborations, and conversations about technology and design.
                 </p>
 
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    Available for work
-                  </div>
-                  <div>Japan (all over the world!)</div>
+                <div className="space-y-4">
+                  <Link
+                    href="mailto:kenichiro3114@gmail.com"
+                    className="group flex items-center gap-3 text-foreground hover:text-muted-foreground transition-colors duration-300"
+                  >
+                    <span className="text-base sm:text-lg">kenichiro3114@gmail.com</span>
+                    <svg
+                      className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </Link>
                 </div>
               </div>
             </div>
 
-            <div className="lg:col-span-2 flex flex-col justify-end space-y-6 sm:space-y-8 mt-8 lg:mt-0">
-              <div className="space-y-4">
-                <div className="text-sm text-muted-foreground font-mono">CURRENTLY</div>
-                <div className="space-y-2">
-                  <div className="text-foreground">Undergrad student</div>
-                  <div className="text-muted-foreground">@ Japan</div>
-                </div>
-              </div>
+            <div className="space-y-6 sm:space-y-8">
+              <div className="text-sm text-muted-foreground font-mono">ELSEWHERE</div>
 
-              <div className="space-y-4">
-                <div className="text-sm text-muted-foreground font-mono">FOCUS</div>
-                <div className="flex flex-wrap gap-2">
-                  {["Coding", "Research", "ML", "CS", "Backend", "infrastructure"].map((skill) => (
-                    <span
-                      key={skill}
-                      className="px-3 py-1 text-xs border border-border rounded-full hover:border-muted-foreground/50 transition-colors duration-300"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {socialLinks.map((social) => (
+                  <Link
+                    key={social.name}
+                    href={social.url}
+                    className="group p-4 border border-border rounded-lg hover:border-muted-foreground/50 transition-all duration-300 hover:shadow-sm"
+                  >
+                    <div className="space-y-2">
+                      <div className="text-foreground group-hover:text-muted-foreground transition-colors duration-300">
+                        {social.name}
+                      </div>
+                      <div className="text-sm text-muted-foreground">{social.handle}</div>
+                    </div>
+                  </Link>
+                ))}
               </div>
             </div>
           </div>
-        </header>
+        </section>
 
         <footer className="py-12 sm:py-16 border-t border-border">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 sm:gap-8">
