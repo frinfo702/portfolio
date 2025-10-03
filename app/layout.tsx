@@ -12,6 +12,9 @@ const geist = Geist({
 export const metadata: Metadata = {
   title: "Kenichiro's minimalist portfolio",
   description: "personal portfolio Kenichiro Goto who is known as SWE, research stuednt.",
+  icons: {
+    icon: "favicon.jpeg",
+  }
 }
 
 export default function RootLayout({
