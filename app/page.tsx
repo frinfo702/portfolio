@@ -89,10 +89,11 @@ export default function Home() {
 
               <div className="space-y-6 max-w-md">
                 <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
-                  Frontend Developer crafting digital experiences at the intersection of
-                  <span className="text-foreground"> design</span>,<span className="text-foreground"> technology</span>,
+                  Backend (fullstack) Developer crafting digital experiences at the intersection of
+                  <span className="text-foreground"> system</span>,<span className="text-foreground"> technology</span>,
                   and
-                  <span className="text-foreground"> user experience</span>.
+                  <span className="text-foreground"> user experience</span>.<br />
+                  <span className="text-foreground"> Be impatient with action, patient with results.</span>
                 </p>
 
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 text-sm text-muted-foreground">
@@ -100,7 +101,7 @@ export default function Home() {
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                     Available for work
                   </div>
-                  <div>Japan (all over the world!)</div>
+                  <div>Japan</div>
                 </div>
               </div>
             </div>
