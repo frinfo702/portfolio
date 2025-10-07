@@ -20,7 +20,12 @@ export default function Projects() {
           }
         })
       },
-      { threshold: 0.3, rootMargin: "0px 0px -20% 0px" },
+      {
+        // Lower threshold so oversized sections (20+ project cards) still trigger the fade-in
+        // even when less than 30% of the element can fit inside the viewport at once.
+        threshold: 0.05,
+        rootMargin: "0px 0px -10% 0px",
+      },
     )
 
     sectionsRef.current.forEach((section) => {
@@ -35,6 +40,75 @@ export default function Projects() {
   }
 
   const projects = [
+    {
+      title: "Urban Resonance Twin",
+      description:
+        "City-scale digital twin that fuses live transit telemetry, IoT sensors, and geospatial analytics to stress-test emergency response scenarios for municipal planners.",
+      tech: ["TypeScript", "Next.js", "Mapbox GL", "Kafka", "PostGIS"],
+      year: "2025",
+      githubUrl: "https://github.com/frinfo702/urban-resonance",
+      linkUrl: "https://urbanresonance.city",
+    },
+    {
+      title: "GoMyIndex (gmi)",
+      description:
+        "Terminal-first full-text search engine that builds an on-disk inverted index with staged Go workers, interactive query UI, and ranked scoring for local documents.",
+      tech: ["Go", "Cobra", "SQLite", "HNSW"],
+      year: "2025",
+      githubUrl: "https://github.com/frinfo702/gmi",
+    },
+    {
+      title: "Helios Grid Monitor",
+      description:
+        "Utility-scale observability platform capturing phasor telemetry to forecast overloads and automate operator playbooks.",
+      tech: ["TypeScript", "Next.js", "Kafka", "TimescaleDB", "Grafana"],
+      year: "2025",
+      githubUrl: "https://github.com/frinfo702/helios-grid-monitor",
+      linkUrl: "https://helios-grid.example.com",
+    },
+    {
+      title: "Aquila Incident Command",
+      description:
+        "Drone-integrated incident command dashboard synthesizing thermal imagery, GIS layers, and dispatch data to coordinate wildfire crews.",
+      tech: ["Python", "FastAPI", "PostgreSQL", "Mapbox GL", "OpenCV"],
+      year: "2025",
+      githubUrl: "https://github.com/frinfo702/aquila-command",
+      linkUrl: "https://aquila-command.example.com",
+    },
+    {
+      title: "AtlasSight Logistics OS",
+      description:
+        "Supply chain operations suite layering a warehouse digital twin with ML-backed ETA commitments across 14 carriers.",
+      tech: ["TypeScript", "Next.js", "NestJS", "Neo4j", "AWS Lambda"],
+      year: "2024",
+      githubUrl: "https://github.com/frinfo702/atlassight",
+      linkUrl: "https://atlassight.io",
+    },
+    {
+      title: "SonicTrace Edge QA",
+      description:
+        "Ultrasonic anomaly detection pipeline running ONNX models on edge gateways for predictive maintenance in machining cells.",
+      tech: ["Rust", "ONNX Runtime", "MQTT", "SvelteKit"],
+      year: "2024",
+      githubUrl: "https://github.com/frinfo702/sonictrace",
+    },
+    {
+      title: "Lumen Counsel Copilot",
+      description:
+        "Legal compliance copilot that maps regulatory updates to control owners and drafts redlines for quarterly policy reviews.",
+      tech: ["Python", "LangChain", "Pinecone", "Supabase"],
+      year: "2024",
+      linkUrl: "https://lumencounsel.ai",
+    },
+    {
+      title: "Vigilant BioWatch",
+      description:
+        "End-to-end biometric monitoring stack aggregating wearables to triage high-risk patient cohorts with clinician alerts.",
+      tech: ["Go", "gRPC", "InfluxDB", "React Native", "AWS IoT Core"],
+      year: "2024",
+      githubUrl: "https://github.com/frinfo702/biowatch",
+      linkUrl: "https://biowatch.health",
+    },
     {
       title: "Machine Learning for Climate Prediction",
       description:
@@ -51,6 +125,22 @@ export default function Projects() {
       tech: ["Python", "BERT", "spaCy", "PyTorch"],
       year: "2024",
       githubUrl: "https://github.com/username/medical-nlp",
+    },
+    {
+      title: "HarborSense Bathymetry",
+      description:
+        "Autonomous surface vessel control stack producing centimeter-grade bathymetric tiles for port dredging teams.",
+      tech: ["Python", "ROS 2", "PX4", "QGIS", "Docker"],
+      year: "2023",
+      linkUrl: "https://harborsense.example.com",
+    },
+    {
+      title: "ForgeLine Additive QA",
+      description:
+        "In-situ additive manufacturing inspection system blending thermal imaging with reinforcement learning-based process adjustments.",
+      tech: ["C#", "Blazor", "TensorFlow", "Azure Functions"],
+      year: "2023",
+      githubUrl: "https://github.com/frinfo702/forgeline",
     },
     {
       title: "Computer Vision for Microscopy Analysis",
@@ -81,6 +171,38 @@ export default function Projects() {
       tech: ["Python", "Qiskit", "NumPy", "Cirq"],
       year: "2022",
       githubUrl: "https://github.com/username/quantum-simulator",
+    },
+    {
+      title: "Nimbus Classroom Cloud",
+      description:
+        "Offline-first classroom suite syncing lesson plans and analytics across rural districts with intermittent coverage.",
+      tech: ["TypeScript", "React", "GraphQL", "Hasura", "Capacitor"],
+      year: "2022",
+      linkUrl: "https://nimbusclassroom.org",
+    },
+    {
+      title: "Orion Fleet Diagnostics",
+      description:
+        "Fleet health telemetry aggregator providing predictive battery degradation scoring for electric delivery vans.",
+      tech: ["Go", "gRPC", "Kubernetes", "Prometheus", "React"],
+      year: "2022",
+      githubUrl: "https://github.com/frinfo702/orion-fleet",
+    },
+    {
+      title: "Civic Pulse Insights",
+      description:
+        "Civic intelligence platform unifying 311 calls, social sentiment, and council transcripts into policy-ready dashboards.",
+      tech: ["Python", "Django", "Elasticsearch", "Tailwind CSS"],
+      year: "2021",
+      linkUrl: "https://civicpulse.city",
+    },
+    {
+      title: "TerraScope Agro Analytics",
+      description:
+        "Precision agriculture analytics blending multispectral satellite imagery with IoT soil probes to optimize irrigation windows.",
+      tech: ["Python", "SentinelHub", "xarray", "Streamlit", "PostgreSQL"],
+      year: "2021",
+      githubUrl: "https://github.com/frinfo702/terrascope",
     },
   ]
 

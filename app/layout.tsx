@@ -1,13 +1,9 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist } from "next/font/google"
+import { GeistSans } from "geist/font/sans"
 import "./globals.css"
 
-const geist = Geist({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-geist",
-})
+const geist = GeistSans
 
 export const metadata: Metadata = {
   title: "Kenichiro's minimalist portfolio",
