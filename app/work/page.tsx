@@ -94,7 +94,7 @@ export default function Work() {
                   period: "Jun - May",
                   role: "Software Engineer",
                   company: "Finatext Holdings Ltd.",
-                  description: "",
+                  description: "I worked as a software engineer and built internal tools used by teams for data and financial analysis.",
                   tech: ["Go", "AWS", "MySQL"],
                 },
                 {
