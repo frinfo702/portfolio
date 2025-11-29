@@ -48,9 +48,6 @@ export default function Work() {
                 Home
               </Link>
               <span className="text-foreground">Work</span>
-              <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">
-                Projects
-              </Link>
               <Link href="/links" className="text-muted-foreground hover:text-foreground transition-colors">
                 Links
               </Link>

@@ -1,40 +1,40 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { useEffect, useRef, useState } from "react"
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
-  const [isDark, setIsDark] = useState(true)
-  const [activeSection, setActiveSection] = useState("")
-  const sectionsRef = useRef<(HTMLElement | null)[]>([])
+  const [isDark, setIsDark] = useState(true);
+  const [activeSection, setActiveSection] = useState("");
+  const sectionsRef = useRef<(HTMLElement | null)[]>([]);
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDark)
-  }, [isDark])
+    document.documentElement.classList.toggle("dark", isDark);
+  }, [isDark]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add("animate-fade-in-up")
-            setActiveSection(entry.target.id)
+            entry.target.classList.add("animate-fade-in-up");
+            setActiveSection(entry.target.id);
           }
-        })
+        });
       },
       { threshold: 0.3, rootMargin: "0px 0px -20% 0px" },
-    )
+    );
 
     sectionsRef.current.forEach((section) => {
-      if (section) observer.observe(section)
-    })
+      if (section) observer.observe(section);
+    });
 
-    return () => observer.disconnect()
-  }, [])
+    return () => observer.disconnect();
+  }, []);
 
   const toggleTheme = () => {
-    setIsDark(!isDark)
-  }
+    setIsDark(!isDark);
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground relative">
@@ -43,9 +43,16 @@ export default function Home() {
           {["intro"].map((section) => (
             <button
               key={section}
-              onClick={() => document.getElementById(section)?.scrollIntoView({ behavior: "smooth" })}
-              className={`w-2 h-8 rounded-full transition-all duration-500 ${activeSection === section ? "bg-foreground" : "bg-muted-foreground/30 hover:bg-muted-foreground/60"
-                }`}
+              onClick={() =>
+                document
+                  .getElementById(section)
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+              className={`w-2 h-8 rounded-full transition-all duration-500 ${
+                activeSection === section
+                  ? "bg-foreground"
+                  : "bg-muted-foreground/30 hover:bg-muted-foreground/60"
+              }`}
               aria-label={`Navigate to ${section}`}
             />
           ))}
@@ -58,13 +65,16 @@ export default function Home() {
             <div className="text-xl font-light">Homepage</div>
             <div className="flex items-center gap-4">
               <span className="text-foreground">Home</span>
-              <Link href="/work" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="/work"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Work
               </Link>
-              <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">
-                Projects
-              </Link>
-              <Link href="/links" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="/links"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Links
               </Link>
             </div>
@@ -79,7 +89,9 @@ export default function Home() {
           <div className="grid lg:grid-cols-5 gap-12 sm:gap-16 w-full">
             <div className="lg:col-span-3 space-y-6 sm:space-y-8">
               <div className="space-y-3 sm:space-y-2">
-                <div className="text-sm text-muted-foreground font-mono tracking-wider">PORTFOLIO / 2025</div>
+                <div className="text-sm text-muted-foreground font-mono tracking-wider">
+                  PORTFOLIO / 2025
+                </div>
                 <h1 className="text-5xl sm:text-6xl lg:text-7xl font-light tracking-tight">
                   Kenichiro
                   <br />
@@ -89,11 +101,16 @@ export default function Home() {
 
               <div className="space-y-6 max-w-md">
                 <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
-                  Backend (fullstack) Developer crafting digital experiences at the intersection of
-                  <span className="text-foreground"> system</span>,<span className="text-foreground"> technology</span>,
-                  and
-                  <span className="text-foreground"> user experience</span>.<br />
-                  <span className="text-foreground"> Be impatient with action, patient with results.</span>
+                  Backend (fullstack) Developer crafting digital experiences at
+                  the intersection of
+                  <span className="text-foreground"> system</span>,
+                  <span className="text-foreground"> technology</span>, and
+                  <span className="text-foreground"> user experience</span>.
+                  <br />
+                  <span className="text-foreground">
+                    {" "}
+                    Be impatient with action, patient with results.
+                  </span>
                 </p>
 
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 text-sm text-muted-foreground">
@@ -108,7 +125,9 @@ export default function Home() {
 
             <div className="lg:col-span-2 flex flex-col justify-end space-y-6 sm:space-y-8 mt-8 lg:mt-0">
               <div className="space-y-4">
-                <div className="text-sm text-muted-foreground font-mono">CURRENTLY</div>
+                <div className="text-sm text-muted-foreground font-mono">
+                  CURRENTLY
+                </div>
                 <div className="space-y-2">
                   <div className="text-foreground">Undergrad student</div>
                   <div className="text-muted-foreground">@ Japan</div>
@@ -116,9 +135,18 @@ export default function Home() {
               </div>
 
               <div className="space-y-4">
-                <div className="text-sm text-muted-foreground font-mono">FOCUS</div>
+                <div className="text-sm text-muted-foreground font-mono">
+                  FOCUS
+                </div>
                 <div className="flex flex-wrap gap-2">
-                  {["Coding", "Research", "ML", "CS", "Backend", "infrastructure"].map((skill) => (
+                  {[
+                    "Coding",
+                    "Research",
+                    "ML",
+                    "CS",
+                    "Backend",
+                    "infrastructure",
+                  ].map((skill) => (
                     <span
                       key={skill}
                       className="px-3 py-1 text-xs border border-border rounded-full hover:border-muted-foreground/50 transition-colors duration-300"
@@ -135,7 +163,9 @@ export default function Home() {
         <footer className="py-12 sm:py-16 border-t border-border">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 sm:gap-8">
             <div className="space-y-2">
-              <div className="text-sm text-muted-foreground">© 2025 Kenichiro Goto. All rights reserved.</div>
+              <div className="text-sm text-muted-foreground">
+                © 2025 Kenichiro Goto. All rights reserved.
+              </div>
             </div>
 
             <div className="flex items-center gap-4">
@@ -189,5 +219,5 @@ export default function Home() {
 
       <div className="fixed bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none"></div>
     </div>
-  )
+  );
 }

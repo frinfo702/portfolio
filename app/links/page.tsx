@@ -56,9 +56,6 @@ export default function Links() {
               <Link href="/work" className="text-muted-foreground hover:text-foreground transition-colors">
                 Work
               </Link>
-              <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">
-                Projects
-              </Link>
               <span className="text-foreground">Links</span>
             </div>
           </div>
