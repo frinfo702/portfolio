@@ -1,80 +1,59 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import Link from "next/link"
+import { useEffect, useRef, useState } from "react"
 
 export default function Links() {
-  const [isDark, setIsDark] = useState(true);
-  const sectionsRef = useRef<(HTMLElement | null)[]>([]);
+  const [isDark, setIsDark] = useState(true)
+  const sectionsRef = useRef<(HTMLElement | null)[]>([])
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDark);
-  }, [isDark]);
+    document.documentElement.classList.toggle("dark", isDark)
+  }, [isDark])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add("animate-fade-in-up");
+            entry.target.classList.add("animate-fade-in-up")
           }
-        });
+        })
       },
       { threshold: 0.3, rootMargin: "0px 0px -20% 0px" },
-    );
+    )
 
     sectionsRef.current.forEach((section) => {
-      if (section) observer.observe(section);
-    });
+      if (section) observer.observe(section)
+    })
 
-    return () => observer.disconnect();
-  }, []);
+    return () => observer.disconnect()
+  }, [])
 
   const toggleTheme = () => {
-    setIsDark(!isDark);
-  };
+    setIsDark(!isDark)
+  }
 
   const socialLinks = [
-    {
-      name: "GitHub",
-      handle: "Code repositories & projects",
-      url: "https://github.com/frinfo702",
-    },
-    {
-      name: "LinkedIn",
-      handle: "Professional network & experience",
-      url: "https://www.linkedin.com/in/frinfo702/",
-    },
+    { name: "GitHub", handle: "Code repositories & projects", url: "https://github.com/frinfo702" },
+    { name: "LinkedIn", handle: "Professional network & experience", url: "https://www.linkedin.com/in/frinfo702/" },
     // { name: "Note", handle: "Technical insights & learnings", url: "https://frinfo702-blog.kenichiro3114.workers.dev/" },
-    {
-      name: "What I've done",
-      handle: "Achievements",
-      url: "https://deserted-bat-b50.notion.site/27ccff96ac7080d996f1e28de0f3b7ef",
-    },
-  ];
+    // { name: "What I've done", handle: "Achievements", url: "https://deserted-bat-b50.notion.site/27ccff96ac7080d996f1e28de0f3b7ef" },
+  ]
 
   return (
     <div className="min-h-screen bg-background text-foreground relative">
       <main className="min-h-screen max-w-4xl mx-auto px-6 sm:px-8 lg:px-16 flex flex-col">
         <nav className="py-8 border-b border-border/50">
           <div className="flex items-center justify-between">
-            <Link
-              href="/"
-              className="text-xl font-light hover:text-muted-foreground transition-colors"
-            >
+            <Link href="/" className="text-xl font-light hover:text-muted-foreground transition-colors">
               Homepage
             </Link>
             <div className="flex items-center gap-4">
-              <Link
-                href="/"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
+              <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
                 Home
               </Link>
-              <Link
-                href="/work"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
+              <Link href="/work" className="text-muted-foreground hover:text-foreground transition-colors">
                 Work
               </Link>
               <span className="text-foreground">Links</span>
@@ -84,7 +63,7 @@ export default function Links() {
 
         <section
           ref={(el) => {
-            sectionsRef.current[0] = el;
+            sectionsRef.current[0] = el
           }}
           className="flex-1 flex items-center py-16 sm:py-20 opacity-0"
         >
@@ -94,8 +73,7 @@ export default function Links() {
 
               <div className="space-y-6">
                 <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
-                  Always interested in new opportunities, collaborations, and
-                  conversations about technology and design.
+                  Always interested in new opportunities, collaborations, and conversations about technology and design.
                 </p>
 
                 <div className="space-y-4">
@@ -103,21 +81,14 @@ export default function Links() {
                     href="mailto:kenichiro3114@gmail.com"
                     className="group flex items-center gap-3 text-foreground hover:text-muted-foreground transition-colors duration-300"
                   >
-                    <span className="text-base sm:text-lg">
-                      kenichiro3114@gmail.com
-                    </span>
+                    <span className="text-base sm:text-lg">kenichiro3114@gmail.com</span>
                     <svg
                       className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 8l4 4m0 0l-4 4m4-4H3"
-                      />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
                   </Link>
                 </div>
@@ -125,9 +96,7 @@ export default function Links() {
             </div>
 
             <div className="space-y-6 sm:space-y-8">
-              <div className="text-sm text-muted-foreground font-mono">
-                ELSEWHERE
-              </div>
+              <div className="text-sm text-muted-foreground font-mono">ELSEWHERE</div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {socialLinks.map((social) => (
@@ -140,9 +109,7 @@ export default function Links() {
                       <div className="text-foreground group-hover:text-muted-foreground transition-colors duration-300">
                         {social.name}
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        {social.handle}
-                      </div>
+                      <div className="text-sm text-muted-foreground">{social.handle}</div>
                     </div>
                   </Link>
                 ))}
@@ -154,9 +121,7 @@ export default function Links() {
         <footer className="py-12 sm:py-16 border-t border-border">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 sm:gap-8">
             <div className="space-y-2">
-              <div className="text-sm text-muted-foreground">
-                © 2025 Kenichiro Goto. All rights reserved.
-              </div>
+              <div className="text-sm text-muted-foreground">© 2025 Kenichiro Goto. All rights reserved.</div>
             </div>
 
             <div className="flex items-center gap-4">
@@ -210,5 +175,5 @@ export default function Links() {
 
       <div className="fixed bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none"></div>
     </div>
-  );
+  )
 }

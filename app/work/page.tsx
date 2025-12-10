@@ -1,38 +1,38 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { useEffect, useRef, useState } from "react"
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 export default function Work() {
-  const [isDark, setIsDark] = useState(true)
-  const sectionsRef = useRef<(HTMLElement | null)[]>([])
+  const [isDark, setIsDark] = useState(true);
+  const sectionsRef = useRef<(HTMLElement | null)[]>([]);
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDark)
-  }, [isDark])
+    document.documentElement.classList.toggle("dark", isDark);
+  }, [isDark]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add("animate-fade-in-up")
+            entry.target.classList.add("animate-fade-in-up");
           }
-        })
+        });
       },
       { threshold: 0.3, rootMargin: "0px 0px -20% 0px" },
-    )
+    );
 
     sectionsRef.current.forEach((section) => {
-      if (section) observer.observe(section)
-    })
+      if (section) observer.observe(section);
+    });
 
-    return () => observer.disconnect()
-  }, [])
+    return () => observer.disconnect();
+  }, []);
 
   const toggleTheme = () => {
-    setIsDark(!isDark)
-  }
+    setIsDark(!isDark);
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground relative">
@@ -40,15 +40,24 @@ export default function Work() {
         {/* Navigation */}
         <nav className="py-8 border-b border-border/50">
           <div className="flex items-center justify-between">
-            <Link href="/" className="text-xl font-light hover:text-muted-foreground transition-colors">
+            <Link
+              href="/"
+              className="text-xl font-light hover:text-muted-foreground transition-colors"
+            >
               Homepage
             </Link>
             <div className="flex items-center gap-4">
-              <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="/"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Home
               </Link>
               <span className="text-foreground">Work</span>
-              <Link href="/links" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                href="/links"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
                 Links
               </Link>
             </div>
@@ -58,14 +67,16 @@ export default function Work() {
         {/* Work Section */}
         <section
           ref={(el) => {
-            sectionsRef.current[0] = el
+            sectionsRef.current[0] = el;
           }}
           className="flex-1 flex flex-col justify-center gap-12 sm:gap-16 py-16 sm:py-20 opacity-0"
         >
           <div className="w-full space-y-8 sm:space-y-12">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-              <h1 className="text-4xl sm:text-5xl font-light">Selected Work</h1>
-              <div className="text-sm text-muted-foreground font-mono">2024 — 2025</div>
+              <h1 className="text-4xl sm:text-5xl font-light">Work</h1>
+              <div className="text-sm text-muted-foreground font-mono">
+                2024 — 2025
+              </div>
             </div>
 
             <div className="space-y-8 sm:space-y-12">
@@ -75,7 +86,8 @@ export default function Work() {
                   period: "Jun - Current",
                   role: "Backend Engineer",
                   company: "pixiv Inc",
-                  description: "Developed payment infrastructure on the Financial Services team",
+                  description:
+                    "Developed payment infrastructure on the Financial Services team",
                   tech: ["Scala3", "Play Framework", "MySQL", "Javascript"],
                 },
                 {
@@ -83,7 +95,8 @@ export default function Work() {
                   period: "Aug - Sep",
                   role: "Backend Engineer",
                   company: "Cyber Agent",
-                  description: "As an intern in the AbemaTV division, built a load testing platform for large-scale events",
+                  description:
+                    "As an intern in the AbemaTV division, built a load testing platform for large-scale events",
                   tech: ["Go", "Terraform", "GCP", "GKE", "k8s"],
                 },
                 {
@@ -91,7 +104,8 @@ export default function Work() {
                   period: "Jun - May",
                   role: "Software Engineer",
                   company: "Finatext Holdings Ltd.",
-                  description: "I worked as a software engineer and built internal tools used by teams for data and financial analysis.",
+                  description:
+                    "I worked as a software engineer and built internal tools used by teams for data and financial analysis.",
                   tech: ["Go", "AWS", "MySQL"],
                 },
                 {
@@ -111,15 +125,21 @@ export default function Work() {
                     <div className="text-xl sm:text-2xl font-light text-muted-foreground group-hover:text-foreground transition-colors duration-500">
                       {job.year}
                     </div>
-                    <div className="text-sm text-muted-foreground/80 mt-1">{job.period}</div>
+                    <div className="text-sm text-muted-foreground/80 mt-1">
+                      {job.period}
+                    </div>
                   </div>
 
                   <div className="lg:col-span-6 space-y-3">
                     <div>
-                      <h3 className="text-lg sm:text-xl font-medium">{job.role}</h3>
+                      <h3 className="text-lg sm:text-xl font-medium">
+                        {job.role}
+                      </h3>
                       <div className="text-muted-foreground">{job.company}</div>
                     </div>
-                    <p className="text-muted-foreground leading-relaxed max-w-lg">{job.description}</p>
+                    <p className="text-muted-foreground leading-relaxed max-w-lg">
+                      {job.description}
+                    </p>
                   </div>
 
                   <div className="lg:col-span-4 flex flex-wrap gap-2 lg:justify-end mt-2 lg:mt-0">
@@ -141,8 +161,12 @@ export default function Work() {
         <footer className="py-12 sm:py-16 border-t border-border">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 sm:gap-8">
             <div className="space-y-2">
-              <div className="text-sm text-muted-foreground">© 2025 Kenichiro Goto. All rights reserved.</div>
-              <div className="text-xs text-muted-foreground">Built with v0.dev by Kenichiro Goto </div>
+              <div className="text-sm text-muted-foreground">
+                © 2025 Kenichiro Goto. All rights reserved.
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Built with v0.dev by Kenichiro Goto{" "}
+              </div>
             </div>
 
             <div className="flex items-center gap-4">
@@ -196,5 +220,5 @@ export default function Work() {
 
       <div className="fixed bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none"></div>
     </div>
-  )
+  );
 }
