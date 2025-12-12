@@ -1,15 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { usePersistentTheme } from "@/hooks/usePersistentTheme";
 
 export default function Projects() {
-  const [isDark, setIsDark] = useState(true);
+  const { isDark, toggleTheme } = usePersistentTheme();
   const sectionsRef = useRef<(HTMLElement | null)[]>([]);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDark);
-  }, [isDark]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -34,10 +31,6 @@ export default function Projects() {
 
     return () => observer.disconnect();
   }, []);
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-  };
 
   const projects = [
     {

@@ -2,15 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { usePersistentTheme } from "@/hooks/usePersistentTheme";
 
 export default function Home() {
-  const [isDark, setIsDark] = useState(true);
+  const { isDark, toggleTheme } = usePersistentTheme();
   const [activeSection, setActiveSection] = useState("");
   const sectionsRef = useRef<(HTMLElement | null)[]>([]);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDark);
-  }, [isDark]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -31,10 +28,6 @@ export default function Home() {
 
     return () => observer.disconnect();
   }, []);
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-  };
 
   return (
     <div className="min-h-screen bg-background text-foreground relative">
