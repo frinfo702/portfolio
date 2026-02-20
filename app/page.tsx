@@ -23,7 +23,7 @@ const experiences = [
     period: "2025 May - 2025 Jun",
     role: "Software Engineer (Internship)",
     company: "Finatext Holdings Ltd.",
-    logo: "/logos/finatext.png",
+    logo: "/logos/finatext.webp",
     logoAlt: "Finatext logo",
     summary:
       "Developed internal tools for data analysis and financial operations.",
@@ -33,7 +33,7 @@ const experiences = [
     period: "2024 Jul - 2025 Jul",
     role: "Data Annotator (Contract)",
     company: "Outlier",
-    logo: "/logos/outlier.svg",
+    logo: "/logos/outlier.png",
     logoAlt: "Outlier logo",
     summary: "Contributed high-quality data labeling for ML workflows.",
     stack: "Data QA / Annotation",
@@ -46,9 +46,7 @@ const projects = [
     description:
       "A small compiler implemented in C, built as a learning project covering lexical analysis, parsing, and code generation.",
     stack: "C / Compiler / Parser / Code Generator",
-    links: [
-      { label: "GitHub", href: "https://github.com/frinfo702/mompiler" },
-    ],
+    links: [{ label: "GitHub", href: "https://github.com/frinfo702/mompiler" }],
   },
   {
     title: "worldmonitor-for-CS",
