@@ -50,6 +50,18 @@ const projects = [
       { label: "GitHub", href: "https://github.com/frinfo702/mompiler" },
     ],
   },
+  {
+    title: "worldmonitor-for-CS",
+    description:
+      "A real-time global intelligence dashboard for news aggregation, geopolitical monitoring, and infrastructure tracking.",
+    stack: "TypeScript / React / Vite / Dashboard",
+    links: [
+      {
+        label: "GitHub",
+        href: "https://github.com/frinfo702/worldmonitor-for-CS",
+      },
+    ],
+  },
 ];
 
 export default function Home() {
