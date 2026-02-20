@@ -33,7 +33,7 @@ const experiences = [
     period: "2024 Jul - 2025 Jul",
     role: "Data Annotator (Contract)",
     company: "Outlier",
-    logo: "/logos/outlier.png",
+    logo: "/logos/outlier.svg",
     logoAlt: "Outlier logo",
     summary: "Contributed high-quality data labeling for ML workflows.",
     stack: "Data QA / Annotation",
@@ -44,11 +44,10 @@ const projects = [
   {
     title: "mompiler",
     description:
-      "City-scale digital twin for transit telemetry and geospatial analytics.",
-    stack: "TypeScript / Next.js / Mapbox GL / Kafka / PostGIS",
+      "A small compiler implemented in C, built as a learning project covering lexical analysis, parsing, and code generation.",
+    stack: "C / Compiler / Parser / Code Generator",
     links: [
-      { label: "GitHub", href: "https://github.com/frinfo702/urban-resonance" },
-      { label: "Demo", href: "https://urbanresonance.city" },
+      { label: "GitHub", href: "https://github.com/frinfo702/mompiler" },
     ],
   },
 ];
