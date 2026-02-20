@@ -12,7 +12,7 @@ const experiences = [
   {
     period: "2025 Aug - 2025 Sep",
     role: "Backend Engineer (Internship)",
-    company: "CyberAgent, Inc.",
+    company: "CyberAgent, Inc. Abema Division.",
     logo: "/logos/cyberagent.png",
     logoAlt: "CyberAgent logo",
     summary:
