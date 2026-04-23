@@ -1,5 +1,4 @@
 import Image from "next/image";
-import arirangImage from "../public/arirang.webp";
 
 export default function Home() {
   return (
@@ -11,17 +10,20 @@ export default function Home() {
 
         <section className="flex flex-col gap-6 text-[15px] leading-7 text-[#a3a3a3]">
           <p>
-            I build things at the intersection of infrastructure and AI.
-            Currently exploring the frontiers of cloud-based coding agents.
-            Previously led core work at{" "}
+            I&apos;m a final-year Information Science and Engineering student at
+            Ritsumeikan University, where I work in the Nishikawa Laboratory on
+            generative AI research. Alongside my studies, I&apos;ve worked on
+            backend and infrastructure systems at{" "}
             <DottedLink href="https://www.cyberagent.co.jp/">
               CyberAgent
             </DottedLink>{" "}
             and <DottedLink href="https://www.pixiv.co.jp/">pixiv</DottedLink>.
           </p>
           <p>
-            At the end of the day, I&apos;m still that kid who grew up playing
-            with my parents&apos; Macintosh and ripping CDs for my friends.
+            My interests span deep learning, distributed systems, and building
+            software that works reliably at scale. Recently, I&apos;ve been
+            especially interested in coding agents, practical machine learning
+            systems, and the infrastructure behind them.
           </p>
         </section>
 
@@ -35,39 +37,31 @@ export default function Home() {
           </ItemLink>
         </Section>
 
-        <Section title="Recently Played">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/BTS_-_Arirang_(cover).png"
-              alt="BTS"
-              width={40}
-              height={40}
-              className="w-10 h-10 rounded object-cover shrink-0"
-            />
-            <div className="flex flex-col text-sm">
-              <span className="text-[#e5e5e5]">2.0</span>
-              <span className="text-[#737373]">BTS</span>
-            </div>
-          </div>
+        <Section title="Lately">
+          <LatelyItem
+            src="/BTS_-_Arirang_(cover).png"
+            alt="BTS - 2.0"
+            title="2.0"
+            subtitle="BTS"
+          />
+          <LatelyItem
+            src="/jjk-season3.png"
+            alt="Jujutsu Kaisen season 3"
+            title="Jujutsu Kaisen"
+            subtitle="Season 3"
+          />
         </Section>
 
         <section className="mt-10 text-[15px] leading-7 text-[#a3a3a3]">
           <p>
-            You can find my{" "}
-            <DottedLink href="https://myquartz.frinfo.live/">notes</DottedLink>,{" "}
+            You can find me online, view my{" "}
             <DottedLink href="https://myquartz.frinfo.live/assets/resume/en.pdf">
               resume
             </DottedLink>
-            , <DottedLink href="https://github.com/frinfo702">code</DottedLink>,
-            or{" "}
-            <DottedLink href="https://linkedin.com/in/frinfo702">
-              follow me online
-            </DottedLink>
-            . I also angel invest in startups, so please{" "}
-            <DottedLink href="https://linkedin.com/in/frinfo702">
-              reach out
-            </DottedLink>{" "}
-            if interested.
+            , browse my{" "}
+            <DottedLink href="https://github.com/frinfo702">GitHub</DottedLink>,
+            or send me an{" "}
+            <DottedLink href="mailto:frinfo702@gmail.com">email</DottedLink>.
           </p>
         </section>
 
@@ -136,5 +130,33 @@ function DottedLink({
     >
       {children}
     </a>
+  );
+}
+
+function LatelyItem({
+  src,
+  alt,
+  title,
+  subtitle,
+}: {
+  src: string;
+  alt: string;
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <li className="flex items-center gap-3">
+      <Image
+        src={src}
+        alt={alt}
+        width={40}
+        height={40}
+        className="h-10 w-10 rounded object-cover shrink-0"
+      />
+      <div className="flex flex-col text-sm">
+        <span className="text-[#e5e5e5]">{title}</span>
+        <span className="text-[#737373]">{subtitle}</span>
+      </div>
+    </li>
   );
 }
