@@ -1,9 +1,11 @@
 import Image from "next/image";
+import ParticleField from "./components/ParticleField";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center bg-black font-sans text-[#e5e5e5]">
-      <main className="flex flex-col w-full max-w-xl px-6 py-20 sm:px-8">
+    <div className="relative flex flex-col flex-1 items-center bg-black font-sans text-[#e5e5e5]">
+      <ParticleField />
+      <main className="relative z-10 flex flex-col w-full max-w-xl px-6 py-20 sm:px-8">
         <header className="flex items-center justify-between mb-16">
           <h1 className="text-base font-semibold text-white">Kenichiro Goto</h1>
         </header>
