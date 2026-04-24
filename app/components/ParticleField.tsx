@@ -29,6 +29,9 @@ export default function ParticleField() {
 
     let animationId: number;
     let particles: Particle[] = [];
+    let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+    let lastW = 0;
+    let lastH = 0;
 
     const mouse = { x: null as number | null, y: null as number | null };
 
@@ -99,12 +102,25 @@ export default function ParticleField() {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const width = window.innerWidth;
       const height = window.innerHeight;
+
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      initParticles(width, height);
+
+      const dw = Math.abs(width - lastW);
+      const dh = Math.abs(height - lastH);
+      if (lastW === 0 || dw > 50 || dh > 50) {
+        lastW = width;
+        lastH = height;
+        initParticles(width, height);
+      }
+    };
+
+    const debouncedResize = () => {
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resize, 150);
     };
 
     const springK = 0.04;
@@ -175,13 +191,14 @@ export default function ParticleField() {
     };
 
     resize();
-    window.addEventListener("resize", resize);
+    window.addEventListener("resize", debouncedResize);
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseleave", handleMouseLeave);
     animationId = requestAnimationFrame(draw);
 
     return () => {
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", debouncedResize);
+      if (resizeTimer) clearTimeout(resizeTimer);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseleave", handleMouseLeave);
       cancelAnimationFrame(animationId);
