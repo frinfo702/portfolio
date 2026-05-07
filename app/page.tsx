@@ -25,14 +25,15 @@ export default function Home() {
             My interests span deep learning, distributed systems, and building
             software that works reliably at scale. Recently, I&apos;ve been
             especially interested in coding agents, practical machine learning
-            systems, and the infrastructure behind them.
+            systems, and the infrastructure behind them. I scored 855 on the
+            TOEIC L&amp;R as well.
           </p>
         </section>
 
         <Section title="Projects">
           <ItemLink href="https://github.com/frinfo702/codex">codex</ItemLink>
-          <ItemLink href="https://github.com/frinfo702/cloud-compute-sandbox">
-            cloud-compute-sandbox
+          <ItemLink href="https://github.com/frinfo702/english-test-generator">
+            english-test-generator
           </ItemLink>
           <ItemLink href="https://github.com/frinfo702/myquartz">
             myquartz
