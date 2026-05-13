@@ -58,10 +58,7 @@ export default function Home() {
         <section className="mt-10 text-[15px] leading-7 text-[#a3a3a3]">
           <p>
             You can find me online, view my{" "}
-            <DottedLink href="https://myquartz.frinfo.live/assets/resume/en.pdf">
-              resume
-            </DottedLink>
-            , browse my{" "}
+            <DottedLink href="resume/en.pdf">resume</DottedLink>, browse my{" "}
             <DottedLink href="https://github.com/frinfo702">GitHub</DottedLink>,
             or send me an{" "}
             <DottedLink href="mailto:frinfo702@gmail.com">email</DottedLink>.
