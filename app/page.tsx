@@ -20,21 +20,21 @@ export default function Home() {
             title="Software Engineer — Backend & Infrastructure"
             org="CyberAgent — Internship"
             href="https://www.cyberagent.co.jp/"
-            period="2025-08 — 2025-09"
+            period="Aug 2025 — Sep 2025"
             description="Worked on backend and infrastructure systems."
           />
           <Entry
             title="Software Engineer — Backend"
             org="pixiv Inc. — Internship"
             href="https://www.pixiv.co.jp/"
-            period="2025-06 — Current"
+            period="Jun 2025 — Current"
             description="Worked on backend and infrastructure systems."
           />
           <Entry
             title="Software Engineer — Backend"
             org="Finatext Holdings Ltd. — Internship"
             href="https://finatext.com/"
-            period="2025-01 — 2025-05"
+            period="Jan 2025 — May 2025"
             description="Worked on backend and infrastructure systems."
           />
         </Section>
@@ -49,6 +49,21 @@ export default function Home() {
           />
         </Section>
 
+        <Section title="Achievements">
+          <Entry
+            title="Saionji Memorial Scholarship (西園寺記念奨学金)"
+            org="Ritsumeikan University"
+            href="https://www.ritsumei.ac.jp/"
+            period="Jul 2026"
+            description={
+              <>
+                <span className="font-semibold text-white">$2,000</span>{" "}
+                scholarship for students with excellent grades.
+              </>
+            }
+          />
+        </Section>
+
         <Section title="Projects">
           <ItemLink href="https://github.com/frinfo702/english-test-generator">
             english-test-generator
@@ -56,11 +71,37 @@ export default function Home() {
         </Section>
 
         <Section title="Skills">
-          <li className="text-[15px] text-[#a3a3a3]">
-            Deep learning, distributed systems, coding agents, ML systems &
-            infrastructure.
-          </li>
-          <li className="text-[15px] text-[#a3a3a3]">TOEIC L&amp;R 855.</li>
+          <SkillGroup label="Domains">
+            <SkillItem>Deep learning</SkillItem>
+            <SkillItem>Coding agents</SkillItem>
+            <SkillItem>ML systems &amp; infrastructure</SkillItem>
+          </SkillGroup>
+          <SkillGroup label="Programming Languages">
+            <SkillItem>Go</SkillItem>
+            <SkillItem>Scala</SkillItem>
+            <SkillItem>Python</SkillItem>
+            <SkillItem>Shell</SkillItem>
+          </SkillGroup>
+          <SkillGroup label="Frameworks">
+            <SkillItem>PyTorch</SkillItem>
+          </SkillGroup>
+          <SkillGroup label="Cloud">
+            <SkillItem>GCP</SkillItem>
+            <SkillItem>AWS</SkillItem>
+          </SkillGroup>
+          <SkillGroup label="Tools">
+            <SkillItem>Git</SkillItem>
+            <SkillItem>Docker</SkillItem>
+            <SkillItem>Linux　(commands)</SkillItem>
+          </SkillGroup>
+          <SkillGroup label="Databases">
+            <SkillItem>MySQL</SkillItem>
+            <SkillItem>PostgreSQL</SkillItem>
+            <SkillItem>SQLite</SkillItem>
+          </SkillGroup>
+          <SkillGroup label="Languages">
+            <SkillItem>TOEIC Listening &amp; Reading Test 855</SkillItem>
+          </SkillGroup>
         </Section>
 
         <Section title="Lately">
@@ -109,7 +150,7 @@ function Section({
 }) {
   return (
     <section className="mt-10">
-      <h2 className="text-sm font-semibold text-white mb-3">{title}</h2>
+      <h2 className="text-base font-semibold text-white mb-3">{title}</h2>
       <ul className="flex flex-col gap-4">{children}</ul>
     </section>
   );
@@ -126,12 +167,12 @@ function Entry({
   org: string;
   href: string;
   period: string;
-  description: string;
+  description: React.ReactNode;
 }) {
   return (
     <li className="flex flex-col gap-1">
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-[15px] text-white font-medium">{title}</span>
+        <span className="text-sm text-white font-medium">{title}</span>
         <span className="text-xs text-[#737373] shrink-0">{period}</span>
       </div>
       <a
@@ -161,6 +202,30 @@ function ItemLink({
       >
         {children}
       </a>
+    </li>
+  );
+}
+
+function SkillGroup({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <li className="flex flex-col gap-1.5">
+      <span className="text-xs font-medium text-[#737373]">{label}</span>
+      <ul className="flex flex-wrap gap-x-3 gap-y-1.5">{children}</ul>
+    </li>
+  );
+}
+
+function SkillItem({ children }: { children: React.ReactNode }) {
+  return (
+    <li className="text-sm text-[#a3a3a3] flex gap-1">
+      <span className="text-[#525252]">·</span>
+      <span>{children}</span>
     </li>
   );
 }
