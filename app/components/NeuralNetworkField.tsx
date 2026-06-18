@@ -26,7 +26,7 @@ const LAYERS = [5, 7, 9, 7, 5];
 
 const CASCADE_INTERVAL_MIN = 8;
 const CASCADE_INTERVAL_MAX = 14;
-const CASCADE_DURATION = 2.0;
+const CASCADE_DURATION = 3.0;
 
 const COL = {
   nodeFill: "hsla(205, 55%, 72%, 0.72)",
@@ -194,9 +194,10 @@ export default function NeuralNetworkField() {
       for (const node of s.nodes) {
         node.pulse = Math.sin(now * 1.3 + node.phase) * 0.18;
         const distFromWave = inCascade ? Math.abs(node.layer - waveFront) : 999;
-        const gauss = Math.exp(-(distFromWave * distFromWave) / 0.7);
+        const gauss = Math.exp(-(distFromWave * distFromWave) / 2.0);
+        const timeEnvelope = Math.sin(cascadeProgress * Math.PI);
         node.cascadeGlow = inCascade
-          ? Math.max(0, gauss * (1 - Math.abs(cascadeProgress - 0.5) * 2))
+          ? Math.max(0, gauss * timeEnvelope)
           : 0;
       }
 
@@ -216,8 +217,8 @@ export default function NeuralNetworkField() {
         if (inCascade) {
           const edgeCenter = (from.layer + to.layer) / 2;
           const edgeDist = Math.abs(edgeCenter - waveFront);
-          const edgeGauss = Math.exp(-(edgeDist * edgeDist) / 1.2);
-          edgeAlpha += edgeGauss * 0.18;
+          const edgeGauss = Math.exp(-(edgeDist * edgeDist) / 2.2);
+          edgeAlpha += edgeGauss * 0.22;
         }
 
         ctx.globalAlpha = Math.min(0.55, edgeAlpha);
