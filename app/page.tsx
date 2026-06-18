@@ -1,10 +1,10 @@
 import Image from "next/image";
-import ParticleField from "./components/ParticleField";
+import DiffusionField from "./components/DiffusionField";
 
 export default function Home() {
   return (
     <div className="relative flex flex-col flex-1 items-center bg-black font-sans text-[#e5e5e5]">
-      <ParticleField />
+      <DiffusionField />
       <main className="relative z-10 flex flex-col w-full max-w-xl px-6 py-20 sm:px-8">
         <header className="flex items-center justify-between mb-16">
           <h1 className="text-base font-semibold text-white">Kenichiro Goto</h1>
@@ -17,17 +17,24 @@ export default function Home() {
 
         <Section title="Experience">
           <Entry
-            title="Backend & Infrastructure Engineer"
-            org="CyberAgent"
+            title="Software Engineer — Backend & Infrastructure"
+            org="CyberAgent — Internship"
             href="https://www.cyberagent.co.jp/"
-            period="—"
+            period="2025-08 — 2025-09"
             description="Worked on backend and infrastructure systems."
           />
           <Entry
-            title="Backend & Infrastructure Engineer"
-            org="pixiv"
+            title="Software Engineer — Backend"
+            org="pixiv Inc. — Internship"
             href="https://www.pixiv.co.jp/"
-            period="—"
+            period="2025-06 — Current"
+            description="Worked on backend and infrastructure systems."
+          />
+          <Entry
+            title="Software Engineer — Backend"
+            org="Finatext Holdings Ltd. — Internship"
+            href="https://finatext.com/"
+            period="2025-01 — 2025-05"
             description="Worked on backend and infrastructure systems."
           />
         </Section>
@@ -43,12 +50,8 @@ export default function Home() {
         </Section>
 
         <Section title="Projects">
-          <ItemLink href="https://github.com/frinfo702/codex">codex</ItemLink>
           <ItemLink href="https://github.com/frinfo702/english-test-generator">
             english-test-generator
-          </ItemLink>
-          <ItemLink href="https://github.com/frinfo702/myquartz">
-            myquartz
           </ItemLink>
         </Section>
 
@@ -57,9 +60,7 @@ export default function Home() {
             Deep learning, distributed systems, coding agents, ML systems &
             infrastructure.
           </li>
-          <li className="text-[15px] text-[#a3a3a3]">
-            TOEIC L&amp;R 855.
-          </li>
+          <li className="text-[15px] text-[#a3a3a3]">TOEIC L&amp;R 855.</li>
         </Section>
 
         <Section title="Lately">
@@ -130,9 +131,7 @@ function Entry({
   return (
     <li className="flex flex-col gap-1">
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-[15px] text-white font-medium">
-          {title}
-        </span>
+        <span className="text-[15px] text-white font-medium">{title}</span>
         <span className="text-xs text-[#737373] shrink-0">{period}</span>
       </div>
       <a
