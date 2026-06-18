@@ -1,10 +1,10 @@
 import Image from "next/image";
-import DiffusionField from "./components/DiffusionField";
+import NeuralNetworkField from "./components/NeuralNetworkField";
 
 export default function Home() {
   return (
     <div className="relative flex flex-col flex-1 items-center bg-black font-sans text-[#e5e5e5]">
-      <DiffusionField />
+      <NeuralNetworkField />
       <main className="relative z-10 flex flex-col w-full max-w-xl px-6 py-20 sm:px-8">
         <header className="flex items-center justify-between mb-4">
           <h1 className="text-base font-semibold text-white">
