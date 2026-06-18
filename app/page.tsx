@@ -10,25 +10,37 @@ export default function Home() {
           <h1 className="text-base font-semibold text-white">Kenichiro Goto</h1>
         </header>
 
-        <section className="flex flex-col gap-6 text-[15px] leading-7 text-[#a3a3a3]">
-          <p>
-            I&apos;m a final-year Information Science and Engineering student at
-            Ritsumeikan University, where I work in the Nishikawa Laboratory on
-            generative AI research. Alongside my studies, I&apos;ve worked on
-            backend and infrastructure systems at{" "}
-            <DottedLink href="https://www.cyberagent.co.jp/">
-              CyberAgent
-            </DottedLink>{" "}
-            and <DottedLink href="https://www.pixiv.co.jp/">pixiv</DottedLink>.
-          </p>
-          <p>
-            My interests span deep learning, distributed systems, and building
-            software that works reliably at scale. Recently, I&apos;ve been
-            especially interested in coding agents, practical machine learning
-            systems, and the infrastructure behind them. I scored 855 on the
-            TOEIC L&amp;R as well.
-          </p>
-        </section>
+        <p className="text-[15px] leading-7 text-[#a3a3a3] mb-2">
+          Final-year Information Science student at Ritsumeikan University,
+          working on generative AI and building backend/infrastructure systems.
+        </p>
+
+        <Section title="Experience">
+          <Entry
+            title="Backend & Infrastructure Engineer"
+            org="CyberAgent"
+            href="https://www.cyberagent.co.jp/"
+            period="—"
+            description="Worked on backend and infrastructure systems."
+          />
+          <Entry
+            title="Backend & Infrastructure Engineer"
+            org="pixiv"
+            href="https://www.pixiv.co.jp/"
+            period="—"
+            description="Worked on backend and infrastructure systems."
+          />
+        </Section>
+
+        <Section title="Education">
+          <Entry
+            title="B.E. in Information Science and Engineering"
+            org="Ritsumeikan University"
+            href="https://www.ritsumei.ac.jp/"
+            period="Final year"
+            description="Nishikawa Laboratory, generative AI research."
+          />
+        </Section>
 
         <Section title="Projects">
           <ItemLink href="https://github.com/frinfo702/codex">codex</ItemLink>
@@ -38,6 +50,16 @@ export default function Home() {
           <ItemLink href="https://github.com/frinfo702/myquartz">
             myquartz
           </ItemLink>
+        </Section>
+
+        <Section title="Skills">
+          <li className="text-[15px] text-[#a3a3a3]">
+            Deep learning, distributed systems, coding agents, ML systems &
+            infrastructure.
+          </li>
+          <li className="text-[15px] text-[#a3a3a3]">
+            TOEIC L&amp;R 855.
+          </li>
         </Section>
 
         <Section title="Lately">
@@ -55,15 +77,11 @@ export default function Home() {
           />
         </Section>
 
-        <section className="mt-10 text-[15px] leading-7 text-[#a3a3a3]">
-          <p>
-            You can find me online, view my{" "}
-            <DottedLink href="resume/en.pdf">resume</DottedLink>, browse my{" "}
-            <DottedLink href="https://github.com/frinfo702">GitHub</DottedLink>,
-            or send me an{" "}
-            <DottedLink href="mailto:frinfo702@gmail.com">email</DottedLink>.
-          </p>
-        </section>
+        <Section title="Contact">
+          <ItemLink href="resume/en.pdf">Resume</ItemLink>
+          <ItemLink href="https://github.com/frinfo702">GitHub</ItemLink>
+          <ItemLink href="mailto:frinfo702@gmail.com">Email</ItemLink>
+        </Section>
 
         <footer className="mt-20 flex items-center justify-between text-sm text-[#525252]">
           <span>
@@ -91,8 +109,40 @@ function Section({
   return (
     <section className="mt-10">
       <h2 className="text-sm font-semibold text-white mb-3">{title}</h2>
-      <ul className="flex flex-col gap-1.5">{children}</ul>
+      <ul className="flex flex-col gap-4">{children}</ul>
     </section>
+  );
+}
+
+function Entry({
+  title,
+  org,
+  href,
+  period,
+  description,
+}: {
+  title: string;
+  org: string;
+  href: string;
+  period: string;
+  description: string;
+}) {
+  return (
+    <li className="flex flex-col gap-1">
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="text-[15px] text-white font-medium">
+          {title}
+        </span>
+        <span className="text-xs text-[#737373] shrink-0">{period}</span>
+      </div>
+      <a
+        href={href}
+        className="text-sm text-[#a3a3a3] border-b border-dotted border-[#525252] hover:text-white hover:border-[#a3a3a3] transition-colors w-fit"
+      >
+        {org}
+      </a>
+      <p className="text-sm text-[#a3a3a3] leading-6 mt-0.5">{description}</p>
+    </li>
   );
 }
 
@@ -113,23 +163,6 @@ function ItemLink({
         {children}
       </a>
     </li>
-  );
-}
-
-function DottedLink({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <a
-      href={href}
-      className="text-[#a3a3a3] border-b border-dotted border-[#525252] hover:text-white hover:border-[#a3a3a3] transition-colors"
-    >
-      {children}
-    </a>
   );
 }
 
