@@ -182,14 +182,23 @@ function ProjectLink({ name, href }: { name: string; href: string }) {
     <a
       href={href}
       className="group flex items-center gap-2 text-[15px] text-[#c7c7c7] hover:text-white transition-colors"
+      aria-label={name}
     >
-      <span className="text-[#888888] group-hover:text-[#a8a8a8] transition-colors">
+      <span
+        aria-hidden="true"
+        className="text-[#888888] group-hover:text-[#a8a8a8] transition-colors"
+      >
         ·
       </span>
       <span className="border-b border-dotted border-[#888888] group-hover:border-[#c7c7c7] transition-colors">
         {name}
       </span>
-      <span className="text-[12px] text-[#888888] font-mono">↗</span>
+      <span
+        aria-hidden="true"
+        className="text-[12px] text-[#888888] font-mono"
+      >
+        ↗
+      </span>
     </a>
   );
 }
