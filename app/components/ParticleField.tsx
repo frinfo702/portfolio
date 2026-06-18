@@ -3,52 +3,13 @@
 import { useEffect, useRef } from "react";
 
 interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
+  u: number; // position along the strip centerline [0, 4π) i.e. twice around
+  v: number; // offset across the strip width [-1, 1]
+  spd: number; // per-particle flow speed
+  size: number;
   life: number;
   maxLife: number;
-  size: number;
-  hue: number;
-}
-
-// Deterministic 2D smooth-ish noise via hashed gradients.
-// Cheap, allocation-free, good enough for a background flow field.
-function hash(x: number, y: number): number {
-  const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453123;
-  return s - Math.floor(s);
-}
-function smooth(t: number): number {
-  return t * t * (3 - 2 * t);
-}
-function lerp(a: number, b: number, t: number): number {
-  return a + (b - a) * t;
-}
-function noise(x: number, y: number): number {
-  const ix = Math.floor(x);
-  const iy = Math.floor(y);
-  const fx = x - ix;
-  const fy = y - iy;
-  const ux = smooth(fx);
-  const uy = smooth(fy);
-  const a = hash(ix, iy);
-  const b = hash(ix + 1, iy);
-  const c = hash(ix, iy + 1);
-  const d = hash(ix + 1, iy + 1);
-  return lerp(lerp(a, b, ux), lerp(c, d, ux), uy);
-}
-// fbm for richer turbulence
-function fbm(x: number, y: number): number {
-  let v = 0;
-  let amp = 0.5;
-  let freq = 1;
-  for (let o = 0; o < 3; o++) {
-    v += noise(x * freq, y * freq) * amp;
-    freq *= 2;
-    amp *= 0.5;
-  }
-  return v;
+  warm: boolean; // rare ember for contrast
 }
 
 export default function ParticleField() {
@@ -66,62 +27,31 @@ export default function ParticleField() {
     let height = 0;
     let dpr = 1;
     let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+    let start = performance.now();
 
-    // Fade overlay so particles leave trails instead of clearing each frame.
-    // Lower alpha => longer trails. Tuned for elegance, not smear.
-    const FADE_ALPHA = 0.06;
-
-    const targetCount = () => {
-      // Density scales with viewport area but is capped for performance.
-      const area = width * height;
-      const base = Math.floor(area / 5200);
-      return Math.max(240, Math.min(base, 1400));
-    };
+    // Configuration ----------------------------------------------------------
+    const TAU = Math.PI * 2;
+    const STRIP_HALF_W = 22; // half-width of the Mobius strip
+    const HALF_TURNS = 2; // particle parameter goes around 2x (full Mobius)
+    const PCOUNT = 900;
+    const FLOW_SPEED = 0.0065; // base flow speed along u
+    const SWIRL = 1.4; // cross-strip oscillation amplitude
 
     const spawn = (p: Particle, initial: boolean) => {
-      if (initial) {
-        p.x = Math.random() * width;
-        p.y = Math.random() * height;
-      } else {
-        // Respawn from a random edge to keep flow continuous
-        const edge = Math.floor(Math.random() * 4);
-        if (edge === 0) {
-          p.x = Math.random() * width;
-          p.y = -4;
-        } else if (edge === 1) {
-          p.x = width + 4;
-          p.y = Math.random() * height;
-        } else if (edge === 2) {
-          p.x = Math.random() * width;
-          p.y = height + 4;
-        } else {
-          p.x = -4;
-          p.y = Math.random() * height;
-        }
-      }
-      p.vx = 0;
-      p.vy = 0;
-      p.maxLife = 220 + Math.random() * 360;
+      p.u = Math.random() * TAU * HALF_TURNS;
+      p.v = (Math.random() * 2 - 1);
+      p.spd = FLOW_SPEED * (0.6 + Math.random() * 0.9);
+      p.size = 0.5 + Math.random() * 1.4;
+      p.maxLife = 220 + Math.random() * 320;
       p.life = initial ? Math.random() * p.maxLife : 0;
-      p.size = 0.4 + Math.random() * 1.1;
-      // Cool near-neutral palette: silver-blue with occasional warm spark
-      const warm = Math.random() < 0.06;
-      p.hue = warm ? 28 + Math.random() * 12 : 200 + Math.random() * 40;
+      p.warm = Math.random() < 0.04;
     };
 
     const initParticles = () => {
-      const n = targetCount();
-      particles = new Array(n);
-      for (let i = 0; i < n; i++) {
+      particles = new Array(PCOUNT);
+      for (let i = 0; i < PCOUNT; i++) {
         const p: Particle = {
-          x: 0,
-          y: 0,
-          vx: 0,
-          vy: 0,
-          life: 0,
-          maxLife: 0,
-          size: 0,
-          hue: 0,
+          u: 0, v: 0, spd: 0, size: 0, life: 0, maxLife: 0, warm: false,
         };
         spawn(p, true);
         particles[i] = p;
@@ -131,7 +61,8 @@ export default function ParticleField() {
     const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       width = window.innerWidth;
-      height = window.innerHeight;
+      // Compact band at the top of the viewport.
+      height = Math.min(240, Math.max(160, Math.floor(window.innerHeight * 0.28)));
 
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
@@ -139,7 +70,6 @@ export default function ParticleField() {
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      // Reset canvas to black baseline so fade trails build on pure black
       ctx.fillStyle = "#000000";
       ctx.fillRect(0, 0, width, height);
 
@@ -151,75 +81,130 @@ export default function ParticleField() {
       resizeTimer = setTimeout(resize, 180);
     };
 
-    let start = performance.now();
+    // Project a 3D point to screen with a simple perspective camera.
+    // Camera looks down +Z; ring sits near top of the band.
+    const project = (x: number, y: number, z: number, camZ: number, focal: number) => {
+      const dz = camZ - z;
+      const s = focal / Math.max(0.1, dz);
+      return { sx: x * s, sy: y * s, s };
+    };
 
     const draw = (now: number) => {
-      const t = (now - start) * 0.0001;
+      const t = (now - start) * 0.001;
 
-      // Fade previous frame to produce elegant motion trails
-      ctx.fillStyle = `rgba(0, 0, 0, ${FADE_ALPHA})`;
+      // Fade previous frame -> icy trails with mercury-like persistence
+      ctx.fillStyle = "rgba(0, 0, 0, 0.075)";
       ctx.fillRect(0, 0, width, height);
 
-      const scale = 0.0016; // noise spatial scale -> broad, slow flows
-      const speed = 1.35; // particle advection speed
-      // Slowly rotating field angle gives gentle global drift
-      const drift = t * 0.6;
+      const cx = width / 2;
+      const cy = height * 0.42;
 
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
+      // Ring geometry: base radius scales with width but stays compact
+      const baseR = Math.min(180, Math.max(110, width * 0.13));
+      // Slow breathing of radius + a gentle tilt precession -> fluid mercury swell
+      const R = baseR + Math.sin(t * 0.5) * 8;
+      const tilt = 0.5 + Math.sin(t * 0.13) * 0.12; // pitch
+      const yaw = t * 0.05; // slow turn
+      const cTilt = Math.cos(tilt);
+      const sTilt = Math.sin(tilt);
+      const cYaw = Math.cos(yaw);
+      const sYaw = Math.sin(yaw);
 
-        // Sample fbm flow field and map to angle. Two octaves of offset
-        // create layered currents that feel organic rather than gridded.
-        const nx = p.x * scale;
-        const ny = p.y * scale;
-        const angle =
-          fbm(nx + drift, ny - drift * 0.5) * Math.PI * 4 +
-          fbm(nx * 2.0 - drift * 0.3, ny * 2.0 + drift * 0.2) * Math.PI * 2;
+      const camZ = 520;
+      const focal = 520;
 
-        // Ease velocity toward field direction for smooth turns
-        const tvx = Math.cos(angle) * speed;
-        const tvy = Math.sin(angle) * speed;
-        p.vx += (tvx - p.vx) * 0.08;
-        p.vy += (tvy - p.vy) * 0.08;
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life += 1;
+      // Cross-strip flow: fluid-dynamics-like traveling wave on v
+      const vWave = (u: number) => Math.sin(u * 2.0 + t * 1.8) * SWIRL;
 
-        // Lifecycle fade: ease-in at birth, ease-out near death
-        const lifeRatio = p.life / p.maxLife;
-        let alpha: number;
-        if (lifeRatio < 0.15) {
-          alpha = lifeRatio / 0.15;
-        } else if (lifeRatio > 0.8) {
-          alpha = (1 - lifeRatio) / 0.2;
-        } else {
-          alpha = 1;
+      // Sort-free alpha blending: draw back-half then front-half using z sign.
+      // We iterate twice with a z test.
+      for (let pass = 0; pass < 2; pass++) {
+        const wantBack = pass === 0;
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.u += p.spd;
+          if (p.u > TAU * HALF_TURNS) p.u -= TAU * HALF_TURNS;
+          p.life += 1;
+
+          // u in [0, 4π); half-angle for the ring circle
+          const phi = p.u; // full parameter
+          const ringAngle = phi; // we use phi directly for the circular part
+          const cosP = Math.cos(ringAngle);
+          const sinP = Math.sin(ringAngle);
+
+          // Mobius strip param:
+          //   center: (R + v * cos(u/2)) * (cos u, sin u, 0) but we add 3D twist
+          // The half-angle twist gives the Mobius half-flip over HALF_TURNS=2 => full flip.
+          const half = p.u * 0.5;
+          const twistCos = Math.cos(half + t * 0.2);
+          const twistSin = Math.sin(half + t * 0.2);
+
+          // Add cross-strip fluid wave to v
+          const vEff = p.v + vWave(p.u) * 0.15;
+
+          const radial = R + vEff * STRIP_HALF_W * twistCos;
+          // local y on strip (perpendicular in-plane) + z from twist
+          const localY = vEff * STRIP_HALF_W * twistSin;
+
+          // Position on ring in ring-local frame (x,y plane, z=localY rotated)
+          const lx = radial * cosP;
+          const ly = radial * sinP;
+          const lz = localY;
+
+          // Apply ring tilt (pitch about X axis) then yaw (about Y axis)
+          // Tilt about X:
+          const y1 = ly * cTilt - lz * sTilt;
+          const z1 = ly * sTilt + lz * cTilt;
+          // Yaw about Y:
+          const x2 = lx * cYaw + z1 * sYaw;
+          const z2 = -lx * sYaw + z1 * cYaw;
+
+          const isBack = z2 < 0;
+          if (isBack !== wantBack) continue;
+
+          const pr = project(x2, y1, z2, camZ, focal);
+          const sx = cx + pr.sx;
+          const sy = cy + pr.sy;
+
+          if (
+            sx < -20 || sx > width + 20 ||
+            sy < -20 || sy > height + 20 ||
+            p.life >= p.maxLife
+          ) {
+            if (p.life >= p.maxLife) spawn(p, false);
+            continue;
+          }
+
+          // Lifecycle fade
+          const lr = p.life / p.maxLife;
+          let alpha: number;
+          if (lr < 0.12) alpha = lr / 0.12;
+          else if (lr > 0.82) alpha = (1 - lr) / 0.18;
+          else alpha = 1;
+
+          // Depth-based size & brightness: far side dimmer/smaller (ice depth)
+          const depthFade = 0.55 + 0.45 * Math.max(0, Math.min(1, (z2 + 120) / 240));
+          const sz = Math.max(0.15, p.size * depthFade * pr.s * 0.9);
+
+          // Palette: ice/azure flame base, mercury specular highlight, rare ember
+          const ember = p.warm;
+          const hue = ember ? 24 + Math.sin(t + i) * 6 : 198 + Math.sin(p.u + t) * 22;
+          const sat = ember ? 60 : 42;
+          // Mercury-like specular pop on near side
+          const lum = (ember ? 60 : 72) * depthFade + Math.max(0, (z2 + 60) / 200) * 18;
+          ctx.fillStyle = `hsla(${hue}, ${sat}%, ${lum}%, ${alpha * 0.62})`;
+          ctx.beginPath();
+          ctx.arc(sx, sy, sz, 0, TAU);
+          ctx.fill();
+
+          // Mercury specular dot for close, bright particles
+          if (!ember && z2 > 30 && alpha > 0.5) {
+            ctx.fillStyle = `hsla(200, 20%, 96%, ${alpha * 0.35})`;
+            ctx.beginPath();
+            ctx.arc(sx, sy, sz * 0.4, 0, TAU);
+            ctx.fill();
+          }
         }
-        // Depth-ish sizing based on speed for subtle parallax feel
-        const sp = Math.hypot(p.vx, p.vy);
-        const sizeMul = 0.7 + Math.min(sp / speed, 1) * 0.6;
-        const r = Math.max(0.1, p.size * sizeMul);
-
-        // Off-screen or expired -> respawn
-        if (
-          p.x < -10 ||
-          p.x > width + 10 ||
-          p.y < -10 ||
-          p.y > height + 10 ||
-          p.life >= p.maxLife
-        ) {
-          spawn(p, false);
-          continue;
-        }
-
-        // Brightness peaks mid-life; keep overall luminance low for a
-        // refined background that never competes with content.
-        const lum = 0.5 + alpha * 0.5;
-        const sat = 18 + (p.hue < 60 ? 30 : 12);
-        ctx.fillStyle = `hsla(${p.hue}, ${sat}%, ${lum * 55}%, ${alpha * 0.5})`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-        ctx.fill();
       }
 
       animationId = requestAnimationFrame(draw);
@@ -241,7 +226,8 @@ export default function ParticleField() {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-0"
+      className="pointer-events-none fixed inset-x-0 top-0 z-0"
+      style={{ display: "block" }}
     />
   );
 }
