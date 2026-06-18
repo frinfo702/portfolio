@@ -100,6 +100,9 @@ export default function Home() {
           <SkillGroup label="Languages">
             <SkillItem>TOEIC Listening &amp; Reading Test 855</SkillItem>
           </SkillGroup>
+          <SkillGroup label="tools">
+            <SkillItem>vim❤️‍🔥</SkillItem>
+          </SkillGroup>
         </Section>
 
         <Section title="Lately">
