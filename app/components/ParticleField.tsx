@@ -5,17 +5,50 @@ import { useEffect, useRef } from "react";
 interface Particle {
   x: number;
   y: number;
-  baseX: number;
-  baseY: number;
   vx: number;
   vy: number;
-  baseSize: number;
-  phase: number;
-  speed: number;
-  opacity: number;
-  theta: number;
-  strand: number;
-  idx: number;
+  life: number;
+  maxLife: number;
+  size: number;
+  hue: number;
+}
+
+// Deterministic 2D smooth-ish noise via hashed gradients.
+// Cheap, allocation-free, good enough for a background flow field.
+function hash(x: number, y: number): number {
+  const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453123;
+  return s - Math.floor(s);
+}
+function smooth(t: number): number {
+  return t * t * (3 - 2 * t);
+}
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
+}
+function noise(x: number, y: number): number {
+  const ix = Math.floor(x);
+  const iy = Math.floor(y);
+  const fx = x - ix;
+  const fy = y - iy;
+  const ux = smooth(fx);
+  const uy = smooth(fy);
+  const a = hash(ix, iy);
+  const b = hash(ix + 1, iy);
+  const c = hash(ix, iy + 1);
+  const d = hash(ix + 1, iy + 1);
+  return lerp(lerp(a, b, ux), lerp(c, d, ux), uy);
+}
+// fbm for richer turbulence
+function fbm(x: number, y: number): number {
+  let v = 0;
+  let amp = 0.5;
+  let freq = 1;
+  for (let o = 0; o < 3; o++) {
+    v += noise(x * freq, y * freq) * amp;
+    freq *= 2;
+    amp *= 0.5;
+  }
+  return v;
 }
 
 export default function ParticleField() {
@@ -24,166 +57,168 @@ export default function ParticleField() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    let animationId: number;
+    let animationId = 0;
     let particles: Particle[] = [];
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
     let resizeTimer: ReturnType<typeof setTimeout> | null = null;
-    let lastW = 0;
-    let lastH = 0;
 
-    const mouse = { x: null as number | null, y: null as number | null };
+    // Fade overlay so particles leave trails instead of clearing each frame.
+    // Lower alpha => longer trails. Tuned for elegance, not smear.
+    const FADE_ALPHA = 0.06;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    };
-    const handleMouseLeave = () => {
-      mouse.x = null;
-      mouse.y = null;
+    const targetCount = () => {
+      // Density scales with viewport area but is capped for performance.
+      const area = width * height;
+      const base = Math.floor(area / 5200);
+      return Math.max(240, Math.min(base, 1400));
     };
 
-    const initParticles = (width: number, height: number) => {
-      particles = [];
-      const cx = width * 0.52;
-      const cy = height * 0.1;
-      const turns = 5.5;
-      const pointsPerTurn = 55;
-      const radius = 72;
-      const slantX = 2.0;
-      const slantY = 3.0;
-
-      const totalPoints = Math.floor(turns * pointsPerTurn);
-
-      for (let i = 0; i < totalPoints; i++) {
-        const t = (i / pointsPerTurn) * Math.PI * 2;
-
-        for (let strand = 0; strand < 3; strand++) {
-          const angle = t + strand * ((Math.PI * 2) / 3);
-
-          // draw(time=0) と同じ式で初期位置を計算し、飛び出しを防ぐ
-          const waveR = Math.sin(i * 0.35) * 3.5;
-          const waveAxis = Math.cos(i * 0.25) * 1.5;
-          const curveX = Math.sin(i * 0.08) * 45;
-          const curveY = Math.cos(i * 0.06) * 35;
-
-          const axisX = cx + i * slantX + waveAxis * slantX * 0.3 + curveX;
-          const axisY = cy + i * slantY + waveAxis * slantY * 0.3 + curveY;
-
-          const x = axisX + (radius + waveR) * Math.cos(angle);
-          const y = axisY + (radius + waveR) * Math.sin(angle);
-          const z = Math.sin(angle);
-
-          const size = 0.5 + (1 + z) * 0.55;
-          const opacity = 0.25 + (1 + z) * 0.4;
-          const jitter = 1.2;
-
-          particles.push({
-            x: x + (Math.random() - 0.5) * jitter,
-            y: y + (Math.random() - 0.5) * jitter,
-            baseX: x,
-            baseY: y,
-            vx: 0,
-            vy: 0,
-            baseSize: size,
-            phase: Math.random() * Math.PI * 2,
-            speed: 0.15 + Math.random() * 0.25,
-            opacity,
-            theta: angle,
-            strand,
-            idx: i,
-          });
+    const spawn = (p: Particle, initial: boolean) => {
+      if (initial) {
+        p.x = Math.random() * width;
+        p.y = Math.random() * height;
+      } else {
+        // Respawn from a random edge to keep flow continuous
+        const edge = Math.floor(Math.random() * 4);
+        if (edge === 0) {
+          p.x = Math.random() * width;
+          p.y = -4;
+        } else if (edge === 1) {
+          p.x = width + 4;
+          p.y = Math.random() * height;
+        } else if (edge === 2) {
+          p.x = Math.random() * width;
+          p.y = height + 4;
+        } else {
+          p.x = -4;
+          p.y = Math.random() * height;
         }
+      }
+      p.vx = 0;
+      p.vy = 0;
+      p.maxLife = 220 + Math.random() * 360;
+      p.life = initial ? Math.random() * p.maxLife : 0;
+      p.size = 0.4 + Math.random() * 1.1;
+      // Cool near-neutral palette: silver-blue with occasional warm spark
+      const warm = Math.random() < 0.06;
+      p.hue = warm ? 28 + Math.random() * 12 : 200 + Math.random() * 40;
+    };
+
+    const initParticles = () => {
+      const n = targetCount();
+      particles = new Array(n);
+      for (let i = 0; i < n; i++) {
+        const p: Particle = {
+          x: 0,
+          y: 0,
+          vx: 0,
+          vy: 0,
+          life: 0,
+          maxLife: 0,
+          size: 0,
+          hue: 0,
+        };
+        spawn(p, true);
+        particles[i] = p;
       }
     };
 
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
 
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const dw = Math.abs(width - lastW);
-      const dh = Math.abs(height - lastH);
-      if (lastW === 0 || dw > 50 || dh > 50) {
-        lastW = width;
-        lastH = height;
-        initParticles(width, height);
-      }
+      // Reset canvas to black baseline so fade trails build on pure black
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(0, 0, width, height);
+
+      initParticles();
     };
 
     const debouncedResize = () => {
       if (resizeTimer) clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(resize, 150);
+      resizeTimer = setTimeout(resize, 180);
     };
 
-    const springK = 0.04;
-    const damping = 0.93;
-    const repelStrength = 0.6;
-    const repelRadius = 90;
+    let start = performance.now();
 
-    const draw = (time: number) => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      ctx.clearRect(0, 0, width, height);
+    const draw = (now: number) => {
+      const t = (now - start) * 0.0001;
 
-      const t = time * 0.0005;
-      const globalRotation = t * 0.35;
+      // Fade previous frame to produce elegant motion trails
+      ctx.fillStyle = `rgba(0, 0, 0, ${FADE_ALPHA})`;
+      ctx.fillRect(0, 0, width, height);
 
-      const cx = width * 0.52;
-      const cy = height * 0.1;
-      const radius = 72;
-      const slantX = 2.0;
-      const slantY = 3.0;
+      const scale = 0.0016; // noise spatial scale -> broad, slow flows
+      const speed = 1.35; // particle advection speed
+      // Slowly rotating field angle gives gentle global drift
+      const drift = t * 0.6;
 
-      for (const p of particles) {
-        const theta = p.theta + globalRotation;
-        const waveR = Math.sin(p.idx * 0.35 - t * 2.5) * 3.5;
-        const waveAxis = Math.cos(p.idx * 0.25 + t * 1.8) * 1.5;
-        const curveX = Math.sin(p.idx * 0.08 + t * 0.5) * 45;
-        const curveY = Math.cos(p.idx * 0.06 + t * 0.3) * 35;
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
 
-        const axisX = cx + p.idx * slantX + waveAxis * slantX * 0.3 + curveX;
-        const axisY = cy + p.idx * slantY + waveAxis * slantY * 0.3 + curveY;
+        // Sample fbm flow field and map to angle. Two octaves of offset
+        // create layered currents that feel organic rather than gridded.
+        const nx = p.x * scale;
+        const ny = p.y * scale;
+        const angle =
+          fbm(nx + drift, ny - drift * 0.5) * Math.PI * 4 +
+          fbm(nx * 2.0 - drift * 0.3, ny * 2.0 + drift * 0.2) * Math.PI * 2;
 
-        p.baseX = axisX + (radius + waveR) * Math.cos(theta);
-        p.baseY = axisY + (radius + waveR) * Math.sin(theta);
-
-        const ax = (p.baseX - p.x) * springK;
-        const ay = (p.baseY - p.y) * springK;
-
-        let fx = 0;
-        let fy = 0;
-        if (mouse.x !== null && mouse.y !== null) {
-          const mdx = p.x - mouse.x;
-          const mdy = p.y - mouse.y;
-          const distSq = mdx * mdx + mdy * mdy;
-          if (distSq < repelRadius * repelRadius && distSq > 0.01) {
-            const dist = Math.sqrt(distSq);
-            const force = (1 - dist / repelRadius) * repelStrength;
-            fx = (mdx / dist) * force;
-            fy = (mdy / dist) * force;
-          }
-        }
-
-        p.vx = (p.vx + ax + fx) * damping;
-        p.vy = (p.vy + ay + fy) * damping;
+        // Ease velocity toward field direction for smooth turns
+        const tvx = Math.cos(angle) * speed;
+        const tvy = Math.sin(angle) * speed;
+        p.vx += (tvx - p.vx) * 0.08;
+        p.vy += (tvy - p.vy) * 0.08;
         p.x += p.vx;
         p.y += p.vy;
+        p.life += 1;
 
-        const z = Math.sin(theta);
-        const size = p.baseSize * (0.75 + (1 + z) * 0.25);
-        const alpha = p.opacity * (0.7 + (1 + z) * 0.3);
+        // Lifecycle fade: ease-in at birth, ease-out near death
+        const lifeRatio = p.life / p.maxLife;
+        let alpha: number;
+        if (lifeRatio < 0.15) {
+          alpha = lifeRatio / 0.15;
+        } else if (lifeRatio > 0.8) {
+          alpha = (1 - lifeRatio) / 0.2;
+        } else {
+          alpha = 1;
+        }
+        // Depth-ish sizing based on speed for subtle parallax feel
+        const sp = Math.hypot(p.vx, p.vy);
+        const sizeMul = 0.7 + Math.min(sp / speed, 1) * 0.6;
+        const r = Math.max(0.1, p.size * sizeMul);
 
-        ctx.fillStyle = `rgba(228, 228, 228, ${alpha})`;
+        // Off-screen or expired -> respawn
+        if (
+          p.x < -10 ||
+          p.x > width + 10 ||
+          p.y < -10 ||
+          p.y > height + 10 ||
+          p.life >= p.maxLife
+        ) {
+          spawn(p, false);
+          continue;
+        }
+
+        // Brightness peaks mid-life; keep overall luminance low for a
+        // refined background that never competes with content.
+        const lum = 0.5 + alpha * 0.5;
+        const sat = 18 + (p.hue < 60 ? 30 : 12);
+        ctx.fillStyle = `hsla(${p.hue}, ${sat}%, ${lum * 55}%, ${alpha * 0.5})`;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, Math.max(0.1, size), 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.fill();
       }
 
@@ -191,16 +226,13 @@ export default function ParticleField() {
     };
 
     resize();
+    start = performance.now();
     window.addEventListener("resize", debouncedResize);
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseleave", handleMouseLeave);
     animationId = requestAnimationFrame(draw);
 
     return () => {
       window.removeEventListener("resize", debouncedResize);
       if (resizeTimer) clearTimeout(resizeTimer);
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseleave", handleMouseLeave);
       cancelAnimationFrame(animationId);
     };
   }, []);
@@ -210,7 +242,6 @@ export default function ParticleField() {
       ref={canvasRef}
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 z-0"
-      style={{ opacity: 0.65 }}
     />
   );
 }
