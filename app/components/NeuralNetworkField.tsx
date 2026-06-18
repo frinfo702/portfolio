@@ -70,7 +70,7 @@ export default function NeuralNetworkField() {
           index: i,
           x: layerX,
           y: startY + i * nodeSpacingY,
-          baseRadius: 3.8 + Math.random() * 0.8,
+          baseRadius: 2.0 + Math.random() * 0.5,
           phase: Math.random() * TAU,
           pulse: 0,
           cascadeGlow: 0,
@@ -242,10 +242,12 @@ export default function NeuralNetworkField() {
         const breath = 1 + node.pulse;
         const r = node.baseRadius * breath;
 
+        // Nodes fade in/out with cascade; barely visible otherwise
+        const visibility = node.cascadeGlow;
+
         // Glow halo
         const glowR = r * 3.0;
-        const glowAlpha = 0.16 + node.cascadeGlow * 0.30;
-        ctx.globalAlpha = glowAlpha;
+        ctx.globalAlpha = visibility * 0.35;
         const glowGrad = ctx.createRadialGradient(
           node.x, node.y, r * 0.5,
           node.x, node.y, glowR,
@@ -258,15 +260,15 @@ export default function NeuralNetworkField() {
         ctx.fill();
 
         // Outer halo
-        ctx.globalAlpha = 0.08 + node.cascadeGlow * 0.15;
+        ctx.globalAlpha = visibility * 0.20;
         ctx.fillStyle = COL.nodeGlow;
         ctx.beginPath();
         ctx.arc(node.x, node.y, r * 4.5, 0, TAU);
         ctx.fill();
 
         // Node body
-        const fillAlpha = 0.65 + node.pulse * 0.2 + node.cascadeGlow * 0.3;
-        const fillColor = node.cascadeGlow > 0.1 ? COL.nodeCascade : COL.nodeFill;
+        const fillAlpha = 0.06 + visibility * 0.72;
+        const fillColor = visibility > 0.15 ? COL.nodeCascade : COL.nodeFill;
         ctx.globalAlpha = Math.min(0.9, fillAlpha);
         ctx.fillStyle = fillColor;
         ctx.beginPath();
@@ -274,7 +276,7 @@ export default function NeuralNetworkField() {
         ctx.fill();
 
         // Node stroke
-        ctx.globalAlpha = 0.35 + node.cascadeGlow * 0.25;
+        ctx.globalAlpha = 0.06 + visibility * 0.38;
         ctx.strokeStyle = COL.nodeStroke;
         ctx.lineWidth = 0.8;
         ctx.beginPath();
