@@ -6,33 +6,30 @@ export default function Home() {
     <div className="relative flex flex-col flex-1 items-center bg-black font-sans text-[#e5e5e5]">
       <DiffusionField />
       <main className="relative z-10 flex flex-col w-full max-w-xl px-6 py-20 sm:px-8">
-        <header className="flex items-center justify-between mb-16">
-          <h1 className="text-base font-semibold text-white">Kenichiro Goto</h1>
+        <header className="flex items-center justify-between mb-4">
+          <h1 className="text-base font-semibold text-white">
+            Kenichiro Goto&apos;s Portfolio
+          </h1>
         </header>
-
-        <p className="text-[15px] leading-7 text-[#a3a3a3] mb-2">
-          Final-year Information Science student at Ritsumeikan University,
-          working on generative AI and building backend/infrastructure systems.
-        </p>
 
         <Section title="Experience">
           <Entry
-            title="Software Engineer — Backend & Infrastructure"
-            org="CyberAgent — Internship"
+            title="Software Engineer Internship — Backend & Infrastructure"
+            org="CyberAgent"
             href="https://www.cyberagent.co.jp/"
             period="Aug 2025 — Sep 2025"
             description="Worked on backend and infrastructure systems."
           />
           <Entry
-            title="Software Engineer — Backend"
-            org="pixiv Inc. — Internship"
+            title="Software Engineer Internship — Backend"
+            org="pixiv Inc."
             href="https://www.pixiv.co.jp/"
             period="Jun 2025 — Current"
             description="Worked on backend and infrastructure systems."
           />
           <Entry
-            title="Software Engineer — Backend"
-            org="Finatext Holdings Ltd. — Internship"
+            title="Software Engineer Internship — Backend"
+            org="Finatext Holdings Ltd."
             href="https://finatext.com/"
             period="Jan 2025 — May 2025"
             description="Worked on backend and infrastructure systems."
@@ -44,8 +41,8 @@ export default function Home() {
             title="B.E. in Information Science and Engineering"
             org="Ritsumeikan University"
             href="https://www.ritsumei.ac.jp/"
-            period="Final year"
-            description="Nishikawa Laboratory, generative AI research."
+            period="Apr 2023 — Mar 2027"
+            description="Computational Intelligence Lab, computer vision research."
           />
         </Section>
 
@@ -73,8 +70,7 @@ export default function Home() {
         <Section title="Skills">
           <SkillGroup label="Domains">
             <SkillItem>Deep learning</SkillItem>
-            <SkillItem>Coding agents</SkillItem>
-            <SkillItem>ML systems &amp; infrastructure</SkillItem>
+            <SkillItem>Systems architecture &amp; infrastructure</SkillItem>
           </SkillGroup>
           <SkillGroup label="Programming Languages">
             <SkillItem>Go</SkillItem>
@@ -83,6 +79,8 @@ export default function Home() {
             <SkillItem>Shell</SkillItem>
           </SkillGroup>
           <SkillGroup label="Frameworks">
+            <SkillItem>Echo</SkillItem>
+            <SkillItem>Play Framework</SkillItem>
             <SkillItem>PyTorch</SkillItem>
           </SkillGroup>
           <SkillGroup label="Cloud">
@@ -125,16 +123,11 @@ export default function Home() {
           <ItemLink href="mailto:frinfo702@gmail.com">Email</ItemLink>
         </Section>
 
-        <footer className="mt-20 flex items-center justify-between text-sm text-[#525252]">
-          <span>
-            Kenichiro Goto <span className="text-[#737373]">@frinfo702</span>
+        <footer className="mt-20 flex flex-col gap-1 text-sm text-[#525252]">
+          <span className="text-[#525252]">
+            &copy; {new Date().getFullYear()} Kenichiro Goto. All rights
+            reserved.
           </span>
-          <a
-            href="https://github.com/frinfo702"
-            className="hover:text-[#a3a3a3] transition-colors"
-          >
-            GitHub
-          </a>
         </footer>
       </main>
     </div>
