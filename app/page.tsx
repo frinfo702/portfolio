@@ -1,4 +1,5 @@
 import Image from "next/image";
+import NeuralNetworkMini from "./components/NeuralNetworkMini";
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
           <h1 className="text-base font-semibold text-white">
             Kenichiro Goto&apos;s Portfolio
           </h1>
+          <NeuralNetworkMini />
         </header>
 
         <Section title="Experience">
