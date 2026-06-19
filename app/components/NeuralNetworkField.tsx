@@ -24,9 +24,9 @@ interface Edge {
 const TAU = Math.PI * 2;
 const LAYERS = [5, 7, 9, 7, 5];
 
-const CASCADE_INTERVAL_MIN = 8;
-const CASCADE_INTERVAL_MAX = 14;
-const CASCADE_DURATION = 3.0;
+// Fixed network dimensions — independent of viewport size
+const BASE_W = 1400;
+const BASE_H = 900;
 
 const COL = {
   nodeFill: "hsla(205, 55%, 72%, 0.72)",
@@ -39,100 +39,101 @@ const COL = {
   edgeCascade: "hsla(195, 50%, 65%, 0.40)",
 };
 
+const WAVE_SPEED = 0.08; // layers per second
+
 export default function NeuralNetworkField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<{
     nodes: Node[];
     edges: Edge[];
-    width: number;
-    height: number;
-    cascadeUntil: number;
-    nextCascade: number;
+    offsetX: number;
+    offsetY: number;
   } | null>(null);
 
-  const initState = useCallback((width: number, height: number) => {
-    const padX = 140;
-    const padY = 100;
-    const availW = width - padX * 2;
-    const availH = height - padY * 2;
-    const maxNodes = Math.max(...LAYERS);
-    const nodeSpacingY = availH / (maxNodes + 1);
+  const initState = useCallback(
+    (viewportW: number, viewportH: number) => {
+      const padX = 140;
+      const padY = 100;
+      const availW = BASE_W - padX * 2;
+      const availH = BASE_H - padY * 2;
+      const maxNodes = Math.max(...LAYERS);
+      const nodeSpacingY = availH / (maxNodes + 1);
 
-    // Create nodes
-    const nodes: Node[] = [];
-    for (let l = 0; l < LAYERS.length; l++) {
-      const count = LAYERS[l];
-      const layerX = padX + (availW * l) / (LAYERS.length - 1);
-      const startY = padY + (availH - (count - 1) * nodeSpacingY) / 2;
-      for (let i = 0; i < count; i++) {
-        nodes.push({
-          layer: l,
-          index: i,
-          x: layerX,
-          y: startY + i * nodeSpacingY,
-          baseRadius: 2.0 + Math.random() * 0.5,
-          phase: Math.random() * TAU,
-          pulse: 0,
-          cascadeGlow: 0,
-        });
+      const nodes: Node[] = [];
+      for (let l = 0; l < LAYERS.length; l++) {
+        const count = LAYERS[l];
+        const layerX = padX + (availW * l) / (LAYERS.length - 1);
+        const startY = padY + (availH - (count - 1) * nodeSpacingY) / 2;
+        for (let i = 0; i < count; i++) {
+          nodes.push({
+            layer: l,
+            index: i,
+            x: layerX,
+            y: startY + i * nodeSpacingY,
+            baseRadius: 2.0 + Math.random() * 0.5,
+            phase: Math.random() * TAU,
+            pulse: 0,
+            cascadeGlow: 0,
+          });
+        }
       }
-    }
 
-    // Build edges — fully connected between adjacent layers
-    const edges: Edge[] = [];
-    const nodeByLayer = (l: number) => nodes.filter((n) => n.layer === l);
+      const edges: Edge[] = [];
+      const nodeByLayer = (l: number) =>
+        nodes.filter((n) => n.layer === l);
 
-    for (let l = 0; l < LAYERS.length - 1; l++) {
-      const fromNodes = nodeByLayer(l);
-      const toNodes = nodeByLayer(l + 1);
-      for (const from of fromNodes) {
-        for (const to of toNodes) {
+      for (let l = 0; l < LAYERS.length - 1; l++) {
+        const fromNodes = nodeByLayer(l);
+        const toNodes = nodeByLayer(l + 1);
+        for (const from of fromNodes) {
+          for (const to of toNodes) {
+            const midX = (from.x + to.x) / 2;
+            const midY = (from.y + to.y) / 2;
+            const dy = to.y - from.y;
+            const bow =
+              Math.min(60, Math.abs(dy) * 0.3 + 15) * (dy > 0 ? 1 : -1);
+            edges.push({
+              from,
+              to,
+              cpx: midX,
+              cpy: midY + bow * (0.6 + Math.random() * 0.5),
+              isSkip: false,
+            });
+          }
+        }
+      }
+
+      const skipPairs: [number, number][] = [
+        [0, 2],
+        [1, 3],
+        [2, 4],
+      ];
+      for (const [la, lb] of skipPairs) {
+        const fromNodes = nodeByLayer(la);
+        const toNodes = nodeByLayer(lb);
+        for (let i = 0; i < Math.min(fromNodes.length, toNodes.length); i++) {
+          const from = fromNodes[i];
+          const to = toNodes[i];
           const midX = (from.x + to.x) / 2;
           const midY = (from.y + to.y) / 2;
-          const dy = to.y - from.y;
-          const bow = Math.min(60, Math.abs(dy) * 0.3 + 15) * (dy > 0 ? 1 : -1);
           edges.push({
             from,
             to,
             cpx: midX,
-            cpy: midY + bow * (0.6 + Math.random() * 0.5),
-            isSkip: false,
+            cpy: midY + (Math.random() - 0.5) * 40,
+            isSkip: true,
           });
         }
       }
-    }
 
-    // Skip connections for visual depth
-    const skipPairs: [number, number][] = [[0, 2], [1, 3], [2, 4]];
-    for (const [la, lb] of skipPairs) {
-      const fromNodes = nodeByLayer(la);
-      const toNodes = nodeByLayer(lb);
-      for (let i = 0; i < Math.min(fromNodes.length, toNodes.length); i++) {
-        const from = fromNodes[i];
-        const to = toNodes[i];
-        const midX = (from.x + to.x) / 2;
-        const midY = (from.y + to.y) / 2;
-        edges.push({
-          from,
-          to,
-          cpx: midX,
-          cpy: midY + (Math.random() - 0.5) * 40,
-          isSkip: true,
-        });
-      }
-    }
+      // Center the fixed-size network in the viewport
+      const offsetX = (viewportW - BASE_W) / 2;
+      const offsetY = (viewportH - BASE_H) / 2;
 
-    return {
-      nodes,
-      edges,
-      width,
-      height,
-      cascadeUntil: 0,
-      nextCascade:
-        CASCADE_INTERVAL_MIN +
-        Math.random() * (CASCADE_INTERVAL_MAX - CASCADE_INTERVAL_MIN),
-    };
-  }, []);
+      return { nodes, edges, offsetX, offsetY };
+    },
+    [],
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -171,41 +172,29 @@ export default function NeuralNetworkField() {
       }
 
       const now = timestamp * 0.001;
+      ctx.clearRect(0, 0, width, height);
 
-      // ── Cascade logic ──────────────────────────────────────────────────
+      ctx.save();
+      ctx.translate(s.offsetX, s.offsetY);
 
-      if (now > s.nextCascade) {
-        s.cascadeUntil = now + CASCADE_DURATION;
-        s.nextCascade =
-          now +
-          CASCADE_INTERVAL_MIN +
-          Math.random() * (CASCADE_INTERVAL_MAX - CASCADE_INTERVAL_MIN);
-      }
+      // ── Triangle wave: smooth 0 ↔ maxLayer back-and-forth ────────────
+      // No hard jump → no flicker. Full round-trip ≈ 50 s (very gradual)
+      const maxLayer = LAYERS.length - 1;
+      const tri = 1 - Math.abs(((now * WAVE_SPEED) % 2) - 1); // 0→1→0→1…
+      const wavePos = tri * maxLayer;
 
-      const cascadeProgress =
-        s.cascadeUntil > now
-          ? 1 - (s.cascadeUntil - now) / CASCADE_DURATION
-          : -1;
-      const inCascade = cascadeProgress >= 0;
-      const waveFront = inCascade ? cascadeProgress * (LAYERS.length - 1) : -1;
-
-      // ── Update nodes ───────────────────────────────────────────────────
-
+      // ── Update nodes ─────────────────────────────────────────────────
       for (const node of s.nodes) {
         node.pulse = Math.sin(now * 1.3 + node.phase) * 0.18;
-        const distFromWave = inCascade ? Math.abs(node.layer - waveFront) : 999;
-        const gauss = Math.exp(-(distFromWave * distFromWave) / 2.0);
-        const timeEnvelope = Math.sin(cascadeProgress * Math.PI);
-        node.cascadeGlow = inCascade
-          ? Math.max(0, gauss * timeEnvelope)
-          : 0;
+
+        const distFromWave = Math.abs(node.layer - wavePos);
+        // Wide Gaussian — creates a broad gradient across all layers
+        const gauss = Math.exp(-(distFromWave * distFromWave) / 8.0);
+        // Baseline 0.15 so nodes never go fully dark
+        node.cascadeGlow = 0.15 + gauss * 0.85;
       }
 
-      // ── Draw ───────────────────────────────────────────────────────────
-
-      ctx.clearRect(0, 0, s.width, s.height);
-
-      // Edges — sorted by layer for back-to-front depth
+      // ── Draw edges ───────────────────────────────────────────────────
       const sortedEdges = [...s.edges].sort(
         (a, b) => a.from.layer - b.from.layer,
       );
@@ -213,18 +202,17 @@ export default function NeuralNetworkField() {
       for (const edge of sortedEdges) {
         const { from, to } = edge;
 
-        let edgeAlpha = edge.isSkip ? 0.16 : 0.28;
-        if (inCascade) {
-          const edgeCenter = (from.layer + to.layer) / 2;
-          const edgeDist = Math.abs(edgeCenter - waveFront);
-          const edgeGauss = Math.exp(-(edgeDist * edgeDist) / 2.2);
-          edgeAlpha += edgeGauss * 0.22;
-        }
+        const edgeCenter = (from.layer + to.layer) / 2;
+        const edgeDist = Math.abs(edgeCenter - wavePos);
+        const edgeGauss = Math.exp(-(edgeDist * edgeDist) / 8.0);
 
-        ctx.globalAlpha = Math.min(0.55, edgeAlpha);
+        const baseAlpha = edge.isSkip ? 0.10 : 0.16;
+        const edgeAlpha = baseAlpha + edgeGauss * 0.30;
+
+        ctx.globalAlpha = Math.min(0.50, edgeAlpha);
         ctx.strokeStyle = edge.isSkip
           ? COL.edgeSkip
-          : inCascade && edgeAlpha > 0.32
+          : edgeGauss > 0.25
             ? COL.edgeCascade
             : COL.edge;
         ctx.lineWidth = edge.isSkip ? 0.5 : 0.7;
@@ -236,22 +224,24 @@ export default function NeuralNetworkField() {
       }
       ctx.setLineDash([]);
 
-      // Nodes — sorted by layer for back-to-front depth
+      // ── Draw nodes (original rendering style) ────────────────────────
       const sortedNodes = [...s.nodes].sort((a, b) => a.layer - b.layer);
 
       for (const node of sortedNodes) {
         const breath = 1 + node.pulse;
         const r = node.baseRadius * breath;
-
-        // Nodes fade in/out with cascade; barely visible otherwise
         const visibility = node.cascadeGlow;
 
         // Glow halo
         const glowR = r * 3.0;
         ctx.globalAlpha = visibility * 0.35;
         const glowGrad = ctx.createRadialGradient(
-          node.x, node.y, r * 0.5,
-          node.x, node.y, glowR,
+          node.x,
+          node.y,
+          r * 0.5,
+          node.x,
+          node.y,
+          glowR,
         );
         glowGrad.addColorStop(0, COL.nodeGlow);
         glowGrad.addColorStop(1, "transparent");
@@ -269,7 +259,8 @@ export default function NeuralNetworkField() {
 
         // Node body
         const fillAlpha = 0.06 + visibility * 0.72;
-        const fillColor = visibility > 0.15 ? COL.nodeCascade : COL.nodeFill;
+        const fillColor =
+          visibility > 0.15 ? COL.nodeCascade : COL.nodeFill;
         ctx.globalAlpha = Math.min(0.9, fillAlpha);
         ctx.fillStyle = fillColor;
         ctx.beginPath();
@@ -286,6 +277,7 @@ export default function NeuralNetworkField() {
       }
 
       ctx.globalAlpha = 1;
+      ctx.restore();
       animationId = requestAnimationFrame(draw);
     };
 
