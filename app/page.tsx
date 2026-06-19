@@ -108,10 +108,10 @@ export default function Home() {
 
         <Section title="Lately">
           <LatelyItem
-            src="/BTS_-_Arirang_(cover).png"
-            alt="BTS - 2.0"
-            title="2.0"
-            subtitle="BTS"
+            src="/yomi_no_tsugai.jpeg"
+            alt="Yomi no Tsuga"
+            title="Yomi no Tsugai"
+            subtitle="Season 1"
           />
           <LatelyItem
             src="/jjk-season3.png"
