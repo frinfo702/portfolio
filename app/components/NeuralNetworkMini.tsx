@@ -3,39 +3,32 @@
 import { useEffect, useRef } from "react";
 
 const LAYERS = [4, 6, 6, 4];
-const W = 128;
-const H = 104;
+const W = 180;
+const H = 180;
 const TAU = Math.PI * 2;
 
 const COL = {
-  nodeFill: "hsla(205, 55%, 72%, 0.72)",
-  nodeStroke: "hsla(205, 45%, 82%, 0.45)",
-  edge: "hsla(210, 40%, 62%, 0.25)",
-  edgeActive: "hsla(195, 60%, 68%, 0.50)",
-  nodeGlow: "hsla(200, 60%, 68%, 0.20)",
+  nodeFill: "hsla(205, 55%, 72%, 72%)",
+  nodeStroke: "hsla(205, 45%, 82%, 45%)",
+  edge: "hsla(210, 40%, 62%, 25%)",
+  edgeActive: "hsla(195, 60%, 68%, 50%)",
+  nodeGlow: "hsla(200, 60%, 68%, 20%)",
 };
 
 export default function NeuralNetworkMini() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d", { alpha: true });
-    if (!ctx) return;
+    const svg = svgRef.current;
+    if (!svg) return;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.floor(W * dpr);
-    canvas.height = Math.floor(H * dpr);
-    canvas.style.width = `${W}px`;
-    canvas.style.height = `${H}px`;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    const padY = 12;
+    const padY = 24;
     const availH = H - padY * 2;
-    const maxNodes = Math.max(...LAYERS);
 
-    const nodes: { x: number; y: number; baseR: number; layer: number; phase: number }[] = [];
+    // --- build node data ---
+    const nodes: {
+      x: number; y: number; baseR: number; layer: number; phase: number;
+    }[] = [];
     for (let l = 0; l < LAYERS.length; l++) {
       const count = LAYERS[l];
       const lx = 20 + ((W - 40) * l) / (LAYERS.length - 1);
@@ -44,14 +37,14 @@ export default function NeuralNetworkMini() {
         nodes.push({
           x: lx,
           y: padY + spacing * (i + 1),
-          baseR: 2.2 + Math.random() * 0.5,
+          baseR: 3.0 + Math.random() * 0.8,
           layer: l,
           phase: Math.random() * TAU,
         });
       }
     }
 
-    // Build edges between adjacent layers
+    // --- build edge data ---
     const edges: { from: number; to: number }[] = [];
     const nodesByLayer = (l: number) => nodes.filter((n) => n.layer === l);
     for (let l = 0; l < LAYERS.length - 1; l++) {
@@ -64,86 +57,116 @@ export default function NeuralNetworkMini() {
       }
     }
 
-    let animId = 0;
-    const draw = (timestamp: number) => {
-      const t = timestamp * 0.001;
-      ctx.clearRect(0, 0, W, H);
+    // --- defs: glow gradient ---
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    const grad = document.createElementNS("http://www.w3.org/2000/svg", "radialGradient");
+    grad.setAttribute("id", "ng");
+    const s1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+    s1.setAttribute("offset", "15%");
+    s1.setAttribute("stop-color", COL.nodeGlow);
+    const s2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+    s2.setAttribute("offset", "100%");
+    s2.setAttribute("stop-color", "transparent");
+    grad.append(s1, s2);
+    defs.append(grad);
+    svg.append(defs);
 
-      // Wave position: 0 → maxLayer → 0 (forward + backward = learning cycle)
+    // --- edges layer ---
+    const eg = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    svg.append(eg);
+    const edgeEls: SVGPathElement[] = [];
+    for (const e of edges) {
+      const from = nodes[e.from];
+      const to = nodes[e.to];
+      const mx = (from.x + to.x) / 2;
+      const my = (from.y + to.y) / 2;
+      const dy = to.y - from.y;
+      const bow = Math.min(16, Math.abs(dy) * 0.2 + 4) * (dy > 0 ? 1 : -1);
+      const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      p.setAttribute("d", `M${from.x},${from.y} Q${mx},${my + bow} ${to.x},${to.y}`);
+      p.setAttribute("fill", "none");
+      p.setAttribute("stroke-linecap", "round");
+      p.setAttribute("stroke-width", "1");
+      eg.append(p);
+      edgeEls.push(p);
+    }
+
+    // --- nodes layer ---
+    const ng = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    svg.append(ng);
+    const glowEls: SVGCircleElement[] = [];
+    const bodyEls: SVGCircleElement[] = [];
+    for (const n of nodes) {
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      g.setAttribute("cx", String(n.x));
+      g.setAttribute("cy", String(n.y));
+      g.setAttribute("fill", "url(#ng)");
+      ng.append(g);
+      glowEls.push(g);
+
+      const b = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      b.setAttribute("cx", String(n.x));
+      b.setAttribute("cy", String(n.y));
+      b.setAttribute("fill", COL.nodeFill);
+      b.setAttribute("stroke", COL.nodeStroke);
+      b.setAttribute("stroke-width", "0.7");
+      ng.append(b);
+      bodyEls.push(b);
+    }
+
+    // --- animation ---
+    let animId = 0;
+    const draw = (ts: number) => {
+      const t = ts * 0.001;
       const maxLayer = LAYERS.length - 1;
       const tri = 1 - Math.abs(((t * 0.12) % 2) - 1);
       const wavePos = tri * maxLayer;
 
-      // Edges
-      for (const edge of edges) {
-        const from = nodes[edge.from];
-        const to = nodes[edge.to];
-        const edgeCenter = (from.layer + to.layer) / 2;
-        const dist = Math.abs(edgeCenter - wavePos);
-        const active = Math.exp(-(dist * dist) / 3.0);
-
-        ctx.globalAlpha = 0.12 + active * 0.35;
-        ctx.strokeStyle = active > 0.3 ? COL.edgeActive : COL.edge;
-        ctx.lineWidth = 0.7;
-        ctx.beginPath();
-        const midX = (from.x + to.x) / 2;
-        const midY = (from.y + to.y) / 2;
-        const dy = to.y - from.y;
-        const bow = Math.min(10, Math.abs(dy) * 0.18 + 3) * (dy > 0 ? 1 : -1);
-        ctx.moveTo(from.x, from.y);
-        ctx.quadraticCurveTo(midX, midY + bow, to.x, to.y);
-        ctx.stroke();
+      for (let i = 0; i < edges.length; i++) {
+        const e = edges[i];
+        const from = nodes[e.from];
+        const to = nodes[e.to];
+        const ec = (from.layer + to.layer) / 2;
+        const d = Math.abs(ec - wavePos);
+        const a = Math.exp(-(d * d) / 3);
+        const alpha = 0.12 + a * 0.35;
+        const p = edgeEls[i];
+        p.setAttribute("stroke", a > 0.3 ? COL.edgeActive : COL.edge);
+        p.setAttribute("opacity", String(alpha));
       }
 
-      // Nodes
-      for (const node of nodes) {
-        const dist = Math.abs(node.layer - wavePos);
-        const active = Math.exp(-(dist * dist) / 3.0);
-        const visibility = 0.12 + active * 0.85;
-        const r = node.baseR + Math.sin(t * 1.3 + node.phase) * 0.16;
+      for (let i = 0; i < nodes.length; i++) {
+        const n = nodes[i];
+        const d = Math.abs(n.layer - wavePos);
+        const a = Math.exp(-(d * d) / 3);
+        const vis = 0.12 + a * 0.85;
+        const r = n.baseR + Math.sin(t * 1.3 + n.phase) * 0.16;
 
-        // Glow
-        const glowR = r * 2.5;
-        ctx.globalAlpha = visibility * 0.30;
-        const grad = ctx.createRadialGradient(node.x, node.y, r * 0.3, node.x, node.y, glowR);
-        grad.addColorStop(0, COL.nodeGlow);
-        grad.addColorStop(1, "transparent");
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, glowR, 0, TAU);
-        ctx.fill();
+        glowEls[i].setAttribute("r", String(r * 2.5));
+        glowEls[i].setAttribute("opacity", String(vis * 0.30));
 
-        // Body
-        ctx.globalAlpha = Math.min(0.85, 0.05 + visibility * 0.75);
-        ctx.fillStyle = COL.nodeFill;
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, r, 0, TAU);
-        ctx.fill();
-
-        // Stroke
-        ctx.globalAlpha = 0.05 + visibility * 0.35;
-        ctx.strokeStyle = COL.nodeStroke;
-        ctx.lineWidth = 0.7;
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, r, 0, TAU);
-        ctx.stroke();
+        bodyEls[i].setAttribute("r", String(r));
+        bodyEls[i].setAttribute("opacity", String(Math.min(0.85, 0.05 + vis * 0.75)));
       }
 
-      ctx.globalAlpha = 1;
       animId = requestAnimationFrame(draw);
     };
 
     animId = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(animId);
+    return () => {
+      cancelAnimationFrame(animId);
+      svg.textContent = "";
+    };
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
+    <svg
+      ref={svgRef}
       aria-hidden="true"
       className="pointer-events-none shrink-0"
       width={W}
       height={H}
+      viewBox={`0 0 ${W} ${H}`}
     />
   );
 }
