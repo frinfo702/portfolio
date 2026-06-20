@@ -42,29 +42,42 @@ export default function Home() {
             org="Ritsumeikan University"
             href="https://www.ritsumei.ac.jp/"
             period="Apr 2023 — Mar 2027"
-            description="Computational Intelligence Lab, computer vision research."
+            description="Major in Computer Science. Computational Intelligence Lab, computer vision research."
           />
         </Section>
 
-        <Section title="Achievements">
-          <Entry
-            title="Saionji Memorial Scholarship (西園寺記念奨学金)"
-            org="Ritsumeikan University"
-            href="https://www.ritsumei.ac.jp/"
-            period="Jul 2026"
-            description={
-              <>
-                <span className="font-semibold text-white">$2,000</span>{" "}
-                scholarship for students with excellent grades.
-              </>
-            }
-          />
-        </Section>
-
-        <Section title="Projects">
-          <ItemLink href="https://github.com/frinfo702/english-test-generator">
-            english-test-generator
-          </ItemLink>
+        <Section title="Accomplishments">
+          <SubSection title="Honors">
+            <Entry
+              title="Saionji Memorial Scholarship (西園寺記念奨学金)"
+              org="Ritsumeikan University"
+              href="https://www.ritsumei.ac.jp/"
+              period="Jul 2026"
+              description={
+                <>
+                  <span className="font-semibold text-white">$2,000</span>{" "}
+                  scholarship for students with excellent grades.
+                </>
+              }
+            />
+          </SubSection>
+          <SubSection title="Certification">
+            <Entry
+              title="TOEIC Listening &amp; Reading Test"
+              org="ETS"
+              href="https://www.ets.org/toeic/"
+              period="Apr 2026"
+              description="Score: 855"
+            />
+            <Entry
+              title="TOEFL iTP Test"
+              org="ETS"
+              href="https://www.ets.org/toefl/"
+              period="Jun 2026"
+              description="Score: 567"
+            />
+          </SubSection>
+          <SubSection title="Publications" />
         </Section>
 
         <Section title="Skills">
@@ -90,20 +103,21 @@ export default function Home() {
           <SkillGroup label="Tools">
             <SkillItem>Git</SkillItem>
             <SkillItem>Docker</SkillItem>
+            <SkillItem>Terraform</SkillItem>
             <SkillItem>Linux　(commands)</SkillItem>
+            <SkillItem>vim❤️‍🔥</SkillItem>
           </SkillGroup>
           <SkillGroup label="Databases">
             <SkillItem>MySQL</SkillItem>
             <SkillItem>PostgreSQL</SkillItem>
             <SkillItem>SQLite</SkillItem>
           </SkillGroup>
-          <SkillGroup label="Languages">
-            <SkillItem>TOEIC Listening &amp; Reading Test 855</SkillItem>
-            <SkillItem>TOEFL iTP Test 567</SkillItem>
-          </SkillGroup>
-          <SkillGroup label="tools">
-            <SkillItem>vim❤️‍🔥</SkillItem>
-          </SkillGroup>
+        </Section>
+
+        <Section title="Projects">
+          <ItemLink href="https://github.com/frinfo702/english-test-generator">
+            english-test-generator
+          </ItemLink>
         </Section>
 
         <Section title="Lately">
@@ -134,6 +148,23 @@ export default function Home() {
           </span>
         </footer>
       </main>
+    </div>
+  );
+}
+
+function SubSection({
+  title,
+  children,
+}: {
+  title: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-3">
+      <h3 className="text-[13px] font-semibold text-[#e5e5e5] border-b border-[#262626] pb-1">
+        {title}
+      </h3>
+      {children && <ul className="flex flex-col gap-4">{children}</ul>}
     </div>
   );
 }
