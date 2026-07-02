@@ -1,18 +1,58 @@
 import Image from "next/image";
 import NeuralNetworkMini from "./components/NeuralNetworkMini";
+import MenuBar from "./components/MenuBar";
+import StatusBar from "./components/StatusBar";
 
 export default function Home() {
   return (
-    <div className="relative flex flex-col flex-1 items-center bg-black font-sans text-[#e5e5e5]">
-      <main className="relative z-10 flex flex-col w-full max-w-xl px-6 py-20 sm:px-8">
-        <header className="flex items-center justify-between mb-4">
-          <h1 className="text-base font-semibold text-white">
-            Kenichiro Goto&apos;s Portfolio
-          </h1>
-          <NeuralNetworkMini />
-        </header>
+    <div className="flex flex-col flex-1">
+      <MenuBar />
 
-        <Section title="Experience">
+      {/* Desktop: 50% dither + ambient cyan "data-flow" glow (Mac × ML fusion) */}
+      <div className="mac-desktop relative flex flex-1 flex-col items-center px-3 py-6 sm:px-4 sm:py-10">
+        <div className="mac-window relative z-10 w-full max-w-2xl">
+          {/* Title bar — woven stripes, System 7 active window */}
+          <div className="mac-titlebar flex items-center gap-2 px-2 py-1.5">
+            <span className="mac-widget mac-widget-close" aria-hidden="true" />
+            <span className="mac-widget" aria-hidden="true" />
+            <span className="mac-widget" aria-hidden="true" />
+            <span className="ml-1 text-[17px] leading-none tracking-wide">
+              portfolio — read me
+            </span>
+          </div>
+
+          {/* Content area — inset bevel, near-white surface */}
+          <div className="mac-content flex flex-col">
+            {/* Hero: identity + neural-net CRT panel */}
+            <div className="grid grid-cols-1 gap-0 sm:grid-cols-[1fr_240px]">
+              <div className="flex flex-col justify-center gap-2.5 p-5 sm:p-6">
+                <h1 className="font-retro text-3xl leading-none text-black sm:text-4xl">
+                  Kenichiro Goto
+                </h1>
+                <p className="text-[13px] leading-relaxed text-mac-text-2">
+                  Software engineer &amp; machine-learning researcher.
+                  Backend &amp; infrastructure by day, deep learning by night.
+                </p>
+                <p className="text-[12px] text-mac-text-3">
+                  Computational Intelligence Lab · Ritsumeikan University
+                </p>
+              </div>
+              <div className="mac-crt mx-auto flex w-full max-w-[280px] flex-col sm:mx-0 sm:max-w-none">
+                <div
+                  className="flex items-center justify-between border-b border-black/60 px-2 py-1 font-retro text-[14px] leading-none"
+                  style={{ color: "#4cc9d4" }}
+                  aria-hidden="true"
+                >
+                  <span>nn.viz</span>
+                  <span className="text-[11px] opacity-70">forward pass</span>
+                </div>
+                <div className="flex flex-1 items-center justify-center p-2">
+                  <NeuralNetworkMini />
+                </div>
+              </div>
+            </div>
+
+            <Section title="Experience">
           <Entry
             title="Software Engineer Internship — Backend & Infrastructure"
             org="CyberAgent"
@@ -55,7 +95,7 @@ export default function Home() {
               period="Jul 2026"
               description={
                 <>
-                  <span className="font-semibold text-white">$2,000</span>{" "}
+                  <span className="font-semibold text-black">$2,000</span>{" "}
                   scholarship for students with excellent grades.
                 </>
               }
@@ -141,13 +181,19 @@ export default function Home() {
           <ItemLink href="mailto:frinfo702@gmail.com">Email</ItemLink>
         </Section>
 
-        <footer className="mt-20 flex flex-col gap-1 text-sm text-[#525252]">
-          <span className="text-[#525252]">
-            &copy; {new Date().getFullYear()} Kenichiro Goto. All rights
-            reserved.
-          </span>
-        </footer>
-      </main>
+            <footer className="mt-8 flex flex-col gap-1 border-t border-black/15 pt-3 text-[12px] text-mac-text-3">
+              <span>
+                &copy; {new Date().getFullYear()} Kenichiro Goto. All rights
+                reserved.
+              </span>
+            </footer>
+          </div>
+          {/* /content */}
+        </div>
+        {/* /window */}
+      </div>
+      {/* /desktop */}
+      <StatusBar />
     </div>
   );
 }
@@ -160,11 +206,11 @@ function SubSection({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-3">
-      <h3 className="text-[13px] font-semibold text-[#e5e5e5] border-b border-[#262626] pb-1">
+    <div className="flex flex-col gap-2">
+      <h3 className="mac-subtitle px-2 py-0.5 text-base leading-none">
         {title}
       </h3>
-      {children && <ul className="flex flex-col gap-4">{children}</ul>}
+      {children && <ul className="flex flex-col gap-3 pl-1">{children}</ul>}
     </div>
   );
 }
@@ -177,9 +223,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-10">
-      <h2 className="text-base font-semibold text-white mb-3">{title}</h2>
-      <ul className="flex flex-col gap-4">{children}</ul>
+    <section className="mt-5 first:mt-0">
+      <h2 className="mac-subtitle px-2 py-1 text-lg leading-none">{title}</h2>
+      <ul className="flex flex-col gap-3 px-3 py-3">{children}</ul>
     </section>
   );
 }
@@ -200,16 +246,17 @@ function Entry({
   return (
     <li className="flex flex-col gap-1">
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-sm text-white font-medium">{title}</span>
-        <span className="text-xs text-[#737373] shrink-0">{period}</span>
+        <span className="text-sm font-semibold text-black">{title}</span>
+        <span className="text-xs text-mac-text-3 shrink-0 tabular-nums">
+          {period}
+        </span>
       </div>
-      <a
-        href={href}
-        className="text-sm text-[#a3a3a3] border-b border-dotted border-[#525252] hover:text-white hover:border-[#a3a3a3] transition-colors w-fit"
-      >
+      <a href={href} className="mac-link text-sm w-fit">
         {org}
       </a>
-      <p className="text-sm text-[#a3a3a3] leading-6 mt-0.5">{description}</p>
+      <p className="text-[13px] text-mac-text-2 leading-6 mt-0.5">
+        {description}
+      </p>
     </li>
   );
 }
@@ -222,12 +269,12 @@ function ItemLink({
   children: React.ReactNode;
 }) {
   return (
-    <li>
-      <span className="text-[#525252] mr-1.5">·</span>
-      <a
-        href={href}
-        className="text-[15px] text-[#a3a3a3] border-b border-dotted border-[#525252] hover:text-white hover:border-[#a3a3a3] transition-colors"
-      >
+    <li className="flex items-center gap-2">
+      <span
+        className="inline-block h-2 w-2 shrink-0 bg-black"
+        aria-hidden="true"
+      />
+      <a href={href} className="mac-link text-sm">
         {children}
       </a>
     </li>
@@ -242,18 +289,19 @@ function SkillGroup({
   children: React.ReactNode;
 }) {
   return (
-    <li className="flex flex-col gap-1.5">
-      <span className="text-xs font-medium text-[#737373]">{label}</span>
-      <ul className="flex flex-wrap gap-x-3 gap-y-1.5">{children}</ul>
+    <li className="flex flex-col gap-2">
+      <span className="text-[11px] font-semibold uppercase tracking-wide text-mac-text-3">
+        {label}
+      </span>
+      <ul className="flex flex-wrap gap-1.5">{children}</ul>
     </li>
   );
 }
 
 function SkillItem({ children }: { children: React.ReactNode }) {
   return (
-    <li className="text-sm text-[#a3a3a3] flex gap-1">
-      <span className="text-[#525252]">·</span>
-      <span>{children}</span>
+    <li>
+      <span className="mac-chip">{children}</span>
     </li>
   );
 }
@@ -271,16 +319,18 @@ function LatelyItem({
 }) {
   return (
     <li className="flex items-center gap-3">
-      <Image
-        src={src}
-        alt={alt}
-        width={40}
-        height={40}
-        className="h-10 w-10 rounded object-cover shrink-0"
-      />
+      <div className="mac-frame shrink-0">
+        <Image
+          src={src}
+          alt={alt}
+          width={40}
+          height={40}
+          className="h-10 w-10 object-cover"
+        />
+      </div>
       <div className="flex flex-col text-sm">
-        <span className="text-[#e5e5e5]">{title}</span>
-        <span className="text-[#737373]">{subtitle}</span>
+        <span className="font-medium text-black">{title}</span>
+        <span className="text-xs text-mac-text-3">{subtitle}</span>
       </div>
     </li>
   );

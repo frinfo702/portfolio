@@ -1,13 +1,272 @@
 @import "tailwindcss";
 
+@theme {
+  --color-desktop: #1f1f1f;
+  --color-menubar: #d8d8d8;
+  --color-window: #c8c8c8;
+  --color-window-content: #efefef;
+  --color-mac-black: #000000;
+  --color-mac-white: #ffffff;
+  --color-mac-gray: #808080;
+  --color-mac-gray-dark: #6b6b6b;
+  --color-mac-text: #000000;
+  --color-mac-text-2: #333333;
+  --color-mac-text-3: #555555;
+  --color-mac-link: #0a3fb8;
+  --color-ml-glow: #4cc9d4;
+}
+
 @theme inline {
-  --color-background: #000000;
-  --color-foreground: #e5e5e5;
-  --font-sans: var(--font-geist-sans);
+  --font-retro: var(--font-vt323);
   --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-geist-mono);
+}
+
+html {
+  color: var(--color-mac-text);
 }
 
 body {
-  background: #000000;
-  color: #e5e5e5;
+  background: #1f1f1f;
+  color: var(--color-mac-text);
+  font-family: var(--font-mono);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
+
+/* Visible, on-theme focus ring (a11y: focus-states) */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 3px rgba(76, 201, 212, 0.55);
+  border-radius: 0;
+}
+
+/* Classic Mac 50% gray dither, rendered in dark tones (modern twist) */
+.mac-desktop {
+  position: relative;
+  background-color: #1f1f1f;
+  background-image:
+    linear-gradient(45deg, #2b2b2b 25%, transparent 25%),
+    linear-gradient(-45deg, #2b2b2b 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #2b2b2b 75%),
+    linear-gradient(-45deg, transparent 75%, #2b2b2b 75%);
+  background-size: 4px 4px;
+  background-position: 0 0, 0 2px, 2px -2px, -2px 0;
+}
+
+/* ambient cyan glow + vignette (the "ML lab at night" fusion) */
+.mac-desktop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 70% at 50% 0%, rgba(76, 201, 212, 0.06), transparent 60%),
+    radial-gradient(90% 60% at 85% 100%, rgba(76, 201, 212, 0.045), transparent 65%),
+    radial-gradient(100% 100% at 50% 40%, transparent 55%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+/* slow drifting "data-flow" bands (subtle ML signature) */
+.mac-desktop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(115deg, transparent 47%, rgba(76, 201, 212, 0.05) 50%, transparent 53%),
+    linear-gradient(115deg, transparent 65%, rgba(76, 201, 212, 0.035) 68%, transparent 71%);
+  background-size: 70% 70%;
+  background-repeat: no-repeat;
+  background-position: -15% 30%, 120% 75%;
+  animation: mac-dataflow 24s linear infinite;
+}
+
+@keyframes mac-dataflow {
+  0% { background-position: -15% 30%, 120% 75%; }
+  100% { background-position: 120% 30%, -15% 75%; }
+}
+
+.mac-menubar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #d8d8d8;
+  border-bottom: 1px solid #000;
+  box-shadow: inset 0 -1px 0 #fff, 0 2px 6px rgba(0, 0, 0, 0.45);
+  font-family: var(--font-retro);
+  color: #000;
+  -webkit-font-smoothing: none;
+}
+
+.mac-menubar-item {
+  font-size: 17px;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  user-select: none;
+}
+
+/* window */
+.mac-window {
+  background: #c8c8c8;
+  border: 1px solid #000;
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 #6b6b6b,
+    6px 6px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* active title bar — woven horizontal stripes (System 7 active window) */
+.mac-titlebar {
+  background-color: #c8c8c8;
+  background-image: repeating-linear-gradient(
+    0deg,
+    #6f6f6f 0 1px,
+    #dcdcdc 1px 2px
+  );
+  border-bottom: 1px solid #000;
+  box-shadow: inset 0 1px 0 #fff;
+  font-family: var(--font-retro);
+  color: #000;
+  -webkit-font-smoothing: none;
+}
+
+/* window widgets (close / zoom) — decorative System 7 boxes */
+.mac-widget {
+  width: 11px;
+  height: 11px;
+  flex: none;
+  background: #c8c8c8;
+  border: 1px solid #000;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+}
+
+.mac-widget-close {
+  position: relative;
+}
+.mac-widget-close::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border: 1px solid #000;
+  background: #c8c8c8;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+}
+
+/* content area — inset bevel, near-white surface */
+.mac-content {
+  background: #efefef;
+  border: 1px solid #000;
+  margin: 3px;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #8a8a8a;
+}
+
+/* section header — mini striped title bar */
+.mac-subtitle {
+  display: block;
+  background-color: #c8c8c8;
+  background-image: repeating-linear-gradient(
+    0deg,
+    #8a8a8a 0 1px,
+    #d8d8d8 1px 2px
+  );
+  border: 1px solid #000;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #6b6b6b;
+  font-family: var(--font-retro);
+  color: #000;
+  -webkit-font-smoothing: none;
+}
+
+/* CRT panel — dark monitor surface so the neural-net glow can sing */
+.mac-crt {
+  position: relative;
+  overflow: hidden;
+  background: #0c0c0c;
+  border: 1px solid #000;
+  box-shadow:
+    inset 1px 1px 0 #3a3a3a,
+    inset -1px -1px 0 #000,
+    0 0 0 2px #4a4a4a,
+    0 0 16px rgba(76, 201, 212, 0.2);
+}
+
+/* scanlines */
+.mac-crt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.3) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+/* status bar */
+.mac-statusbar {
+  background: #d8d8d8;
+  border: 1px solid #000;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+  font-family: var(--font-mono);
+}
+
+/* chip / button — beveled, "firing neuron" hover */
+.mac-chip {
+  display: inline-flex;
+  align-items: center;
+  background: #cfcfcf;
+  border: 1px solid #000;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+  padding: 1px 8px;
+  color: #000;
+  font-size: 13px;
+  line-height: 1.5;
+  transition: box-shadow 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+.mac-chip:hover {
+  background: #bcbcbc;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #6b6b6b;
+  transform: translateY(-1px);
+}
+.mac-chip:active {
+  box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #fff;
+  transform: translateY(0);
+}
+
+/* picture frame */
+.mac-frame {
+  background: #c8c8c8;
+  border: 1px solid #000;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+  padding: 2px;
+}
+
+/* link — classic Mac invert-on-hover */
+.mac-link {
+  color: var(--color-mac-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.mac-link:hover {
+  background: var(--color-mac-link);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* reduced motion (a11y) */
+@media (prefers-reduced-motion: reduce) {
+  .mac-desktop::after {
+    animation: none !important;
+  }
+  .mac-chip {
+    transition: none !important;
+  }
+  html {
+    scroll-behavior: auto !important;
+  }
+}
+
