@@ -119,8 +119,11 @@ export default function Home() {
 
         <Section title="Skills">
           <SkillGroup label="Domains">
-            <SkillItem>Deep learning</SkillItem>
-            <SkillItem>Systems architecture &amp; infrastructure</SkillItem>
+            <SkillItem>Machine Learning</SkillItem>
+            <SkillItem>Computer Vision</SkillItem>
+            <SkillItem>Software Engineering</SkillItem>
+            <SkillItem>Systems architecture</SkillItem>
+            <SkillItem>Infrastructure</SkillItem>
           </SkillGroup>
           <SkillGroup label="Programming Languages">
             <SkillItem>Go</SkillItem>
@@ -142,7 +145,8 @@ export default function Home() {
             <SkillItem>Docker</SkillItem>
             <SkillItem>Terraform</SkillItem>
             <SkillItem>Linux　(commands)</SkillItem>
-            <SkillItem>vim❤️‍🔥</SkillItem>
+            <SkillItem>vim</SkillItem>
+            <SkillItem>helix🧬</SkillItem>
           </SkillGroup>
           <SkillGroup label="Databases">
             <SkillItem>MySQL</SkillItem>
@@ -169,6 +173,12 @@ export default function Home() {
             alt="Jujutsu Kaisen season 3"
             title="Jujutsu Kaisen"
             subtitle="Season 3"
+          />
+          <LatelyItem
+            src="/redred.png"
+            alt="REDRED"
+            title="REDRED"
+            subtitle="CORTIS"
           />
         </Section>
 
