@@ -33,9 +33,6 @@ export default function Home() {
                   Software engineer &amp; machine-learning researcher.
                   Backend &amp; infrastructure by day, deep learning by night.
                 </p>
-                <p className="text-[12px] text-mac-text-3">
-                  Computational Intelligence Lab · Ritsumeikan University
-                </p>
               </div>
               <div className="mac-crt mx-auto flex w-full max-w-[280px] flex-col sm:mx-0 sm:max-w-none">
                 <div
