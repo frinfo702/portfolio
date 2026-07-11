@@ -1,0 +1,143 @@
+<h2>SpaceX 方向性 — どれが近い？</h2>
+<p class="subtitle">#000000 ベース前提。カードをクリックして選んでください（参考画像の雰囲気を寄せています）</p>
+
+<div class="cards">
+  <!-- A: Mission Control / CAD -->
+  <div class="card" data-choice="a-mission-control" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0;background:#000;overflow:hidden;">
+      <div style="display:flex;height:220px;font-family:ui-monospace,SF Mono,Menlo,monospace;font-size:9px;color:#b0b0b0;">
+        <!-- left tree -->
+        <div style="width:28%;border-right:1px solid #1a1a1a;padding:8px 6px;background:#050505;">
+          <div style="color:#666;letter-spacing:0.12em;margin-bottom:6px;font-size:8px;">OUTLINER</div>
+          <div style="color:#e8e8e8;margin-bottom:3px;">▸ AA12_Booster</div>
+          <div style="padding-left:8px;color:#888;line-height:1.55;">
+            <div>Aft_Section</div>
+            <div style="color:#fff;">● Mid_Body_Tank</div>
+            <div>LOX_Tank_Barrel</div>
+            <div>CH4_Tank_Barrel</div>
+            <div>Forward_Section</div>
+          </div>
+        </div>
+        <!-- center viewport -->
+        <div style="flex:1;position:relative;background:
+          linear-gradient(#0d0d0d 1px,transparent 1px),
+          linear-gradient(90deg,#0d0d0d 1px,transparent 1px);
+          background-size:16px 16px;background-color:#000;">
+          <div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);color:#555;letter-spacing:0.15em;font-size:8px;">ACTIVE · portfolio.asm</div>
+          <!-- fake rocket wireframe -->
+          <svg viewBox="0 0 80 160" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-48%);width:48px;height:96px;opacity:0.9;">
+            <ellipse cx="40" cy="18" rx="18" ry="6" fill="none" stroke="#c8c8c8" stroke-width="0.8"/>
+            <path d="M22 18 L22 110 Q40 125 58 110 L58 18" fill="none" stroke="#d0d0d0" stroke-width="0.8"/>
+            <line x1="22" y1="50" x2="58" y2="50" stroke="#666" stroke-width="0.5"/>
+            <line x1="22" y1="80" x2="58" y2="80" stroke="#666" stroke-width="0.5"/>
+            <path d="M22 110 L14 140 L30 118 M58 110 L66 140 L50 118" fill="none" stroke="#aaa" stroke-width="0.7"/>
+            <circle cx="40" cy="85" r="2" fill="#fff"/>
+          </svg>
+          <div style="position:absolute;bottom:8px;left:8px;color:#444;font-size:8px;">GRID · 1m</div>
+        </div>
+        <!-- right inspector -->
+        <div style="width:30%;border-left:1px solid #1a1a1a;padding:8px 6px;background:#050505;">
+          <div style="color:#666;letter-spacing:0.12em;margin-bottom:6px;font-size:8px;">INSPECTOR</div>
+          <div style="color:#888;margin-bottom:2px;">NAME</div>
+          <div style="color:#fff;margin-bottom:8px;border:1px solid #222;padding:3px 4px;background:#0a0a0a;">Kenichiro Goto</div>
+          <div style="color:#888;margin-bottom:2px;">TYPE</div>
+          <div style="color:#ccc;margin-bottom:8px;">engineer · ml</div>
+          <div style="color:#888;margin-bottom:2px;">STATUS</div>
+          <div style="color:#8f8;"><span style="display:inline-block;width:5px;height:5px;background:#4f4;border-radius:50%;margin-right:4px;"></span>online</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A · Mission Control</h3>
+      <p>CAD/工程ソフト風。左ツリー・中央ビュー・右プロパティ。参考画像②に近い。</p>
+    </div>
+  </div>
+
+  <!-- B: Floating Sim Windows -->
+  <div class="card" data-choice="b-floating-sim" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0;background:#000;overflow:hidden;">
+      <div style="height:220px;position:relative;background:#000;font-family:system-ui,-apple-system,sans-serif;">
+        <!-- soft ambient glow -->
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 45%,rgba(80,100,120,0.12),transparent 70%);"></div>
+        <!-- floating window 1 -->
+        <div style="position:absolute;left:10%;top:18%;width:72%;height:58%;background:rgba(18,18,18,0.92);border:1px solid #2a2a2a;border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,0.6);overflow:hidden;">
+          <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid #222;font-size:10px;color:#aaa;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#333;border:1px solid #555;"></span>
+            <span style="color:#e8e8e8;">portfolio · sim</span>
+            <span style="margin-left:auto;color:#555;font-size:9px;">180 · a 1.2°</span>
+          </div>
+          <div style="display:flex;height:calc(100% - 32px);">
+            <div style="width:34%;padding:10px;border-right:1px solid #1f1f1f;font-size:9px;color:#888;line-height:1.6;">
+              <div style="color:#555;margin-bottom:4px;letter-spacing:0.08em;">RESULTS</div>
+              <div>Drag <span style="color:#fff;float:right;">0.22</span></div>
+              <div>Lift <span style="color:#fff;float:right;">-0.12</span></div>
+              <div style="margin-top:8px;color:#555;">CONTROLS</div>
+              <div style="height:3px;background:#222;border-radius:2px;margin:4px 0;"><div style="width:60%;height:100%;background:#666;border-radius:2px;"></div></div>
+              <div style="height:3px;background:#222;border-radius:2px;margin:4px 0;"><div style="width:80%;height:100%;background:#666;border-radius:2px;"></div></div>
+            </div>
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;position:relative;">
+              <div style="width:70px;height:36px;border-radius:18px 18px 8px 8px;background:linear-gradient(180deg,#3a3a3a,#1a1a1a);border:1px solid #444;box-shadow:0 0 20px rgba(120,140,160,0.15);"></div>
+              <!-- streamlines -->
+              <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.5;" viewBox="0 0 100 60">
+                <path d="M5 30 Q30 28 50 30 T95 30" fill="none" stroke="#6a8" stroke-width="0.6"/>
+                <path d="M5 25 Q30 20 50 24 T95 22" fill="none" stroke="#6a8" stroke-width="0.5"/>
+                <path d="M5 35 Q30 38 50 36 T95 38" fill="none" stroke="#6a8" stroke-width="0.5"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <!-- background window peek -->
+        <div style="position:absolute;right:6%;top:10%;width:40%;height:40%;background:#0c0c0c;border:1px solid #1f1f1f;border-radius:10px;opacity:0.7;z-index:0;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B · Floating Sim</h3>
+      <p>浮遊するダークウィンドウ。参考画像①のプロダクトUIを黒ベースに寄せた形。</p>
+    </div>
+  </div>
+
+  <!-- C: Starship Spec Sheet -->
+  <div class="card" data-choice="c-starship-spec" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:0;background:#000;overflow:hidden;">
+      <div style="height:220px;background:#000;padding:20px 22px;font-family:system-ui,-apple-system,sans-serif;color:#fff;display:flex;flex-direction:column;">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:9px;letter-spacing:0.2em;color:#666;text-transform:uppercase;margin-bottom:28px;">
+          <span>Goto · Systems</span>
+          <span style="color:#444;">Mission</span>
+        </div>
+        <div style="font-size:22px;font-weight:500;letter-spacing:-0.02em;line-height:1.1;margin-bottom:8px;">
+          Kenichiro Goto
+        </div>
+        <div style="font-size:11px;color:#888;max-width:85%;line-height:1.45;margin-bottom:auto;">
+          Software engineer & machine-learning researcher. Backend by day, deep learning by night.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;border-top:1px solid #1a1a1a;padding-top:12px;margin-top:16px;">
+          <div>
+            <div style="font-size:8px;color:#555;letter-spacing:0.12em;margin-bottom:3px;">ROLE</div>
+            <div style="font-size:11px;color:#e0e0e0;">Engineer</div>
+          </div>
+          <div>
+            <div style="font-size:8px;color:#555;letter-spacing:0.12em;margin-bottom:3px;">STACK</div>
+            <div style="font-size:11px;color:#e0e0e0;">Go · PyTorch</div>
+          </div>
+          <div>
+            <div style="font-size:8px;color:#555;letter-spacing:0.12em;margin-bottom:3px;">STATUS</div>
+            <div style="font-size:11px;color:#e0e0e0;">Active</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C · Starship Spec</h3>
+      <p>spacex.com 系のミニマル。余白多め・白文字・スペック表。最クリーン。</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:1.5rem;">
+  <p class="subtitle" style="margin-bottom:0.5rem;">参考にした要素</p>
+  <ul style="font-size:0.9rem;color:var(--text-muted);line-height:1.6;padding-left:1.2rem;">
+    <li><strong>A</strong> … ロケットCADの暗いUI（アウトライン／インスペクタ／グリッド）</li>
+    <li><strong>B</strong> … エアフローシミュレーションの浮遊パネル</li>
+    <li><strong>C</strong> … 航空宇宙ブランドのスペックシート感</li>
+  </ul>
+</div>

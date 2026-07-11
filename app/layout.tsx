@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { VT323, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const vt323 = VT323({
-  variable: "--font-vt323",
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
-  weight: "400",
   display: "swap",
 });
 
@@ -32,9 +31,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${vt323.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="flex min-h-full flex-col bg-black text-text">
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hybrid Pro Mock — A+B</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --surface: #0a0a0a;
+      --surface-2: #111111;
+      --border: #1c1c1c;
+      --border-hi: #2a2a2a;
+      --text: #f2f2f2;
+      --text-2: #a0a0a0;
+      --text-3: #5c5c5c;
+      --accent: #d4d4d4;
+      --ok: #5cba6a;
+      --radius: 10px;
+      --font: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+      --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0e0e0e;
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      padding: 24px 20px 48px;
+    }
+    .frame {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .meta {
+      margin-bottom: 20px;
+    }
+    .meta h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .meta p {
+      font-size: 0.875rem;
+      color: #888;
+      line-height: 1.5;
+      max-width: 52rem;
+    }
+    .meta .tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #666;
+      border: 1px solid #2a2a2a;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    /* ===== App shell ===== */
+    .app {
+      background: var(--bg);
+      border: 1px solid var(--border-hi);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.03),
+        0 40px 80px rgba(0,0,0,0.55);
+      min-height: 640px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top bar — slim mission strip */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 40px;
+      padding: 0 14px;
+      border-bottom: 1px solid var(--border);
+      background: #050505;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-2);
+    }
+    .topbar .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      letter-spacing: 0.04em;
+    }
+    .topbar .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ok);
+      box-shadow: 0 0 8px rgba(92,186,106,0.6);
+    }
+    .topbar nav {
+      display: flex;
+      gap: 2px;
+    }
+    .topbar nav span {
+      padding: 4px 10px;
+      border-radius: 4px;
+      color: var(--text-3);
+    }
+    .topbar nav span.active {
+      color: var(--text);
+      background: var(--surface-2);
+    }
+    .topbar .clock {
+      color: var(--text-3);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Body: outliner | stage | inspector */
+    .body {
+      display: grid;
+      grid-template-columns: 200px 1fr 220px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* Panels */
+    .panel {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .panel:last-child {
+      border-right: none;
+      border-left: 1px solid var(--border);
+    }
+    .panel-head {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 12px 14px 8px;
+      border-bottom: 1px solid transparent;
+    }
+    .panel-body {
+      padding: 4px 8px 12px;
+      overflow: auto;
+      flex: 1;
+    }
+
+    /* Outliner tree */
+    .tree-item {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-2);
+      padding: 5px 8px;
+      border-radius: 5px;
+      cursor: default;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      line-height: 1.3;
+    }
+    .tree-item:hover { background: #141414; color: var(--text); }
+    .tree-item.active {
+      background: #161616;
+      color: var(--text);
+      box-shadow: inset 2px 0 0 #888;
+    }
+    .tree-item .chev { color: var(--text-3); width: 10px; font-size: 9px; }
+    .tree-item.child { padding-left: 22px; }
+    .tree-item .badge {
+      margin-left: auto;
+      font-size: 9px;
+      color: var(--text-3);
+    }
+    .tree-section {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #3a3a3a;
+      padding: 12px 8px 4px;
+    }
+
+    /* Stage — floating window on grid */
+    .stage {
+      position: relative;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% 30%, rgba(40,48,56,0.18), transparent 60%),
+        linear-gradient(#0a0a0a 1px, transparent 1px),
+        linear-gradient(90deg, #0a0a0a 1px, transparent 1px);
+      background-size: auto, 24px 24px, 24px 24px;
+      background-color: #000;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 28px 24px 40px;
+      overflow: auto;
+    }
+    .stage-label {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      color: #3a3a3a;
+      text-transform: uppercase;
+    }
+
+    /* Floating content window (B) */
+    .float-win {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      background: rgba(12, 12, 12, 0.94);
+      border: 1px solid #252525;
+      border-radius: 12px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04),
+        0 24px 48px rgba(0,0,0,0.55),
+        0 2px 0 rgba(255,255,255,0.03) inset;
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+    }
+    .float-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-bottom: 1px solid #1a1a1a;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-2);
+    }
+    .float-title .traffic {
+      display: flex;
+      gap: 5px;
+    }
+    .float-title .traffic i {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      display: block;
+    }
+    .float-title .name { color: var(--text); }
+    .float-title .meta-r {
+      margin-left: auto;
+      color: var(--text-3);
+      font-size: 10px;
+    }
+
+    .float-body { padding: 20px 18px 22px; }
+
+    .hero-name {
+      font-size: 1.65rem;
+      font-weight: 560;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .hero-bio {
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: var(--text-2);
+      margin-bottom: 18px;
+      max-width: 36em;
+    }
+
+    /* Telemetry strip inside float */
+    .telemetry {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+    .telemetry > div {
+      background: #0e0e0e;
+      padding: 10px 12px;
+    }
+    .telemetry .k {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      color: var(--text-3);
+      margin-bottom: 4px;
+    }
+    .telemetry .v {
+      font-size: 13px;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .sec {
+      margin-top: 18px;
+    }
+    .sec-h {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1a1a1a;
+      margin-bottom: 12px;
+    }
+    .entry {
+      margin-bottom: 14px;
+    }
+    .entry-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+    }
+    .entry-title {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.35;
+    }
+    .entry-period {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-3);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+    .entry-org {
+      font-size: 12px;
+      color: #8a8a8a;
+      margin-top: 2px;
+      text-decoration: none;
+    }
+    .entry-org:hover { color: #ccc; }
+    .entry-desc {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-top: 4px;
+      line-height: 1.45;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .chip {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--text-2);
+      background: #121212;
+      border: 1px solid #222;
+      border-radius: 5px;
+      padding: 3px 8px;
+    }
+
+    .link-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .link-row a {
+      font-size: 12.5px;
+      color: var(--text-2);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .link-row a::before {
+      content: "";
+      width: 4px;
+      height: 4px;
+      background: #555;
+      border-radius: 1px;
+    }
+    .link-row a:hover { color: #fff; }
+
+    /* Inspector */
+    .field {
+      margin-bottom: 12px;
+      padding: 0 6px;
+    }
+    .field label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 4px;
+    }
+    .field .val {
+      font-size: 12px;
+      color: var(--text);
+      background: #0a0a0a;
+      border: 1px solid #1f1f1f;
+      border-radius: 6px;
+      padding: 7px 9px;
+      font-family: var(--mono);
+    }
+    .field .val.plain {
+      background: transparent;
+      border: none;
+      padding: 2px 0;
+      color: var(--text-2);
+    }
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-2);
+    }
+    .status-row .led {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ok);
+      box-shadow: 0 0 6px rgba(92,186,106,0.5);
+    }
+
+    /* Bottom status */
+    .statusbar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 28px;
+      padding: 0 14px;
+      border-top: 1px solid var(--border);
+      background: #050505;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-3);
+    }
+    .statusbar strong {
+      color: var(--text-2);
+      font-weight: 500;
+    }
+    .statusbar .spacer { flex: 1; }
+
+    /* Choice row under mock */
+    .choices {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .choice {
+      background: #141414;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .choice:hover { border-color: #444; background: #181818; }
+    .choice.selected {
+      border-color: #888;
+      box-shadow: 0 0 0 1px #888;
+    }
+    .choice h3 {
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .choice .letter {
+      display: inline-flex;
+      width: 22px;
+      height: 22px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      background: #222;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .choice p {
+      font-size: 0.8rem;
+      color: #888;
+      line-height: 1.45;
+    }
+    .note {
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 860px) {
+      .body { grid-template-columns: 1fr; }
+      .panel { display: none; }
+      .stage { min-height: 520px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="meta">
+      <div class="tag">Pro mock · A + B hybrid</div>
+      <h1>Mission shell × Floating content window</h1>
+      <p>
+        左アウトライン / 右インスペクタ（A）＋ 中央の浮遊ダークウィンドウ（B）。
+        #000 ベース、1px ボーダー、モノスペースのメタ情報、角丸はウィンドウだけ。
+        本番はこの精度で組みます。
+      </p>
+    </div>
+
+    <div class="app" aria-label="Portfolio mockup">
+      <header class="topbar">
+        <div class="brand">
+          <span class="dot" aria-hidden="true"></span>
+          <span>GOTO · SYSTEMS</span>
+        </div>
+        <nav aria-label="Sections">
+          <span class="active">Overview</span>
+          <span>Experience</span>
+          <span>Skills</span>
+          <span>Contact</span>
+        </nav>
+        <div class="clock">14:32:08 UTC</div>
+      </header>
+
+      <div class="body">
+        <!-- OUTLINER -->
+        <aside class="panel" aria-label="Outliner">
+          <div class="panel-head">Outliner</div>
+          <div class="panel-body">
+            <div class="tree-item active">
+              <span class="chev">▾</span> portfolio
+              <span class="badge">asm</span>
+            </div>
+            <div class="tree-item child"><span class="chev">·</span> identity</div>
+            <div class="tree-item child"><span class="chev">·</span> experience</div>
+            <div class="tree-item child"><span class="chev">·</span> education</div>
+            <div class="tree-item child"><span class="chev">·</span> skills</div>
+            <div class="tree-item child"><span class="chev">·</span> projects</div>
+            <div class="tree-item child"><span class="chev">·</span> contact</div>
+
+            <div class="tree-section">Links</div>
+            <div class="tree-item"><span class="chev">·</span> resume.pdf</div>
+            <div class="tree-item"><span class="chev">·</span> github</div>
+            <div class="tree-item"><span class="chev">·</span> email</div>
+          </div>
+        </aside>
+
+        <!-- STAGE -->
+        <main class="stage">
+          <div class="stage-label">Viewport · readme</div>
+
+          <article class="float-win">
+            <div class="float-title">
+              <span class="traffic" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="name">readme · Kenichiro Goto</span>
+              <span class="meta-r">v0.1 · live</span>
+            </div>
+            <div class="float-body">
+              <h2 class="hero-name">Kenichiro Goto</h2>
+              <p class="hero-bio">
+                Software engineer &amp; machine-learning researcher.
+                Backend &amp; infrastructure by day, deep learning by night.
+              </p>
+
+              <div class="telemetry" aria-hidden="true">
+                <div>
+                  <div class="k">Role</div>
+                  <div class="v">Engineer · ML</div>
+                </div>
+                <div>
+                  <div class="k">Focus</div>
+                  <div class="v">Backend · CV</div>
+                </div>
+                <div>
+                  <div class="k">Status</div>
+                  <div class="v">Active</div>
+                </div>
+              </div>
+
+              <section class="sec">
+                <h3 class="sec-h">Experience</h3>
+                <div class="entry">
+                  <div class="entry-top">
+                    <div class="entry-title">Backend &amp; Infrastructure Intern</div>
+                    <div class="entry-period">2025 —</div>
+                  </div>
+                  <a class="entry-org" href="#">CyberAgent · pixiv · Finatext</a>
+                  <p class="entry-desc">Backend systems and infrastructure at scale.</p>
+                </div>
+              </section>
+
+              <section class="sec">
+                <h3 class="sec-h">Skills</h3>
+                <div class="chips">
+                  <span class="chip">Go</span>
+                  <span class="chip">Python</span>
+                  <span class="chip">Scala</span>
+                  <span class="chip">PyTorch</span>
+                  <span class="chip">GCP</span>
+                  <span class="chip">Docker</span>
+                  <span class="chip">Terraform</span>
+                </div>
+              </section>
+
+              <section class="sec">
+                <h3 class="sec-h">Contact</h3>
+                <div class="link-row">
+                  <a href="#">Resume</a>
+                  <a href="#">GitHub</a>
+                  <a href="#">Email</a>
+                </div>
+              </section>
+            </div>
+          </article>
+        </main>
+
+        <!-- INSPECTOR -->
+        <aside class="panel" aria-label="Inspector">
+          <div class="panel-head">Inspector</div>
+          <div class="panel-body">
+            <div class="field">
+              <label>Name</label>
+              <div class="val">Kenichiro Goto</div>
+            </div>
+            <div class="field">
+              <label>Type</label>
+              <div class="val plain">assembly · person</div>
+            </div>
+            <div class="field">
+              <label>Layer</label>
+              <div class="val plain">0 — Structure</div>
+            </div>
+            <div class="field">
+              <label>Status</label>
+              <div class="status-row">
+                <span class="led"></span>
+                online
+              </div>
+            </div>
+            <div class="field" style="margin-top:18px;">
+              <label>Transform</label>
+              <div class="val plain" style="font-size:11px;line-height:1.6;">
+                X 0.000&nbsp;&nbsp;Y 0.000<br />
+                Z 0.000&nbsp;&nbsp;R 0.000
+              </div>
+            </div>
+            <div class="field">
+              <label>Hooks</label>
+              <div class="val plain" style="font-size:11px;line-height:1.7;color:#666;">
+                Mass properties<br />
+                Interference check<br />
+                Thermal margin
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <footer class="statusbar">
+        <span>sel <strong>portfolio</strong></span>
+        <span>nodes <strong>7</strong></span>
+        <span>grid <strong>1m</strong></span>
+        <span class="spacer"></span>
+        <span>epoch <strong>042</strong></span>
+        <span>loss <strong>0.0317</strong></span>
+      </footer>
+    </div>
+
+    <div class="choices">
+      <div class="choice" data-choice="hybrid-as-is" onclick="toggleSelect(this)">
+        <h3><span class="letter">1</span> このレイアウトで確定</h3>
+        <p>3カラム + 浮遊ウィンドウをそのまま本番へ。モバイルでは左右パネルを折りたたみ。</p>
+      </div>
+      <div class="choice" data-choice="hybrid-simpler" onclick="toggleSelect(this)">
+        <h3><span class="letter">2</span> 少し削る</h3>
+        <p>Outliner か Inspector を片方だけ。中央の浮遊ウィンドウ + トップバー + ステータスを残す。</p>
+      </div>
+    </div>
+    <p class="note">
+      クリックして選ぶか、チャットで「1」「2」と返してください。
+      本番は Mac テーマを捨て、タイポ・余白・ボーダー・フォーカスをこのクラス感で実装します。
+    </p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pro mock v2 — single page + CAD 3D</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --surface: #0a0a0a;
+      --border: #1c1c1c;
+      --border-hi: #2a2a2a;
+      --text: #f0f0f0;
+      --text-2: #9a9a9a;
+      --text-3: #555;
+      --ok: #5cba6a;
+      --ml: #6ec8d4;
+      --font: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+      --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0c0c0c;
+      color: var(--text);
+      font-family: var(--font);
+      padding: 24px 16px 56px;
+    }
+    .wrap { max-width: 1120px; margin: 0 auto; }
+    .intro { margin-bottom: 18px; }
+    .intro .tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #666;
+      border: 1px solid #2a2a2a;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .intro h1 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .intro p {
+      font-size: 0.875rem;
+      color: #888;
+      line-height: 1.55;
+      max-width: 48rem;
+    }
+
+    .app {
+      background: #000;
+      border: 1px solid var(--border-hi);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.55);
+      min-height: 720px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      border-bottom: 1px solid var(--border);
+      background: #050505;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-2);
+    }
+    .topbar .brand {
+      display: flex; align-items: center; gap: 8px; color: #fff;
+    }
+    .topbar .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--ok); box-shadow: 0 0 8px rgba(92,186,106,0.5);
+    }
+    .topbar .hint { color: var(--text-3); }
+    .topbar .clock { color: var(--text-3); font-variant-numeric: tabular-nums; }
+
+    .body {
+      display: grid;
+      grid-template-columns: 188px 1fr 208px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .panel {
+      background: #080808;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .panel.left { border-right: 1px solid var(--border); }
+    .panel.right { border-left: 1px solid var(--border); }
+    .panel-head {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 12px 12px 8px;
+    }
+    .panel-body { padding: 0 6px 12px; overflow: auto; flex: 1; }
+
+    .tree-item {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-2);
+      padding: 5px 8px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tree-item.active {
+      background: #141414;
+      color: #fff;
+      box-shadow: inset 2px 0 0 #888;
+    }
+    .tree-item.child { padding-left: 20px; color: #777; }
+    .tree-item .chev { width: 10px; color: #444; font-size: 9px; }
+    .tree-item .badge {
+      margin-left: auto; font-size: 9px; color: #444;
+    }
+    .tree-section {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #333;
+      padding: 14px 8px 4px;
+    }
+
+    /* Center: scrollable single page */
+    .stage {
+      position: relative;
+      background:
+        radial-gradient(ellipse 70% 40% at 50% 10%, rgba(40,55,65,0.14), transparent 55%),
+        linear-gradient(#0a0a0a 1px, transparent 1px),
+        linear-gradient(90deg, #0a0a0a 1px, transparent 1px);
+      background-size: auto, 24px 24px, 24px 24px;
+      background-color: #000;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 20px 18px 36px;
+    }
+    .stage::-webkit-scrollbar { width: 8px; }
+    .stage::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
+
+    .stack {
+      max-width: 520px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Floating cards */
+    .win {
+      background: rgba(12,12,12,0.95);
+      border: 1px solid #242424;
+      border-radius: 12px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.03),
+        0 16px 40px rgba(0,0,0,0.45);
+      overflow: hidden;
+    }
+    .win-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-bottom: 1px solid #1a1a1a;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-2);
+    }
+    .win-title .traffic {
+      display: flex; gap: 5px;
+    }
+    .win-title .traffic i {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #2a2a2a; border: 1px solid #3a3a3a; display: block;
+    }
+    .win-title .name { color: #e8e8e8; }
+    .win-title .meta {
+      margin-left: auto; color: #444; font-size: 10px;
+    }
+    .win-body { padding: 16px 16px 18px; }
+
+    .hero-name {
+      font-size: 1.55rem;
+      font-weight: 560;
+      letter-spacing: -0.03em;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .hero-bio {
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: var(--text-2);
+      margin-bottom: 14px;
+    }
+    .telemetry {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: #1a1a1a;
+      border: 1px solid #1a1a1a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .telemetry > div { background: #0e0e0e; padding: 9px 10px; }
+    .telemetry .k {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      color: #444;
+      margin-bottom: 3px;
+    }
+    .telemetry .v { font-size: 12px; color: #e0e0e0; }
+
+    /* 3D viewport window */
+    .viewport {
+      position: relative;
+      height: 240px;
+      background:
+        radial-gradient(ellipse 50% 45% at 50% 48%, rgba(110,200,212,0.06), transparent 65%),
+        #050505;
+      overflow: hidden;
+    }
+    .viewport canvas-placeholder {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    /* Fake 3D assembly: rocket spine + neural nodes */
+    .assy {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .assy svg { width: 100%; height: 100%; }
+    .viewport-hud {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: #3a3a3a;
+    }
+    .viewport-hud .tl { position: absolute; top: 10px; left: 12px; letter-spacing: 0.12em; }
+    .viewport-hud .tr { position: absolute; top: 10px; right: 12px; color: #4a6a70; letter-spacing: 0.08em; }
+    .viewport-hud .bl { position: absolute; bottom: 10px; left: 12px; }
+    .viewport-hud .br { position: absolute; bottom: 10px; right: 12px; color: #444; }
+    .viewport-note {
+      padding: 8px 12px 10px;
+      border-top: 1px solid #1a1a1a;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #555;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .viewport-note span em {
+      font-style: normal;
+      color: var(--ml);
+    }
+
+    .sec-h {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #4a4a4a;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1a1a1a;
+      margin-bottom: 12px;
+    }
+    .entry { margin-bottom: 13px; }
+    .entry:last-child { margin-bottom: 0; }
+    .entry-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+    }
+    .entry-title {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: #eee;
+      line-height: 1.35;
+    }
+    .entry-period {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #4a4a4a;
+      white-space: nowrap;
+    }
+    .entry-org {
+      font-size: 12px;
+      color: #7a7a7a;
+      margin-top: 2px;
+      display: inline-block;
+      text-decoration: none;
+    }
+    .entry-org:hover { color: #ccc; }
+    .entry-desc {
+      font-size: 12px;
+      color: #4a4a4a;
+      margin-top: 3px;
+      line-height: 1.45;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: #9a9a9a;
+      background: #101010;
+      border: 1px solid #222;
+      border-radius: 5px;
+      padding: 3px 8px;
+    }
+    .skill-group { margin-bottom: 12px; }
+    .skill-group:last-child { margin-bottom: 0; }
+    .skill-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #3a3a3a;
+      margin-bottom: 6px;
+    }
+    .link-row { display: flex; flex-direction: column; gap: 7px; }
+    .link-row a {
+      font-size: 12.5px;
+      color: #9a9a9a;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .link-row a::before {
+      content: "";
+      width: 4px; height: 4px;
+      background: #444;
+      border-radius: 1px;
+    }
+    .link-row a:hover { color: #fff; }
+    .lately-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .lately-row:last-child { margin-bottom: 0; }
+    .lately-thumb {
+      width: 36px; height: 36px;
+      border-radius: 6px;
+      background: #1a1a1a;
+      border: 1px solid #252525;
+    }
+    .lately-title { font-size: 12.5px; color: #e0e0e0; }
+    .lately-sub { font-size: 11px; color: #4a4a4a; }
+
+    .field { margin-bottom: 12px; padding: 0 6px; }
+    .field label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 4px;
+    }
+    .field .val {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #e8e8e8;
+      background: #0a0a0a;
+      border: 1px solid #1f1f1f;
+      border-radius: 6px;
+      padding: 7px 9px;
+    }
+    .field .val.plain {
+      background: transparent;
+      border: none;
+      padding: 2px 0;
+      color: #8a8a8a;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+    .status-row {
+      display: flex; align-items: center; gap: 7px;
+      font-family: var(--mono); font-size: 12px; color: #9a9a9a;
+    }
+    .status-row .led {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--ok);
+      box-shadow: 0 0 6px rgba(92,186,106,0.45);
+    }
+
+    .statusbar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      height: 28px;
+      padding: 0 14px;
+      border-top: 1px solid var(--border);
+      background: #050505;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #444;
+    }
+    .statusbar strong { color: #888; font-weight: 500; }
+    .statusbar .spacer { flex: 1; }
+    .statusbar .ml { color: #4a7078; }
+
+    .callouts {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .callout {
+      background: #141414;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .callout h3 {
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      color: #ddd;
+    }
+    .callout p {
+      font-size: 0.78rem;
+      color: #777;
+      line-height: 1.5;
+    }
+    .callout ul {
+      margin-top: 8px;
+      padding-left: 1.1rem;
+      font-size: 0.78rem;
+      color: #888;
+      line-height: 1.55;
+    }
+    .note {
+      margin-top: 14px;
+      font-size: 0.8rem;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 900px) {
+      .body { grid-template-columns: 1fr; }
+      .panel { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="intro">
+      <div class="tag">Pro mock v2 · requirements locked</div>
+      <h1>Single-page content + CAD 3D (engineering × AI)</h1>
+      <p>
+        リンク（Resume / GitHub / Email）以外はすべて同一ページ内にスクロールで表示。
+        中央に「構造体 × ニューラルネットワーク」の CAD ビューポート。
+        本番は three.js でインタラクティブにします（既存依存を活用）。
+      </p>
+    </div>
+
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="dot"></span>
+          <span>GOTO · SYSTEMS</span>
+        </div>
+        <span class="hint">single assembly · scroll to inspect</span>
+        <span class="clock">14:32:08 UTC</span>
+      </header>
+
+      <div class="body">
+        <!-- OUTLINER: in-page anchors only -->
+        <aside class="panel left">
+          <div class="panel-head">Outliner</div>
+          <div class="panel-body">
+            <div class="tree-item active"><span class="chev">▾</span> portfolio <span class="badge">asm</span></div>
+            <div class="tree-item child"><span class="chev">·</span> identity</div>
+            <div class="tree-item child"><span class="chev">·</span> viewport.3d</div>
+            <div class="tree-item child"><span class="chev">·</span> experience</div>
+            <div class="tree-item child"><span class="chev">·</span> education</div>
+            <div class="tree-item child"><span class="chev">·</span> skills</div>
+            <div class="tree-item child"><span class="chev">·</span> projects</div>
+            <div class="tree-item child"><span class="chev">·</span> lately</div>
+            <div class="tree-item child"><span class="chev">·</span> contact</div>
+            <div class="tree-section">External</div>
+            <div class="tree-item"><span class="chev">↗</span> resume.pdf</div>
+            <div class="tree-item"><span class="chev">↗</span> github</div>
+            <div class="tree-item"><span class="chev">↗</span> email</div>
+          </div>
+        </aside>
+
+        <!-- STAGE: everything on one scroll -->
+        <main class="stage">
+          <div class="stack">
+
+            <!-- Identity -->
+            <article class="win" id="identity">
+              <div class="win-title">
+                <span class="traffic"><i></i><i></i><i></i></span>
+                <span class="name">identity · Kenichiro Goto</span>
+                <span class="meta">node 01</span>
+              </div>
+              <div class="win-body">
+                <h2 class="hero-name">Kenichiro Goto</h2>
+                <p class="hero-bio">
+                  Software engineer &amp; machine-learning researcher.
+                  Backend &amp; infrastructure by day, deep learning by night.
+                </p>
+                <div class="telemetry">
+                  <div><div class="k">Role</div><div class="v">Engineer · ML</div></div>
+                  <div><div class="k">Focus</div><div class="v">Backend · CV</div></div>
+                  <div><div class="k">Status</div><div class="v">Active</div></div>
+                </div>
+              </div>
+            </article>
+
+            <!-- CAD 3D viewport -->
+            <article class="win" id="viewport">
+              <div class="win-title">
+                <span class="traffic"><i></i><i></i><i></i></span>
+                <span class="name">viewport · nn.structure</span>
+                <span class="meta">FEA · forward pass</span>
+              </div>
+              <div class="viewport" aria-label="CAD 3D assembly: engineering structure fused with neural network">
+                <div class="assy">
+                  <!-- Engineering spine + neural graph hybrid -->
+                  <svg viewBox="0 0 400 240" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#6ec8d4" stop-opacity="0.15"/>
+                        <stop offset="50%" stop-color="#6ec8d4" stop-opacity="0.85"/>
+                        <stop offset="100%" stop-color="#6ec8d4" stop-opacity="0.15"/>
+                      </linearGradient>
+                      <filter id="glow">
+                        <feGaussianBlur stdDeviation="1.4" result="b"/>
+                        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                      </filter>
+                    </defs>
+                    <!-- floor grid perspective hint -->
+                    <g stroke="#141414" stroke-width="0.6" fill="none">
+                      <path d="M40 190 L200 210 L360 190"/>
+                      <path d="M60 170 L200 188 L340 170"/>
+                      <path d="M80 150 L200 166 L320 150"/>
+                    </g>
+
+                    <!-- structural barrel (engineering) -->
+                    <g fill="none" stroke="#b8b8b8" stroke-width="1.1" opacity="0.9">
+                      <ellipse cx="200" cy="52" rx="28" ry="9"/>
+                      <path d="M172 52 L172 168 Q200 188 228 168 L228 52"/>
+                      <ellipse cx="200" cy="168" rx="28" ry="9"/>
+                      <line x1="172" y1="90" x2="228" y2="90" stroke="#555" stroke-width="0.7"/>
+                      <line x1="172" y1="120" x2="228" y2="120" stroke="#555" stroke-width="0.7"/>
+                      <line x1="172" y1="148" x2="228" y2="148" stroke="#555" stroke-width="0.7"/>
+                      <!-- stringers -->
+                      <line x1="186" y1="52" x2="186" y2="168" stroke="#666" stroke-width="0.5"/>
+                      <line x1="214" y1="52" x2="214" y2="168" stroke="#666" stroke-width="0.5"/>
+                      <!-- fins / base -->
+                      <path d="M172 168 L152 205 L185 178" stroke="#999" stroke-width="0.9"/>
+                      <path d="M228 168 L248 205 L215 178" stroke="#999" stroke-width="0.9"/>
+                      <path d="M188 175 L200 210 L212 175" stroke="#888" stroke-width="0.8"/>
+                    </g>
+
+                    <!-- neural overlay: layers around structure -->
+                    <g filter="url(#glow)">
+                      <!-- edges -->
+                      <g stroke="url(#edge)" stroke-width="0.9" fill="none" opacity="0.9">
+                        <path d="M95 70 C130 70, 145 52, 172 55"/>
+                        <path d="M95 100 C135 95, 150 90, 172 90"/>
+                        <path d="M95 130 C135 125, 150 120, 172 120"/>
+                        <path d="M95 160 C130 155, 150 148, 172 148"/>
+                        <path d="M228 55 C250 52, 270 70, 305 70"/>
+                        <path d="M228 90 C250 90, 270 95, 305 100"/>
+                        <path d="M228 120 C250 120, 270 125, 305 130"/>
+                        <path d="M228 148 C250 148, 270 155, 305 160"/>
+                        <!-- cross-layer -->
+                        <path d="M95 70 C100 100, 100 130, 95 160" stroke="#6ec8d4" stroke-opacity="0.25"/>
+                        <path d="M305 70 C300 100, 300 130, 305 160" stroke="#6ec8d4" stroke-opacity="0.25"/>
+                      </g>
+                      <!-- input nodes -->
+                      <g fill="#6ec8d4">
+                        <circle cx="95" cy="70" r="3.2"/><circle cx="95" cy="100" r="3.2"/>
+                        <circle cx="95" cy="130" r="3.2"/><circle cx="95" cy="160" r="3.2"/>
+                      </g>
+                      <!-- structural nodes (on hull) -->
+                      <g fill="#e8e8e8">
+                        <circle cx="172" cy="55" r="2.4"/><circle cx="172" cy="90" r="2.4"/>
+                        <circle cx="172" cy="120" r="2.4"/><circle cx="172" cy="148" r="2.4"/>
+                        <circle cx="228" cy="55" r="2.4"/><circle cx="228" cy="90" r="2.4"/>
+                        <circle cx="228" cy="120" r="2.4"/><circle cx="228" cy="148" r="2.4"/>
+                      </g>
+                      <!-- output nodes -->
+                      <g fill="#6ec8d4">
+                        <circle cx="305" cy="70" r="3.2"/><circle cx="305" cy="100" r="3.2"/>
+                        <circle cx="305" cy="130" r="3.2"/><circle cx="305" cy="160" r="3.2"/>
+                      </g>
+                    </g>
+
+                    <!-- labels -->
+                    <g font-family="ui-monospace,monospace" font-size="8" fill="#3a5a60">
+                      <text x="72" y="48">INPUT</text>
+                      <text x="188" y="36">HULL</text>
+                      <text x="298" y="48">OUTPUT</text>
+                    </g>
+                  </svg>
+                </div>
+                <div class="viewport-hud">
+                  <span class="tl">ASSEMBLY · NN_HULL_v2</span>
+                  <span class="tr">● FORWARD</span>
+                  <span class="bl">GRID 1m · ORTHO</span>
+                  <span class="br">nodes 16 · edges 12</span>
+                </div>
+              </div>
+              <div class="viewport-note">
+                <span>CAD structure + neural graph overlay</span>
+                <span>drag to orbit · scroll zoom · <em>live</em></span>
+              </div>
+            </article>
+
+            <!-- Experience -->
+            <article class="win" id="experience">
+              <div class="win-title">
+                <span class="traffic"><i></i><i></i><i></i></span>
+                <span class="name">experience</span>
+                <span class="meta">node 03</span>
+              </div>
+              <div class="win-body">
+                <h3 class="sec-h">Experience</h3>
+                <div class="entry">
+                  <div class="entry-top">
+                    <div class="entry-title">Backend &amp; Infrastructure Intern</div>
+                    <div class="entry-period">Aug 2025 — Sep 2025</div>
+                  </div>
+                  <a class="entry-org" href="#">CyberAgent</a>
+                  <p class="entry-desc">Backend and infrastructure systems.</p>
+                </div>
+                <div class="entry">
+                  <div class="entry-top">
+                    <div class="entry-title">Software Engineer Intern — Backend</div>
+                    <div class="entry-period">Jun 2025 — Current</div>
+                  </div>
+                  <a class="entry-org" href="#">pixiv Inc.</a>
+                  <p class="entry-desc">Backend and infrastructure systems.</p>
+                </div>
+                <div class="entry">
+                  <div class="entry-top">
+                    <div class="entry-title">Software Engineer Intern — Backend</div>
+                    <div class="entry-period">Jan 2025 — May 2025</div>
+                  </div>
+                  <a class="entry-org" href="#">Finatext Holdings Ltd.</a>
+                  <p class="entry-desc">Backend and infrastructure systems.</p>
+                </div>
+              </div>
+            </article>
+
+            <!-- Education -->
+            <article class="win" id="education">
+              <div class="win-title">
+                <span class="traffic"><i></i><i></i><i></i></span>
+                <span class="name">education</span>
+                <span class="meta">node 04</span>
+              </div>
+              <div class="win-body">
+                <h3 class="sec-h">Education</h3>
+                <div class="entry">
+                  <div class="entry-top">
+                    <div class="entry-title">B.E. Information Science and Engineering</div>
+                    <div class="entry-period">2023 — 2027</div>
+                  </div>
+                  <a class="entry-org" href="#">Ritsumeikan University</a>
+                  <p class="entry-desc">Computational Intelligence Lab · computer vision research.</p>
+                </div>
+              </div>
+            </article>
+
+            <!-- Skills -->
+            <article class="win" id="skills">
+              <div class="win-title">
+                <span class="traffic"><i></i><i></i><i></i></span>
+                <span class="name">skills</span>
+                <span class="meta">node 05</span>
+              </div>
+              <div class="win-body">
+                <h3 class="sec-h">Skills</h3>
+                <div class="skill-group">
+                  <div class="skill-label">Domains</div>
+                  <div class="chips">
+                    <span class="chip">Machine Learning</span>
+                    <span class="chip">Computer Vision</span>
+                    <span class="chip">Software Engineering</span>
+                    <span class="chip">Infrastructure</span>
+                  </div>
+                </div>
+                <div class="skill-group">
+                  <div class="skill-label">Languages</div>
+                  <div class="chips">
+                    <span class="chip">Go</span>
+                    <span class="chip">Scala</span>
+                    <span class="chip">Python</span>
+                    <span class="chip">Shell</span>
+                  </div>
+                </div>
+                <div class="skill-group">
+                  <div class="skill-label">Stack</div>
+                  <div class="chips">
+                    <span class="chip">PyTorch</span>
+                    <span class="chip">Echo</span>
+                    <span class="chip">GCP</span>
+                    <span class="chip">Docker</span>
+                    <span class="chip">Terraform</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Projects + Lately + Contact -->
+            <article class="win" id="projects">
+              <div class="win-title">
+                <span class="traffic"><i></i><i></i><i></i></span>
+                <span class="name">projects · lately · contact</span>
+                <span class="meta">node 06–08</span>
+              </div>
+              <div class="win-body">
+                <h3 class="sec-h">Projects</h3>
+                <div class="link-row" style="margin-bottom:16px;">
+                  <a href="#">english-test-generator</a>
+                </div>
+                <h3 class="sec-h">Lately</h3>
+                <div class="lately-row">
+                  <div class="lately-thumb"></div>
+                  <div>
+                    <div class="lately-title">Yomi no Tsugai</div>
+                    <div class="lately-sub">Season 1</div>
+                  </div>
+                </div>
+                <div class="lately-row">
+                  <div class="lately-thumb"></div>
+                  <div>
+                    <div class="lately-title">Jujutsu Kaisen</div>
+                    <div class="lately-sub">Season 3</div>
+                  </div>
+                </div>
+                <div class="lately-row" style="margin-bottom:16px;">
+                  <div class="lately-thumb"></div>
+                  <div>
+                    <div class="lately-title">REDRED</div>
+                    <div class="lately-sub">CORTIS</div>
+                  </div>
+                </div>
+                <h3 class="sec-h">Contact</h3>
+                <div class="link-row">
+                  <a href="#">Resume ↗</a>
+                  <a href="#">GitHub ↗</a>
+                  <a href="#">Email ↗</a>
+                </div>
+              </div>
+            </article>
+
+          </div>
+        </main>
+
+        <!-- INSPECTOR -->
+        <aside class="panel right">
+          <div class="panel-head">Inspector</div>
+          <div class="panel-body">
+            <div class="field">
+              <label>Active</label>
+              <div class="val">nn.structure</div>
+            </div>
+            <div class="field">
+              <label>Type</label>
+              <div class="val plain">hybrid assembly</div>
+            </div>
+            <div class="field">
+              <label>Domains</label>
+              <div class="val plain">structural · neural</div>
+            </div>
+            <div class="field">
+              <label>Status</label>
+              <div class="status-row"><span class="led"></span>forward pass</div>
+            </div>
+            <div class="field" style="margin-top:14px;">
+              <label>Mass props</label>
+              <div class="val plain">nodes 16<br/>edges 12<br/>layers 3</div>
+            </div>
+            <div class="field">
+              <label>Analysis</label>
+              <div class="val plain" style="color:#4a6068;">
+                interference · ok<br/>
+                gradient · stable<br/>
+                thermal · n/a
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <footer class="statusbar">
+        <span>sel <strong>nn.structure</strong></span>
+        <span>scroll <strong>single page</strong></span>
+        <span class="spacer"></span>
+        <span class="ml">epoch <strong>042</strong></span>
+        <span class="ml">loss <strong>0.0317</strong></span>
+      </footer>
+    </div>
+
+    <div class="callouts">
+      <div class="callout">
+        <h3>同一ページ</h3>
+        <p>Experience / Education / Skills / Projects / Lately / Contact はすべて中央カラム内に縦積み。Outliner はページ内ジャンプのみ。</p>
+        <ul>
+          <li>外部遷移は Resume / GitHub / Email（とプロジェクトURL）のみ</li>
+          <li>組織名リンクは現状どおり外部可</li>
+        </ul>
+      </div>
+      <div class="callout">
+        <h3>CAD 3D（工学 × AI）</h3>
+        <p>ワイヤーフレーム構造体（タンク/ハル）にニューラルネットワークのノード・エッジをオーバーレイ。Orbit 操作可能。</p>
+        <ul>
+          <li>three.js（既存依存）で実装</li>
+          <li>シアンの forward-pass グロー + グレーの構造線</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note">
+      方向が合っていれば、このまま仕様を固めて実装計画に入ります。
+      修正点があればチャットでどうぞ（例: 3Dをもっとロケット寄り / もっとNN寄り など）。
+    </p>
+  </div>
+</body>
+</html>
