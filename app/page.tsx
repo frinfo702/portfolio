@@ -179,6 +179,27 @@ export default function Home() {
                 </ul>
               </Section>
 
+              <Section id="writing" title="Writing" code="wrt">
+                <ul>
+                  <li className="sx-row">
+                    <a href="/writing" className="sx-link text-[13.5px]">
+                      Writing index
+                    </a>
+                    <span className="font-mono text-[11px] text-[#777]">
+                      /writing
+                    </span>
+                  </li>
+                  <li className="sx-row">
+                    <a href="/docs/" className="sx-link text-[13.5px]">
+                      Documentation
+                    </a>
+                    <span className="font-mono text-[11px] text-[#777]">
+                      guide
+                    </span>
+                  </li>
+                </ul>
+              </Section>
+
               <Section id="lately" title="Lately" code="lat">
                 <ul className="flex flex-col">
                   <LatelyItem
