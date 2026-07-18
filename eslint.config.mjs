@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Next.js auto-generated type validation files
     "types/**",
+    // Zensical docs tooling / build output
+    "zensical-doc/.venv/**",
+    "zensical-doc/site/**",
   ]),
 ]);
 
