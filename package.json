@@ -6,6 +6,8 @@
     "dev": "next dev --webpack",
     "build": "next build && npm run build:docs",
     "build:docs": "bash scripts/build-docs.sh",
+    "preview": "bash scripts/preview.sh",
+    "preview:serve": "SKIP_BUILD=1 bash scripts/preview.sh",
     "test:writing": "npx --yes tsx lib/writing.test.ts",
     "start": "next start",
     "lint": "eslint",
