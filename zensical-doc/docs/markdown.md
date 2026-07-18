@@ -41,6 +41,20 @@ hide:
 ![Image with title](image.jpg "Image title")
 ```
 
+### Link preview cards
+
+A standalone URL becomes a preview card automatically:
+
+https://example.com/
+
+For a richer, explicit card, use the corrected closing tag `</Emb>` and optional metadata attributes:
+
+<Emb title="Example" description="A custom description for the link preview.">https://example.com/</Emb>
+
+Normal Markdown links remain normal links:
+
+[Read the example](https://example.com/)
+
 ## Lists
 
 Unordered:

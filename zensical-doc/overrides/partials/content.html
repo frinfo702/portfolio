@@ -4,9 +4,43 @@
 {% set chapter = page.meta.chapter if page.meta and page.meta.chapter else none %}
 {% set description = page.meta.description if page.meta and page.meta.description else none %}
 {% set date = page.meta.date if page.meta and page.meta.date else none %}
+{% set active_section = namespace(items=none) %}
+{% for nav_item in nav.items %}
+  {% if nav_item.active and nav_item.children %}
+    {% set active_section.items = nav_item.children %}
+  {% endif %}
+{% endfor %}
 
 {% if is_home %}
   {{ page.content }}
+  <ol class="av-toc">
+    {% for nav_item in nav.items %}
+      {% set target = nav_item.children | first if nav_item.children else nav_item %}
+      {% if target.url %}
+        {% set metadata = target.meta if target.meta else nav_item.meta %}
+        <li>
+          <a href="{{ target.url | url }}">
+            {% if metadata and metadata.chapter %}
+              <span class="av-toc-chapter">{{ metadata.chapter }}</span>
+            {% else %}
+              <span class="av-toc-chapter">Chapter {{ loop.index - 1 }}</span>
+            {% endif %}
+            <span class="av-toc-body">
+              <span class="av-toc-title">{{ nav_item.title }}</span>
+              {% if metadata and metadata.description %}
+                <span class="av-toc-desc">{{ metadata.description }}</span>
+              {% endif %}
+              {% if metadata and metadata.date %}
+                <span class="av-toc-date">{{ metadata.date }}</span>
+              {% endif %}
+            </span>
+            <svg class="av-toc-arrow" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ol>
+  <p class="av-site-footer">built with zensical in Osaka, 2026</p>
 {% else %}
   <div class="av-top">
     <a class="av-back" href="{{ nav.homepage.url | url if nav.homepage else '.' | url }}">
@@ -52,6 +86,39 @@
     {% endif %}
     <div class="av-body">
       {{ page.content }}
+      {% if active_section.items %}
+        <div class="av-section-contents">
+          <p class="av-toc-label">Contents</p>
+          <ol class="av-toc">
+            {% set section_page = namespace(number=0) %}
+            {% for nav_item in active_section.items %}
+              {% if not nav_item.active %}
+                {% set section_page.number = section_page.number + 1 %}
+                {% set target = nav_item.children | first if nav_item.children else nav_item %}
+                <li>
+                  <a href="{{ target.url | url }}">
+                    {% if target.meta and target.meta.chapter %}
+                      <span class="av-toc-chapter">{{ target.meta.chapter }}</span>
+                    {% else %}
+                      <span class="av-toc-chapter">Page {{ section_page.number }}</span>
+                    {% endif %}
+                    <span class="av-toc-body">
+                      <span class="av-toc-title">{{ nav_item.title }}</span>
+                      {% if target.meta and target.meta.description %}
+                        <span class="av-toc-desc">{{ target.meta.description }}</span>
+                      {% endif %}
+                      {% if target.meta and target.meta.date %}
+                        <span class="av-toc-date">{{ target.meta.date }}</span>
+                      {% endif %}
+                    </span>
+                    <svg class="av-toc-arrow" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                  </a>
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ol>
+        </div>
+      {% endif %}
     </div>
   </article>
 {% endif %}

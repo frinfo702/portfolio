@@ -1,6 +1,6 @@
 # zensical-doc
 
-Editorial documentation site built with [Zensical](https://zensical.org/), styled after a single-column reading layout (et-book, off-white canvas, TOC index).
+Editorial documentation site built with [Zensical](https://zensical.org/), styled after a single-column reading layout (Open Sans, off-white canvas, TOC index).
 
 ## Develop
 
@@ -18,5 +18,5 @@ uv run zensical build --clean
 ## Test
 
 ```bash
-uv run python -m unittest tests/test_editorial_theme.py
+uv run python -m unittest test/test_editorial_theme.py
 ```

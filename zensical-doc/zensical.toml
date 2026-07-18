@@ -42,10 +42,18 @@ nav = [
   { "Markdown in 5min" = "markdown.md" },
   { "Formatting & polish" = "formatting.md" },
   { "Maths & notation" = "maths.md" },
+  # Nested section: paths under docs/ are included only when listed in nav.
+  # https://zensical.org/docs/setup/navigation/#navigation-sections
+  { "Test" = [
+    "test/index.md",
+    "test/test_a.md",
+    "test/test_b.md",
+  ]},
 ]
 
 # Read more: https://zensical.org/docs/customization/#additional-css
 extra_css = ["stylesheets/extra.css"]
+extra_javascript = ["javascripts/autoembed.js"]
 
 # With the `extra_javascript` option you can add your own JavaScript to your
 # project to customize the behavior according to your needs.
@@ -262,9 +270,9 @@ features = [
 # of suitably licensed fonts. There are options for a normal text font and for
 # a monospaced font used in code blocks.
 # ----------------------------------------------------------------------------
-# Self-hosted et-book via extra.css — disable Google Fonts.
+# Use Open Sans for site text and JetBrains Mono for code.
 # Read more: https://zensical.org/docs/setup/fonts/
-font = false
+font = { text = "Open Sans", code = "JetBrains Mono" }
 
 # ----------------------------------------------------------------------------
 # Light / dark palette toggle (editorial tokens live in extra.css).
