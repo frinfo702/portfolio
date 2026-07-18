@@ -14,7 +14,7 @@ class EditorialThemeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         result = subprocess.run(
-            [str(ROOT / ".venv/bin/zensical"), "build", "--clean"],
+            [str(ROOT / ".venv/bin/zensical"), "build"],
             cwd=ROOT,
             capture_output=True,
             text=True,
@@ -37,6 +37,16 @@ class EditorialThemeTests(unittest.TestCase):
         self.assertIn("--av-muted: #6b7280", css)
         self.assertIn("--av-border: #e5e5e3", css)
         self.assertIn('font-family: et-book', css)
+        self.assertIn('[data-md-color-scheme="slate"]', css)
+        self.assertIn("--av-background: #141413", css)
+
+    def test_toolbar_exposes_search_and_palette(self) -> None:
+        html = (SITE / "index.html").read_text(encoding="utf-8")
+        self.assertIn('class="md-header av-toolbar"', html)
+        self.assertIn('data-md-component="search"', html)
+        self.assertIn('data-md-component="palette"', html)
+        self.assertIn('data-md-color-scheme="slate"', html)
+        self.assertIn("Switch to dark mode", html)
 
     def test_chapter_page_has_editorial_header(self) -> None:
         html = (SITE / "get-started/index.html").read_text(encoding="utf-8")

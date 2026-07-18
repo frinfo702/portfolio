@@ -21,7 +21,25 @@
   </style>
 {% endblock %}
 
-{% block header %}{% endblock %}
+{% block header %}
+  <header class="md-header av-toolbar" data-md-component="header">
+    <nav class="av-toolbar__inner" aria-label="{{ lang.t('header') }}">
+      {% if config.theme.palette %}
+        {% if not config.theme.palette is mapping %}
+          {% include "partials/palette.html" %}
+        {% endif %}
+      {% endif %}
+      {% if not config.theme.palette is mapping %}
+        {% include "partials/javascripts/palette.html" %}
+      {% endif %}
+      <label class="md-header__button md-icon av-toolbar__icon" for="__search" aria-label="{{ lang.t('search') }}">
+        {% set icon = config.theme.icon.search or "lucide/search" %}
+        {% include ".icons/" ~ icon ~ ".svg" %}
+      </label>
+      {% include "partials/search.html" %}
+    </nav>
+  </header>
+{% endblock %}
 
 {% block site_nav %}{% endblock %}
 

@@ -267,13 +267,22 @@ features = [
 font = false
 
 # ----------------------------------------------------------------------------
-# Single light palette to match the editorial reference design.
+# Light / dark palette toggle (editorial tokens live in extra.css).
 # Read more: https://zensical.org/docs/setup/colors/
 # ----------------------------------------------------------------------------
 [[project.theme.palette]]
 scheme = "default"
 primary = "black"
 accent = "black"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+scheme = "slate"
+primary = "black"
+accent = "black"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to light mode"
 
 # ----------------------------------------------------------------------------
 # The "extra" section contains miscellaneous settings.
