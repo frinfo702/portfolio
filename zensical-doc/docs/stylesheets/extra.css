@@ -143,9 +143,7 @@ body {
   padding: 0.65rem 24px;
 }
 
-.av-toolbar .md-header__option,
-.av-toolbar .md-header__button,
-.av-toolbar .md-search {
+.av-toolbar .md-header__option {
   display: inline-flex;
   align-items: center;
 }
@@ -164,6 +162,13 @@ body {
   display: none !important;
 }
 
+/* Keep Zensical's desktop/mobile search split (pill vs icon). */
+@media screen and (min-width: 60em) {
+  .av-toolbar .md-header__button[for="__search"] {
+    display: none !important;
+  }
+}
+
 .av-toolbar .md-header__button:hover,
 .av-toolbar .md-header__button:focus {
   color: var(--av-foreground);
@@ -176,38 +181,12 @@ body {
 }
 
 .av-toolbar .md-search {
-  position: static;
-  width: auto;
-  height: auto;
+  position: relative;
   padding: 0;
   background: transparent;
 }
 
-.av-toolbar .md-search__button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  height: 2rem;
-  padding: 0 0.7rem;
-  border: 1px solid var(--av-border);
-  border-radius: 999px;
-  background: var(--av-card);
-  color: var(--av-muted);
-  font-family: "et-book", Palatino, Georgia, serif;
-  font-size: 0.75rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
-}
-
-.av-toolbar .md-search__button:hover {
-  color: var(--av-foreground);
-  border-color: var(--av-muted);
-}
-
-.av-toolbar label.av-toolbar__icon[for="__search"] {
-  display: none;
-}
+/* Do not restyle .md-search__button layout — theme ::before/::after place the icon and ⌘K. */
 
 .md-container,
 .md-main,

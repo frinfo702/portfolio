@@ -32,7 +32,7 @@
       {% if not config.theme.palette is mapping %}
         {% include "partials/javascripts/palette.html" %}
       {% endif %}
-      <label class="md-header__button md-icon av-toolbar__icon" for="__search" aria-label="{{ lang.t('search') }}">
+      <label class="md-header__button md-icon" for="__search" aria-label="{{ lang.t('search') }}">
         {% set icon = config.theme.icon.search or "lucide/search" %}
         {% include ".icons/" ~ icon ~ ".svg" %}
       </label>
