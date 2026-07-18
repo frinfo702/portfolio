@@ -61,4 +61,4 @@ title: Documentation
   </li>
 </ol>
 
-<p class="av-site-footer">built with zensical</p>
+<p class="av-site-footer">built with zensical in Osaka, 2026</p>
