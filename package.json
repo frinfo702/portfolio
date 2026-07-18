@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "next build",
+    "build": "next build && npm run build:docs",
+    "build:docs": "bash scripts/build-docs.sh",
+    "test:writing": "npx --yes tsx lib/writing.test.ts",
     "start": "next start",
     "lint": "eslint",
     "deploy": "wrangler pages deploy out"
