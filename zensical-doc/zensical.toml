@@ -36,20 +36,8 @@ site_author = "frinfo702"
 copyright = ""
 
 # Read more: https://zensical.org/docs/setup/navigation/
-nav = [
-  { "Documentation" = "index.md" },
-  { "Get started" = "get-started.md" },
-  { "Markdown in 5min" = "markdown.md" },
-  { "Formatting & polish" = "formatting.md" },
-  { "Maths & notation" = "maths.md" },
-  # Nested section: paths under docs/ are included only when listed in nav.
-  # https://zensical.org/docs/setup/navigation/#navigation-sections
-  { "Test" = [
-    "test/index.md",
-    "test/test_a.md",
-    "test/test_b.md",
-  ]},
-]
+# Let Zensical derive navigation from the docs/ folder structure so new
+# folders and pages appear in the site's index automatically.
 
 # Read more: https://zensical.org/docs/customization/#additional-css
 extra_css = ["stylesheets/extra.css"]

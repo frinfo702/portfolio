@@ -471,14 +471,6 @@ body {
   text-underline-offset: 2px;
 }
 
-.av-toc-chapter {
-  flex-shrink: 0;
-  width: 5rem;
-  font-size: 0.75rem;
-  color: var(--av-muted);
-  padding-top: 0.1rem;
-}
-
 .av-toc-body {
   flex: 1;
   min-width: 0;
@@ -640,7 +632,4 @@ body {
     gap: 0.75rem;
   }
 
-  .av-toc-chapter {
-    width: 4.25rem;
-  }
 }

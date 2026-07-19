@@ -20,11 +20,6 @@
         {% set metadata = target.meta if target.meta else nav_item.meta %}
         <li>
           <a href="{{ target.url | url }}">
-            {% if metadata and metadata.chapter %}
-              <span class="av-toc-chapter">{{ metadata.chapter }}</span>
-            {% else %}
-              <span class="av-toc-chapter">Chapter {{ loop.index - 1 }}</span>
-            {% endif %}
             <span class="av-toc-body">
               <span class="av-toc-title">{{ nav_item.title }}</span>
               {% if metadata and metadata.description %}
@@ -47,7 +42,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
       {{ config.site_name }}
     </a>
-    <nav class="av-nav" aria-label="Chapter navigation">
+    <nav class="av-nav" aria-label="Page navigation">
       {% if page.previous_page and not (page.previous_page.meta and page.previous_page.meta.home) %}
         <a href="{{ page.previous_page.url | url }}" aria-label="Previous: {{ page.previous_page.title | e }}">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
@@ -90,18 +85,11 @@
         <div class="av-section-contents">
           <p class="av-toc-label">Contents</p>
           <ol class="av-toc">
-            {% set section_page = namespace(number=0) %}
             {% for nav_item in active_section.items %}
               {% if not nav_item.active %}
-                {% set section_page.number = section_page.number + 1 %}
                 {% set target = nav_item.children | first if nav_item.children else nav_item %}
                 <li>
                   <a href="{{ target.url | url }}">
-                    {% if target.meta and target.meta.chapter %}
-                      <span class="av-toc-chapter">{{ target.meta.chapter }}</span>
-                    {% else %}
-                      <span class="av-toc-chapter">Page {{ section_page.number }}</span>
-                    {% endif %}
                     <span class="av-toc-body">
                       <span class="av-toc-title">{{ nav_item.title }}</span>
                       {% if target.meta and target.meta.description %}

@@ -4,11 +4,11 @@ hide:
   - navigation
   - toc
   - footer
-title: Documentation
+title: Index
 ---
 
 <div class="av-home-header">
-  <h1>Documentation</h1>
+  <h1>Index</h1>
   <p class="av-lede">A from-scratch guide to writing docs with Zensical: Markdown authoring, formatting, diagrams, maths, and the pieces that make a polished documentation site.</p>
 </div>
 
