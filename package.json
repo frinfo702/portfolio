@@ -6,6 +6,7 @@
     "dev": "next dev --webpack",
     "build": "next build && npm run build:docs",
     "build:docs": "bash scripts/build-docs.sh",
+    "test:writing": "python3 -m unittest discover -s zensical-doc/test -p 'test_*.py'",
     "preview": "bash scripts/preview.sh",
     "preview:serve": "SKIP_BUILD=1 bash scripts/preview.sh",
     "start": "next start",

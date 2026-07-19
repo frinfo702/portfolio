@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 import unittest
 from pathlib import Path
@@ -13,8 +14,16 @@ SITE = ROOT / "site"
 class EditorialThemeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        zensical = shutil.which("zensical")
+        if zensical is None:
+            local_zensical = ROOT / ".venv/bin/zensical"
+            if local_zensical.is_file():
+                zensical = str(local_zensical)
+        if zensical is None:
+            raise AssertionError("zensical is not installed or available on PATH")
+
         result = subprocess.run(
-            [str(ROOT / ".venv/bin/zensical"), "build"],
+            [zensical, "build"],
             cwd=ROOT,
             capture_output=True,
             text=True,
