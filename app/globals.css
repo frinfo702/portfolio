@@ -10,7 +10,7 @@
   --color-muted: #92938c;
   --color-dim: #6b6d67;
   --color-faint: #444640;
-  --color-ml: #879a8b;
+  --color-accent: #4d75a0;
   --color-ok: #b65a4b;
 }
 
@@ -46,7 +46,7 @@ body {
   --zen-paper: #000000;
   --zen-paper-deep: #070707;
   --zen-ink: #ecebe5;
-  --zen-green: #879a8b;
+  --zen-blue: #4d75a0;
   --zen-muted: #92938c;
   --zen-red: #b65a4b;
   --zen-rule: #1b1b1b;
@@ -73,7 +73,7 @@ body {
 .zen-app .text-\[\#c8c8c8\],
 .zen-app .text-\[\#b0b0b0\],
 .zen-app .text-\[\#a8a8a8\] {
-  color: var(--zen-green) !important;
+  color: var(--zen-muted) !important;
 }
 
 .zen-app .text-\[\#9a9a9a\],
@@ -125,7 +125,7 @@ body {
 }
 
 .zen-app .sx-link {
-  color: var(--zen-green);
+  color: var(--zen-blue);
   text-decoration: underline;
   text-decoration-color: transparent;
   text-underline-offset: 0.22em;
@@ -138,7 +138,7 @@ body {
 }
 
 .zen-app .sx-chip {
-  color: var(--zen-green);
+  color: var(--zen-muted);
   border-color: var(--zen-rule);
   background: var(--zen-paper-deep);
   border-radius: 999px;
@@ -160,7 +160,7 @@ body {
 }
 
 .sx-link {
-  color: #879a8b;
+  color: #4d75a0;
   text-decoration: none;
   transition: color 0.1s ease;
 }
@@ -184,7 +184,7 @@ body {
 .sx-chip {
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 12px;
-  color: #879a8b;
+  color: #92938c;
   border: 1px solid #252525;
   background: #070707;
   padding: 2px 7px;

@@ -9,15 +9,16 @@ const TREE = [
   { id: "accomplishments", label: "honors" },
   { id: "skills", label: "skills" },
   { id: "projects", label: "projects" },
-  { id: "writing", label: "writing" },
   { id: "lately", label: "lately" },
   { id: "contact", label: "contact" },
+  { id: "links", label: "link" },
 ] as const;
 
 const EXTERNAL = [
-  { href: "/writing", label: "writing/" },
   { href: "resume/kenichiro_goto.pdf", label: "resume.pdf" },
   { href: "https://github.com/frinfo702", label: "github" },
+  { href: "https://www.linkedin.com/in/kenichiro-goto/", label: "linkedin" },
+  { href: "/docs/", label: "docs/" },
   { href: "mailto:kenichiro3114@gmail.com", label: "email" },
 ] as const;
 
