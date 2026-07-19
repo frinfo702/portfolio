@@ -16,9 +16,9 @@ const TREE = [
 
 const EXTERNAL = [
   { href: "/writing", label: "writing/" },
-  { href: "resume/en.pdf", label: "resume.pdf" },
+  { href: "resume/kenichiro_goto.pdf", label: "resume.pdf" },
   { href: "https://github.com/frinfo702", label: "github" },
-  { href: "mailto:frinfo702@gmail.com", label: "email" },
+  { href: "mailto:kenichiro3114@gmail.com", label: "email" },
 ] as const;
 
 export default function SideNav() {
@@ -45,7 +45,7 @@ export default function SideNav() {
 
   return (
     <nav
-      className="flex h-full flex-col border-b border-line bg-black/90 lg:min-h-[calc(100vh-3.5rem)] lg:border-b-0"
+      className="zen-sidenav flex h-full flex-col border-b border-line lg:min-h-[calc(100vh-4.5rem)] lg:border-b-0"
       aria-label="Outliner"
     >
       <div className="sx-panel-label hidden lg:block">Outliner</div>

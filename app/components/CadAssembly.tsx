@@ -399,12 +399,12 @@ function buildSceneModel(): THREE.Group {
   const { primary, secondary, dim } = buildWireBooster();
 
   // layered brightness → bloom reads like reference glow
-  root.add(segsToLine(primary, 0x6a6a6a, 0.32));
-  root.add(segsToLine(secondary, 0x454545, 0.18));
-  root.add(segsToLine(dim, 0x2a2a2a, 0.1));
+  root.add(segsToLine(primary, 0x65776b, 0.32));
+  root.add(segsToLine(secondary, 0x8a9587, 0.18));
+  root.add(segsToLine(dim, 0xb8b4a7, 0.1));
 
   // perspective floor grid (CAD viewport)
-  const grid = new THREE.GridHelper(10, 40, 0x1a1a1a, 0x0e0e0e);
+  const grid = new THREE.GridHelper(10, 40, 0xc3bcae, 0xd7d0c3);
   grid.position.y = -2.15;
   const gMat = grid.material;
   if (Array.isArray(gMat)) {
@@ -435,8 +435,8 @@ export default function CadAssembly() {
     ).matches;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
-    scene.fog = new THREE.FogExp2(0x000000, 0.022);
+    scene.background = null;
+    scene.fog = new THREE.FogExp2(0xf6f3ec, 0.022);
 
     const sizeOf = () => ({
       w: Math.max(mount.clientWidth, 1),
@@ -451,12 +451,13 @@ export default function CadAssembly() {
 
     const renderer = new THREE.WebGLRenderer({
       antialias: false,
-      alpha: false,
+      alpha: true,
       powerPreference: "high-performance",
       precision: "highp",
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(w, h, false);
+    renderer.setClearColor(0xf6f3ec, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.NoToneMapping;
     mount.appendChild(renderer.domElement);
@@ -477,7 +478,7 @@ export default function CadAssembly() {
     scene.add(model);
 
     const composer = new EffectComposer(renderer);
-    const ssaa = new SSAARenderPass(scene, camera, 0x000000, 1);
+    const ssaa = new SSAARenderPass(scene, camera, 0xf6f3ec, 0);
     ssaa.sampleLevel = reduceMotion ? 2 : 3; // production: 8–16 samples
     ssaa.unbiased = true;
     composer.addPass(ssaa);

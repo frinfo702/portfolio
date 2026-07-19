@@ -4,7 +4,7 @@
 export default function StatusBar() {
   return (
     <footer
-      className="relative z-30 flex h-7 shrink-0 items-center gap-3 overflow-x-auto border-t border-line bg-black px-3 font-mono text-[11px] text-[#3a3a3a]"
+      className="zen-status relative z-30 flex h-8 shrink-0 items-center gap-3 overflow-x-auto border-t border-line px-3 font-mono text-[11px] text-[#3a3a3a]"
       aria-hidden="true"
     >
       <span>

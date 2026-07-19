@@ -25,7 +25,7 @@ export default function TopBar() {
   }, []);
 
   return (
-    <header className="relative z-30 flex h-8 shrink-0 items-center justify-between gap-3 border-b border-line bg-black px-3 font-mono text-[12px]">
+    <header className="zen-topbar relative z-30 flex h-10 shrink-0 items-center justify-between gap-3 border-b border-line px-3 font-mono text-[12px] sm:px-5">
       <div className="flex min-w-0 items-center gap-2 overflow-hidden text-[#5a5a5a]">
         <span
           className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-ok"

@@ -1,8 +1,10 @@
 :root {
-  --w-bg: #fafaf8;
-  --w-fg: #111;
-  --w-muted: #6b7280;
-  --w-border: #e5e5e3;
+  --w-bg: #f6f3ec;
+  --w-fg: #252a25;
+  --w-muted: #697068;
+  --w-border: #ddd7ca;
+  --w-red: #a24d3d;
+  --w-green: #65776b;
 }
 
 .writing-root {
@@ -11,52 +13,62 @@
   color: var(--w-fg);
   font-family: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
   -webkit-font-smoothing: antialiased;
+  background-image: radial-gradient(circle at 12% 12%, rgba(162, 77, 61, 0.06), transparent 22rem);
 }
 
 .writing-shell {
   box-sizing: border-box;
-  max-width: 42rem;
+  max-width: 46rem;
   margin: 0 auto;
-  padding: 3rem 1.5rem 4rem;
+  padding: 4.5rem 1.5rem 5rem;
 }
 
 .writing-back {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 3rem;
   font-size: 0.75rem;
-  color: var(--w-muted);
+  color: var(--w-green);
   text-decoration: none;
   transition: color 0.15s ease;
 }
 
 .writing-back:hover {
-  color: var(--w-fg);
+  color: var(--w-red);
+}
+
+.writing-back::before {
+  content: "";
+  width: 2rem;
+  height: 0.18rem;
+  margin-right: 0.55rem;
+  background: var(--w-red);
 }
 
 .writing-title {
   margin: 0;
-  font-size: 1.875rem;
-  font-weight: 600;
-  letter-spacing: -0.025em;
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  font-weight: 500;
+  letter-spacing: -0.06em;
   line-height: 1.2;
 }
 
 .writing-lede {
-  margin: 0.75rem 0 0;
-  font-size: 1rem;
-  line-height: 1.625;
+  max-width: 32rem;
+  margin: 1rem 0 0;
+  font-size: 1.05rem;
+  line-height: 1.7;
   color: var(--w-muted);
 }
 
 .writing-label {
-  margin: 2rem 0 1rem;
+  margin: 4rem 0 1.25rem;
   font-size: 0.625rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--w-muted);
+  color: var(--w-green);
 }
 
 .writing-list {
@@ -73,15 +85,22 @@
 .writing-item {
   display: flex;
   align-items: flex-start;
-  gap: 1rem;
-  padding: 0.875rem 0;
+  gap: 1.5rem;
+  padding: 1.2rem 0;
   color: inherit;
   text-decoration: none;
+  transition: padding 0.2s ease;
 }
 
 .writing-item:hover .writing-item-title {
+  color: var(--w-red);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+.writing-item:hover {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .writing-item-kind {
@@ -89,7 +108,7 @@
   width: 5rem;
   padding-top: 0.1rem;
   font-size: 0.75rem;
-  color: var(--w-muted);
+  color: var(--w-green);
 }
 
 .writing-item-body {
@@ -99,7 +118,7 @@
 
 .writing-item-title {
   display: block;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   line-height: 1.4;
 }
@@ -127,18 +146,18 @@
   width: 14px;
   height: 14px;
   margin-top: 0.15rem;
-  color: var(--w-border);
+  color: var(--w-green);
   transition: color 0.15s ease;
 }
 
 .writing-item:hover .writing-item-arrow {
-  color: var(--w-fg);
+  color: var(--w-red);
 }
 
 .writing-footer {
-  margin-top: 3rem;
+  margin-top: 5rem;
   font-size: 0.75rem;
-  color: var(--w-muted);
+  color: var(--w-green);
 }
 
 @media (max-width: 40rem) {

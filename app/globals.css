@@ -2,31 +2,31 @@
 
 @theme {
   --color-void: #000000;
-  --color-panel: #050505;
-  --color-line: #141414;
-  --color-line-2: #1e1e1e;
-  --color-line-3: #2a2a2a;
-  --color-text: #e8e8e8;
-  --color-muted: #9a9a9a;
-  --color-dim: #6a6a6a;
-  --color-faint: #3a3a3a;
-  --color-ml: #7ec8d0;
-  --color-ok: #5cba6a;
+  --color-panel: #070707;
+  --color-line: #1b1b1b;
+  --color-line-2: #242424;
+  --color-line-3: #303030;
+  --color-text: #ecebe5;
+  --color-muted: #92938c;
+  --color-dim: #6b6d67;
+  --color-faint: #444640;
+  --color-ml: #879a8b;
+  --color-ok: #b65a4b;
 }
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 html {
   color: var(--color-text);
-  background: #000;
+  background: #000000;
   scroll-behavior: smooth;
 }
 
 body {
-  background: #000;
+  background: #000000;
   color: var(--color-text);
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 13.5px;
@@ -40,13 +40,127 @@ body {
   outline-offset: 1px;
 }
 
-/* content sits over CAD; keep panels legible without heavy chrome */
+/* Quiet ink, generous space, and one restrained accent keep the portfolio
+   feeling considered without turning it into a themed dashboard. */
+.zen-app {
+  --zen-paper: #000000;
+  --zen-paper-deep: #070707;
+  --zen-ink: #ecebe5;
+  --zen-green: #879a8b;
+  --zen-muted: #92938c;
+  --zen-red: #b65a4b;
+  --zen-rule: #1b1b1b;
+  background: var(--zen-paper);
+  color: var(--zen-ink);
+}
+
+.zen-app .bg-black,
+.zen-app .bg-black\/80,
+.zen-app .bg-black\/90 {
+  background-color: var(--zen-paper) !important;
+}
+
+.zen-app .bg-line {
+  background-color: var(--zen-rule) !important;
+}
+
+.zen-app .text-white,
+.zen-app .text-\[\#f0f0f0\],
+.zen-app .text-\[\#e8e8e8\] {
+  color: var(--zen-ink) !important;
+}
+
+.zen-app .text-\[\#c8c8c8\],
+.zen-app .text-\[\#b0b0b0\],
+.zen-app .text-\[\#a8a8a8\] {
+  color: var(--zen-green) !important;
+}
+
+.zen-app .text-\[\#9a9a9a\],
+.zen-app .text-\[\#8a8a8a\],
+.zen-app .text-\[\#777\],
+.zen-app .text-\[\#6a6a6a\],
+.zen-app .text-\[\#666\],
+.zen-app .text-\[\#5a5a5a\] {
+  color: var(--zen-muted) !important;
+}
+
+.zen-app .text-\[\#555\],
+.zen-app .text-\[\#444\],
+.zen-app .text-\[\#333\],
+.zen-app .text-\[\#1a1a1a\] {
+  color: #444640 !important;
+}
+
+.zen-app .border-line,
+.zen-app .border-\[\#111\] {
+  border-color: var(--zen-rule) !important;
+}
+
+.zen-main {
+  scrollbar-color: #333333 transparent;
+}
+
+.zen-content {
+  letter-spacing: 0.005em;
+}
+
+.zen-identity h1 {
+  letter-spacing: -0.045em;
+}
+
+.zen-identity::before {
+  content: "";
+  display: block;
+  width: 2.3rem;
+  height: 0.22rem;
+  margin-bottom: 1.5rem;
+  background: var(--zen-red);
+}
+
+.zen-app .sx-row {
+  border-bottom-color: var(--zen-rule);
+  padding-top: 0.8rem;
+  padding-bottom: 0.8rem;
+}
+
+.zen-app .sx-link {
+  color: var(--zen-green);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.22em;
+  transition: color 0.18s ease, text-decoration-color 0.18s ease;
+}
+
+.zen-app .sx-link:hover {
+  color: var(--zen-red) !important;
+  text-decoration-color: currentColor;
+}
+
+.zen-app .sx-chip {
+  color: var(--zen-green);
+  border-color: var(--zen-rule);
+  background: var(--zen-paper-deep);
+  border-radius: 999px;
+  padding: 0.24rem 0.65rem;
+}
+
+.zen-app .sx-panel-label {
+  color: var(--zen-muted);
+}
+
+.zen-app [class*="shadow-[inset_2px_0_0"] {
+  box-shadow: inset 2px 0 0 var(--zen-red) !important;
+  background: #0a0a0a !important;
+}
+
+/* Keep panels legible without adding chrome. */
 .sx-workspace {
   background-color: transparent;
 }
 
 .sx-link {
-  color: #a8a8a8;
+  color: #879a8b;
   text-decoration: none;
   transition: color 0.1s ease;
 }
@@ -61,7 +175,7 @@ body {
   gap: 12px;
   align-items: baseline;
   padding: 7px 0;
-  border-bottom: 1px solid #111;
+  border-bottom: 1px solid #1b1b1b;
 }
 .sx-row:last-child {
   border-bottom: none;
@@ -70,9 +184,9 @@ body {
 .sx-chip {
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 12px;
-  color: #b0b0b0;
-  border: 1px solid #2a2a2a;
-  background: #0c0c0c;
+  color: #879a8b;
+  border: 1px solid #252525;
+  background: #070707;
   padding: 2px 7px;
   line-height: 1.4;
 }
