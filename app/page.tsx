@@ -1,243 +1,250 @@
 import Image from "next/image";
+import CadAssembly from "./components/CadAssembly";
 
 export default function Home() {
   return (
-    <div className="zen-app min-h-full">
-      <main className="zen-main min-h-screen overflow-y-auto">
-        <div className="zen-content mx-auto max-w-[42rem] px-4 py-10 sm:px-6 sm:py-16">
-          <header id="identity" className="zen-identity scroll-mt-6 mb-8">
-            <h1 className="mb-2 font-sans text-[1.7rem] font-medium tracking-tight text-white sm:text-[1.85rem]">
-              Kenichiro Goto
-            </h1>
-            <p className="max-w-[38em] font-sans text-[14px] leading-relaxed text-muted">
-              Software engineer &amp; machine-learning researcher. Backend &amp;
-              infrastructure by day, deep learning by night.
-            </p>
-
-            <dl className="mt-4 grid grid-cols-1 gap-px border border-line bg-line sm:grid-cols-3">
-              <Prop k="role" v="engineer · ml" />
-              <Prop k="focus" v="backend · cv" />
-              <Prop k="status" v="active" />
-            </dl>
-          </header>
-
-          <Section id="experience" title="Experience" code="exp">
-            <Entry
-              title="Software Engineer Internship — Backend & Infrastructure"
-              org="CyberAgent"
-              href="https://www.cyberagent.co.jp/"
-              period="2025-08 — 2025-09"
-              description="Backend and infrastructure systems."
-            />
-            <Entry
-              title="Software Engineer Internship — Backend"
-              org="pixiv Inc."
-              href="https://www.pixiv.co.jp/"
-              period="2025-06 — current"
-              description="Backend and infrastructure systems."
-            />
-            <Entry
-              title="Software Engineer Internship — Backend"
-              org="Finatext Holdings Ltd."
-              href="https://finatext.com/"
-              period="2025-01 — 2025-05"
-              description="Backend and infrastructure systems."
-            />
-          </Section>
-
-          <Section id="education" title="Education" code="edu">
-            <Entry
-              title="B.E. Information Science and Engineering"
-              org="Ritsumeikan University"
-              href="https://www.ritsumei.ac.jp/"
-              period="2023-04 — 2027-03"
-              description="Computational Intelligence Lab · computer vision research."
-            />
-          </Section>
-
-          <Section id="accomplishments" title="Accomplishments" code="acr">
-            <SubLabel>Honors</SubLabel>
-            <Entry
-              title="Saionji Memorial Scholarship"
-              org="Ritsumeikan University"
-              href="https://www.ritsumei.ac.jp/"
-              period="2026-07"
-              description={
-                <>
-                  <span className="text-[#7a7a7a]">$2,000</span> · excellent
-                  grades
-                </>
-              }
-            />
-            <SubLabel className="mt-4">Certification</SubLabel>
-            <Entry
-              title="TOEIC L&R"
-              org="ETS"
-              href="https://www.ets.org/toeic/"
-              period="2026-04"
-              description="Score 855"
-            />
-            <Entry
-              title="TOEFL iTP"
-              org="ETS"
-              href="https://www.ets.org/toefl/"
-              period="2026-06"
-              description="Score 567"
-            />
-          </Section>
-
-          <Section id="skills" title="Skills" code="skl">
-            <SkillGroup label="domains">
-              <SkillItem>Machine Learning</SkillItem>
-              <SkillItem>Computer Vision</SkillItem>
-              <SkillItem>Software Engineering</SkillItem>
-              <SkillItem>Systems architecture</SkillItem>
-              <SkillItem>Infrastructure</SkillItem>
-            </SkillGroup>
-            <SkillGroup label="languages">
-              <SkillItem>Go</SkillItem>
-              <SkillItem>Scala</SkillItem>
-              <SkillItem>Python</SkillItem>
-              <SkillItem>Shell</SkillItem>
-            </SkillGroup>
-            <SkillGroup label="frameworks">
-              <SkillItem>Echo</SkillItem>
-              <SkillItem>Play Framework</SkillItem>
-              <SkillItem>PyTorch</SkillItem>
-            </SkillGroup>
-            <SkillGroup label="cloud">
-              <SkillItem>GCP</SkillItem>
-              <SkillItem>AWS</SkillItem>
-            </SkillGroup>
-            <SkillGroup label="tools">
-              <SkillItem>Git</SkillItem>
-              <SkillItem>Docker</SkillItem>
-              <SkillItem>Terraform</SkillItem>
-              <SkillItem>Linux</SkillItem>
-              <SkillItem>vim</SkillItem>
-              <SkillItem>helix</SkillItem>
-            </SkillGroup>
-            <SkillGroup label="databases">
-              <SkillItem>MySQL</SkillItem>
-              <SkillItem>PostgreSQL</SkillItem>
-              <SkillItem>SQLite</SkillItem>
-            </SkillGroup>
-          </Section>
-
-          <Section id="projects" title="Projects" code="prj">
-            <ul>
-              <li className="sx-row">
-                <a
-                  href="https://github.com/frinfo702/english-test-generator"
-                  className="sx-link text-[13.5px]"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  english-test-generator
-                </a>
-                <span className="font-mono text-[11px] text-[#777]">ext</span>
-              </li>
-            </ul>
-          </Section>
-
-          <Section id="lately" title="Lately" code="lat">
-            <ul className="flex flex-col">
-              <LatelyItem
-                src="/yomi_no_tsugai.jpeg"
-                alt="Yomi no Tsugai"
-                title="Yomi no Tsugai"
-                subtitle="S1"
-              />
-              <LatelyItem
-                src="/jjk-season3.png"
-                alt="Jujutsu Kaisen season 3"
-                title="Jujutsu Kaisen"
-                subtitle="S3"
-              />
-              <LatelyItem
-                src="/redred.png"
-                alt="REDRED"
-                title="REDRED"
-                subtitle="CORTIS"
-              />
-            </ul>
-          </Section>
-
-          <Section id="contact" title="Contact" code="ctc">
-            <ul>
-              <li className="sx-row">
-                <a
-                  href="mailto:kenichiro3114@gmail.com"
-                  className="sx-link inline-flex items-center gap-1.5 text-[13.5px]"
-                >
-                  kenichiro3114@gmail.com
-                </a>
-                <span className="font-mono text-[11px] text-[#777]">mail</span>
-              </li>
-              <li className="sx-row">
-                <a
-                  href="https://www.linkedin.com/in/kenichiro-goto/"
-                  className="sx-link inline-flex items-center gap-1.5 text-[13.5px]"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <LinkedInIcon />
-                  linkedin.com/in/kenichiro-goto
-                </a>
-                <span className="font-mono text-[11px] text-[#777]">ext</span>
-              </li>
-            </ul>
-          </Section>
-
-          <Section id="links" title="Link" code="lnk">
-            <ul>
-              <li className="sx-row">
-                <a
-                  href="https://github.com/frinfo702"
-                  className="sx-link inline-flex items-center gap-1.5 text-[13.5px]"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <GitHubIcon />
-                  github.com/frinfo702
-                </a>
-                <span className="font-mono text-[11px] text-[#777]">ext</span>
-              </li>
-              <li className="sx-row">
-                <a
-                  href="resume/kenichiro_goto.pdf"
-                  className="sx-link text-[13.5px]"
-                >
-                  resume.pdf
-                </a>
-                <span className="font-mono text-[11px] text-[#777]">file</span>
-              </li>
-              <li className="sx-row">
-                <a href="/docs/" className="sx-link text-[13.5px]">
-                  Writing (including blog)
-                </a>
-                <span className="font-mono text-[11px] text-[#777]">guide</span>
-              </li>
-            </ul>
-          </Section>
-
-          <p className="mt-8 border-t border-line pt-3 font-mono text-[11px] text-[#666]">
-            © {new Date().getFullYear()} Kenichiro Goto
+    <div className="pl-layout">
+      <SideNav />
+      <main className="pl-main">
+        <header className="pl-hero">
+          <h1>Kenichiro Goto</h1>
+          <p>
+            Software engineer &amp; machine-learning researcher. Backend &amp;
+            infrastructure by day, deep learning by night.
           </p>
+        </header>
+
+        <div className="pl-hero-scene">
+          <CadAssembly />
         </div>
+
+        <Section id="experience" title="Experience" code="exp">
+          <CardEntry
+            title="Software Engineer Internship — Backend & Infrastructure"
+            org="CyberAgent"
+            href="https://www.cyberagent.co.jp/"
+            period="2025-08 — 2025-09"
+            description="Backend and infrastructure systems."
+          />
+          <CardEntry
+            title="Software Engineer Internship — Backend"
+            org="pixiv Inc."
+            href="https://www.pixiv.co.jp/"
+            period="2025-06 — current"
+            description="Backend and infrastructure systems."
+          />
+          <CardEntry
+            title="Software Engineer Internship — Backend"
+            org="Finatext Holdings Ltd."
+            href="https://finatext.com/"
+            period="2025-01 — 2025-05"
+            description="Backend and infrastructure systems."
+          />
+        </Section>
+
+        <Section id="education" title="Education" code="edu">
+          <CardEntry
+            title="B.E. Information Science and Engineering"
+            org="Ritsumeikan University"
+            href="https://www.ritsumei.ac.jp/"
+            period="2023-04 — 2027-03"
+            description="Computational Intelligence Lab · computer vision research."
+          />
+        </Section>
+
+        <Section id="accomplishments" title="Accomplishments" code="acr">
+          <SubLabel>Honors</SubLabel>
+          <CardEntry
+            title="Saionji Memorial Scholarship"
+            org="Ritsumeikan University"
+            href="https://www.ritsumei.ac.jp/"
+            period="2026-07"
+            description={
+              <>
+                <span className="text-tertiary">$2,000</span> · excellent
+                grades
+              </>
+            }
+          />
+          <SubLabel className="mt-4">Certification</SubLabel>
+          <CardEntry
+            title="TOEIC L&R"
+            org="ETS"
+            href="https://www.ets.org/toeic/"
+            period="2026-04"
+            description="Score 855"
+          />
+          <CardEntry
+            title="TOEFL iTP"
+            org="ETS"
+            href="https://www.ets.org/toefl/"
+            period="2026-06"
+            description="Score 567"
+          />
+        </Section>
+
+        <Section id="skills" title="Skills" code="skl">
+          <SkillGroup label="domains">
+            <SkillItem>Machine Learning</SkillItem>
+            <SkillItem>Computer Vision</SkillItem>
+            <SkillItem>Software Engineering</SkillItem>
+            <SkillItem>Systems architecture</SkillItem>
+            <SkillItem>Infrastructure</SkillItem>
+          </SkillGroup>
+          <SkillGroup label="languages">
+            <SkillItem>Go</SkillItem>
+            <SkillItem>Scala</SkillItem>
+            <SkillItem>Python</SkillItem>
+            <SkillItem>Shell</SkillItem>
+          </SkillGroup>
+          <SkillGroup label="frameworks">
+            <SkillItem>Echo</SkillItem>
+            <SkillItem>Play Framework</SkillItem>
+            <SkillItem>PyTorch</SkillItem>
+          </SkillGroup>
+          <SkillGroup label="cloud">
+            <SkillItem>GCP</SkillItem>
+            <SkillItem>AWS</SkillItem>
+          </SkillGroup>
+          <SkillGroup label="tools">
+            <SkillItem>Git</SkillItem>
+            <SkillItem>Docker</SkillItem>
+            <SkillItem>Terraform</SkillItem>
+            <SkillItem>Linux</SkillItem>
+            <SkillItem>vim</SkillItem>
+            <SkillItem>helix</SkillItem>
+          </SkillGroup>
+          <SkillGroup label="databases">
+            <SkillItem>MySQL</SkillItem>
+            <SkillItem>PostgreSQL</SkillItem>
+            <SkillItem>SQLite</SkillItem>
+          </SkillGroup>
+        </Section>
+
+        <Section id="projects" title="Projects" code="prj">
+          <LinkRow
+            href="https://github.com/frinfo702/english-test-generator"
+            label="english-test-generator"
+            type="ext"
+          />
+        </Section>
+
+        <Section id="lately" title="Lately" code="lat">
+          <LatelyItem
+            src="/yomi_no_tsugai.jpeg"
+            alt="Yomi no Tsugai"
+            title="Yomi no Tsugai"
+            subtitle="S1"
+          />
+          <LatelyItem
+            src="/jjk-season3.png"
+            alt="Jujutsu Kaisen season 3"
+            title="Jujutsu Kaisen"
+            subtitle="S3"
+          />
+          <LatelyItem
+            src="/redred.png"
+            alt="REDRED"
+            title="REDRED"
+            subtitle="CORTIS"
+          />
+        </Section>
+
+        <Section id="contact" title="Contact" code="ctc">
+          <LinkRow
+            href="mailto:kenichiro3114@gmail.com"
+            label="kenichiro3114@gmail.com"
+            type="mail"
+          />
+          <LinkRow
+            href="https://www.linkedin.com/in/kenichiro-goto/"
+            label="linkedin.com/in/kenichiro-goto"
+            type="ext"
+            icon={<LinkedInIcon />}
+          />
+        </Section>
+
+        <Section id="links" title="Link" code="lnk">
+          <LinkRow
+            href="https://github.com/frinfo702"
+            label="github.com/frinfo702"
+            type="ext"
+            icon={<GitHubIcon />}
+          />
+          <LinkRow
+            href="resume/kenichiro_goto.pdf"
+            label="resume.pdf"
+            type="file"
+          />
+          <LinkRow
+            href="/docs/"
+            label="Writing (including blog)"
+            type="guide"
+          />
+        </Section>
+
+        <footer className="pl-footer">
+          <p>© {new Date().getFullYear()} Kenichiro Goto</p>
+        </footer>
       </main>
     </div>
   );
 }
 
-function Prop({ k, v }: { k: string; v: string }) {
+function SideNav() {
+  const tree = [
+    { id: "experience", label: "experience" },
+    { id: "education", label: "education" },
+    { id: "accomplishments", label: "honors" },
+    { id: "skills", label: "skills" },
+    { id: "projects", label: "projects" },
+    { id: "lately", label: "lately" },
+    { id: "contact", label: "contact" },
+    { id: "links", label: "link" },
+  ];
+
+  const external = [
+    { href: "resume/kenichiro_goto.pdf", label: "resume.pdf" },
+    { href: "https://github.com/frinfo702", label: "github" },
+    { href: "https://www.linkedin.com/in/kenichiro-goto/", label: "linkedin" },
+    { href: "/docs/", label: "docs/" },
+    { href: "mailto:kenichiro3114@gmail.com", label: "email" },
+  ];
+
   return (
-    <div className="bg-black/90 px-3 py-2 backdrop-blur-sm">
-      <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#666]">
-        {k}
-      </dt>
-      <dd className="mt-0.5 font-mono text-[12px] text-[#c8c8c8]">{v}</dd>
-    </div>
+    <nav className="pl-nav" aria-label="Outliner">
+      <div className="pl-nav-inner">
+        <a
+          href="#experience"
+          className="pl-nav-link pl-active"
+        >
+          portfolio
+        </a>
+        {tree.map((s) => (
+          <a
+            key={s.id}
+            href={`#${s.id}`}
+            className="pl-nav-link"
+          >
+            {s.label}
+          </a>
+        ))}
+        <div className="pl-nav-external">
+          {external.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              className="pl-nav-link"
+              {...(l.href.startsWith("http")
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : {})}
+            >
+              {l.label}
+            </a>
+          ))}
+        </div>
+      </div>
+    </nav>
   );
 }
 
@@ -253,12 +260,10 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className="scroll-mt-6 border-t border-line py-5">
-      <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h2 className="font-mono text-[10px] font-normal uppercase tracking-[0.16em] text-[#777]">
-          {title}
-        </h2>
-        <span className="font-mono text-[10px] text-[#555]">{code}</span>
+    <section id={id} className="pl-section scroll-mt-6">
+      <div className="pl-section-title">
+        <h2>{title}</h2>
+        <span>{code}</span>
       </div>
       {children}
     </section>
@@ -274,14 +279,14 @@ function SubLabel({
 }) {
   return (
     <h3
-      className={`mb-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-[#666] ${className}`}
+      className={`mb-2 font-mono text-[0.75rem] font-medium uppercase tracking-[0.05em] text-tertiary ${className}`}
     >
       {children}
     </h3>
   );
 }
 
-function Entry({
+function CardEntry({
   title,
   org,
   href,
@@ -295,19 +300,22 @@ function Entry({
   description: React.ReactNode;
 }) {
   return (
-    <div className="sx-row !grid-cols-1 gap-0.5 sm:!grid-cols-[1fr_auto] sm:gap-3">
-      <div className="min-w-0">
-        <div className="font-sans text-[13.5px] text-[#f0f0f0]">{title}</div>
-        <a href={href} className="sx-link mt-0.5 inline-block text-[12.5px]">
-          {org}
-        </a>
-        <p className="mt-0.5 text-[12.5px] leading-relaxed text-[#9a9a9a]">
-          {description}
-        </p>
+    <div className="pl-card mb-3">
+      <div className="pl-card-header">
+        <div>
+          <div className="pl-card-title">{title}</div>
+          <a
+            href={href}
+            className="pl-card-org"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {org}
+          </a>
+        </div>
+        <span className="pl-card-period">{period}</span>
       </div>
-      <div className="shrink-0 font-mono text-[11px] tabular-nums text-[#b0b0b0] sm:pt-0.5 sm:text-right">
-        {period}
-      </div>
+      <p className="pl-card-description">{description}</p>
     </div>
   );
 }
@@ -320,11 +328,9 @@ function SkillGroup({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mb-3 last:mb-0">
-      <div className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-[#666]">
-        {label}
-      </div>
-      <ul className="flex flex-wrap gap-1.5">{children}</ul>
+    <div className="pl-skill-group">
+      <div className="pl-skill-label">{label}</div>
+      <ul className="pl-skill-list">{children}</ul>
     </div>
   );
 }
@@ -332,8 +338,35 @@ function SkillGroup({
 function SkillItem({ children }: { children: React.ReactNode }) {
   return (
     <li>
-      <span className="sx-chip">{children}</span>
+      <span className="pl-skill-chip">{children}</span>
     </li>
+  );
+}
+
+function LinkRow({
+  href,
+  label,
+  type,
+  icon,
+}: {
+  href: string;
+  label: string;
+  type: string;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <div className="pl-link-row">
+      <a
+        href={href}
+        className="inline-flex items-center gap-1.5"
+        target={href.startsWith("http") ? "_blank" : undefined}
+        rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+      >
+        {icon}
+        {label}
+      </a>
+      <span className="pl-link-type">{type}</span>
+    </div>
   );
 }
 
@@ -341,7 +374,7 @@ function LinkedInIcon() {
   return (
     <svg
       aria-hidden="true"
-      className="h-3.5 w-3.5 shrink-0"
+      className="h-4 w-4 shrink-0"
       viewBox="0 0 24 24"
       fill="currentColor"
     >
@@ -354,7 +387,7 @@ function GitHubIcon() {
   return (
     <svg
       aria-hidden="true"
-      className="h-3.5 w-3.5 shrink-0"
+      className="h-4 w-4 shrink-0"
       viewBox="0 0 24 24"
       fill="currentColor"
     >
@@ -375,20 +408,18 @@ function LatelyItem({
   subtitle: string;
 }) {
   return (
-    <li className="sx-row items-center !py-2">
-      <div className="flex items-center gap-2.5">
-        <div className="shrink-0 border border-line">
-          <Image
-            src={src}
-            alt={alt}
-            width={28}
-            height={28}
-            className="h-7 w-7 object-cover"
-          />
-        </div>
-        <span className="font-sans text-[13.5px] text-[#e8e8e8]">{title}</span>
+    <div className="pl-lately-item">
+      <div className="pl-lately-thumb">
+        <Image
+          src={src}
+          alt={alt}
+          width={40}
+          height={40}
+          className="h-full w-full object-cover"
+        />
       </div>
-      <span className="font-mono text-[11px] text-[#9a9a9a]">{subtitle}</span>
-    </li>
+      <span className="pl-lately-title">{title}</span>
+      <span className="pl-lately-subtitle">{subtitle}</span>
+    </div>
   );
 }
