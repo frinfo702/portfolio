@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import "highlight.js/styles/github-dark-dimmed.css";
+import "katex/dist/katex.min.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Kenichiro Goto — Portfolio",
+  title: "Kenichiro Goto | Software Engineer",
   description:
-    "Personal portfolio of Kenichiro Goto — software engineer & machine learning researcher.",
+    "Personal portfolio of Kenichiro Goto, a software engineer and machine-learning researcher.",
   icons: {
     icon: "/favicon.svg",
   },
@@ -16,13 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className="h-full antialiased"
-    >
-      <body className="flex min-h-full flex-col bg-black text-text">
-        {children}
-      </body>
+    <html lang="en">
+      <body>{children}</body>
     </html>
   );
 }

@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Build both projects (Next.js portfolio + zensical docs) and serve the
-# combined static output under out/ for local preview.
+# Build the Next.js portfolio and serve its static output from out/.
 #
 # Usage:
 #   ./scripts/preview.sh
@@ -19,7 +18,7 @@ info() { printf '==> %s\n' "$*"; }
 die()  { printf 'error: %s\n' "$*" >&2; exit 1; }
 
 if [[ "$SKIP_BUILD" != "1" ]]; then
-  info "Building portfolio (Next.js → out/) and docs (zensical → out/docs/)..."
+  info "Building portfolio (Next.js → out/)..."
   npm run build
 else
   info "Skipping build (SKIP_BUILD=1)"
@@ -30,7 +29,7 @@ fi
 
 info "Preview ready"
 printf '    Portfolio  http://localhost:%s/\n' "$PORT"
-printf '    Docs       http://localhost:%s/docs/\n' "$PORT"
+printf '    Writing    http://localhost:%s/writing\n' "$PORT"
 printf '\n    Ctrl+C to stop\n\n'
 
 # Prefer `serve` (clean static hosting + SPA-friendly fallbacks).

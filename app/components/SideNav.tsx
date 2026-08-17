@@ -18,7 +18,7 @@ const EXTERNAL = [
   { href: "resume/kenichiro_goto.pdf", label: "resume.pdf" },
   { href: "https://github.com/frinfo702", label: "github" },
   { href: "https://www.linkedin.com/in/kenichiro-goto/", label: "linkedin" },
-  { href: "/docs/", label: "docs/" },
+  { href: "/writing", label: "writing" },
   { href: "mailto:kenichiro3114@gmail.com", label: "email" },
 ] as const;
 
