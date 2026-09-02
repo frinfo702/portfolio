@@ -1,4 +1,12 @@
 import Link from "next/link";
+import { GeistPixelSquare } from "geist/font/pixel";
+import { SOCIAL_LINKS } from "../../lib/external-links";
+
+const SOCIAL_ICONS: Record<string, () => React.ReactNode> = {
+  email: MailIcon,
+  github: GitHubIcon,
+  linkedin: LinkedInIcon,
+};
 
 type PageName = "about" | "writing" | "misc";
 
@@ -19,8 +27,10 @@ export default function SiteFrame({
     <div className="site-shell">
       <aside className="site-sidebar">
         <div className="sidebar-sticky">
-          <h1 className="site-title mobile-title">
-            <Link href="/">Kenichiro Goto</Link>
+          <h1 className={`site-title mobile-title ${GeistPixelSquare.variable}`}>
+            <Link href="/" className="geist-pixel">
+              Kenichiro Goto
+            </Link>
           </h1>
           <nav className="site-nav" aria-label="Primary navigation">
             {pages.map((page) => (
@@ -41,8 +51,10 @@ export default function SiteFrame({
       </aside>
 
       <main className="site-main">
-        <h1 className="site-title desktop-title">
-          <Link href="/">Kenichiro Goto</Link>
+        <h1 className={`site-title desktop-title ${GeistPixelSquare.variable}`}>
+          <Link href="/" className="geist-pixel">
+            Kenichiro Goto
+          </Link>
         </h1>
         <div className="site-content">{children}</div>
         <Footer />
@@ -56,25 +68,23 @@ function Footer() {
     <footer className="site-footer">
       <span>© {new Date().getFullYear()} Kenichiro Goto.</span>
       <div className="social-links">
-        <a href="mailto:kenichiro3114@gmail.com" aria-label="Email">
-          <MailIcon />
-        </a>
-        <a
-          href="https://github.com/frinfo702"
-          target="_blank"
-          rel="noreferrer"
-          aria-label="GitHub"
-        >
-          <GitHubIcon />
-        </a>
-        <a
-          href="https://www.linkedin.com/in/kenichiro-goto/"
-          target="_blank"
-          rel="noreferrer"
-          aria-label="LinkedIn"
-        >
-          <LinkedInIcon />
-        </a>
+        {SOCIAL_LINKS.map((link) => {
+          const Icon = SOCIAL_ICONS[link.label];
+          if (!Icon) return null;
+          const external = link.href.startsWith("http");
+          return (
+            <a
+              key={link.href}
+              href={link.href}
+              {...(external
+                ? { target: "_blank", rel: "noreferrer" }
+                : {})}
+              aria-label={link.label}
+            >
+              <Icon />
+            </a>
+          );
+        })}
       </div>
     </footer>
   );

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #111827;
-  --surface: #0e1625;
+  --background: #000000;
+  --surface: #050505;
   --text: #f8fafc;
   --body: #d1d5db;
   --muted: #9ca3af;
@@ -80,6 +80,10 @@ a {
   text-decoration: none;
 }
 
+.geist-pixel {
+  font-family: var(--font-geist-pixel-square);
+}
+
 .mobile-title {
   display: none;
 }
@@ -137,10 +141,6 @@ a {
 .site-content,
 .site-footer {
   width: min(100%, 43rem);
-}
-
-.scroll-target {
-  scroll-margin-top: 2.5rem;
 }
 
 .intro-section {

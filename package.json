@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@jax-js/jax": "^0.1.13",
+    "geist": "^1.7.2",
     "gray-matter": "^4.0.3",
     "highlight.js": "^11.12.0",
     "katex": "^0.16.47",
@@ -30,7 +31,7 @@
     "three": "^0.184.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

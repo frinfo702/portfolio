@@ -9,15 +9,21 @@ export const metadata: Metadata = {
 
 const lately = [
   {
+    src: "/bloody_paradise.png",
+    alt: "Bloody Paradise",
+    title: "Bloody Paradise",
+    detail: "THE SIN:BLISS - ENHYPEN",
+  },
+  {
     src: "/yomi_no_tsugai.jpeg",
     alt: "Yomi no Tsugai",
-    title: "Yomi no Tsugai",
+    title: "黄泉のツガイ (Yomi no Tsugai)",
     detail: "Season 1",
   },
   {
     src: "/jjk-season3.png",
     alt: "Jujutsu Kaisen season 3",
-    title: "Jujutsu Kaisen",
+    title: "呪術廻戦 (Jujutsu Kaisen)",
     detail: "Season 3",
   },
   {
