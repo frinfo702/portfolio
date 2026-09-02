@@ -473,7 +473,7 @@ a {
 .markdown-body {
   padding-top: 2.25rem;
   color: var(--body);
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 1rem;
   line-height: 1.8;
   overflow-wrap: anywhere;
@@ -702,6 +702,10 @@ a {
   border-radius: 3px;
   color: var(--text);
   font-size: 0.78em;
+}
+
+.markdown-body .katex {
+  font-size: 1em;
 }
 
 .markdown-body .katex-display {

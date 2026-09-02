@@ -15,7 +15,7 @@
     "@jax-js/jax": "^0.1.13",
     "gray-matter": "^4.0.3",
     "highlight.js": "^11.12.0",
-    "katex": "^0.18.4",
+    "katex": "^0.16.47",
     "next": "16.2.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
