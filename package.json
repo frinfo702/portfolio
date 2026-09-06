@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
+    "dev": "NODE_ENV=development next dev --webpack",
     "build": "next build",
     "preview": "bash scripts/preview.sh",
     "preview:serve": "SKIP_BUILD=1 bash scripts/preview.sh",
@@ -17,6 +17,7 @@
     "gray-matter": "^4.0.3",
     "highlight.js": "^11.12.0",
     "katex": "^0.16.47",
+    "link-preview-js": "^5.0.0",
     "next": "16.2.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",

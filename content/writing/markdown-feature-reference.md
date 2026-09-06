@@ -98,3 +98,9 @@ A statement can include a footnote.[^source] Footnotes are collected at the end 
 </details>
 
 [^source]: This footnote is rendered by the GitHub Flavored Markdown pipeline.
+
+## Link previews
+
+A URL on its own line becomes a preview card:
+
+https://github.com/frinfo702/mompiler

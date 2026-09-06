@@ -15,6 +15,10 @@ export default function WritingPage() {
   return (
     <SiteFrame active="writing">
       <h2 className="page-heading">Writing</h2>
+      <p className="page-lede">
+        These pieces are written by a human, not AI. Some are written in
+        English as part of my own English learning.
+      </p>
       <ol className="writing-list">
         {posts.map((post) => (
           <li key={post.slug}>
