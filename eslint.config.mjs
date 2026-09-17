@@ -17,6 +17,12 @@ const eslintConfig = defineConfig([
     // Zensical docs tooling / build output
     "zensical-doc/.venv/**",
     "zensical-doc/site/**",
+    // Agent skill scripts (not app code)
+    "agent/**",
+    ".agents/**",
+    ".claude/**",
+    ".cursor/**",
+    ".superpowers/**",
   ]),
 ]);
 
