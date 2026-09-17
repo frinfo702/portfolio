@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { GeistPixelSquare } from "geist/font/pixel";
 import { SOCIAL_LINKS } from "../../lib/external-links";
+import Jelly from "./Jelly";
 
 const SOCIAL_ICONS: Record<string, () => React.ReactNode> = {
   email: MailIcon,
@@ -51,6 +52,7 @@ export default function SiteFrame({
       </aside>
 
       <main className="site-main">
+        <Jelly />
         <h1 className={`site-title desktop-title ${GeistPixelSquare.variable}`}>
           <Link href="/" className="geist-pixel">
             Kenichiro Goto
