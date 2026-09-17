@@ -1,0 +1,16 @@
+ts	phase	decision	why	evidence	result
+2026-09-10T09:20:00Z	frame	captured the old site before touching it	so the change can be judged old against new	.screens/baseline/	8 screenshots saved
+2026-09-10T09:22:00Z	frame	fixed the broken build first by excluding repo tooling from tsconfig	every later check needs a green build to mean anything	commit 6275a2c	next build passes
+2026-09-10T09:30:00Z	design	built 3 throwaway directions (dark cinematic, light editorial, product-page flip) before writing app code	the art direction is a one-way door, 3 sketches are cheaper than 1 wrong implementation	/tmp/proto/*.png	picked a synthesis: editorial paper body, dark hero and footer, glass header
+2026-09-10T09:35:00Z	design	committed to one light-first art direction instead of a theme toggle	one mastered direction beats two half-tuned ones, and long-form reads better on light	commit b46a9d5	implemented
+2026-09-10T09:40:00Z	foundation	sketched the design tokens, type scale, and shell before any page	pages built on a fixed vocabulary come out consistent	commit b46a9d5	build and lint green
+2026-09-10T09:42:00Z	content	put experience, projects, and misc into one typed module and deleted lib/external-links.ts	one source of truth for shapes beats repeated prop assumptions	lib/site.ts, commit b46a9d5	7 files import it, no duplicate shapes
+2026-09-10T09:44:00Z	harness	added scripts/shoot.mjs with playwright-core for desktop and mobile screenshots, motion and reduced	visual work needs a committed, rerunnable check, not a one-time eyeball	scripts/shoot.mjs	22 screenshots per run
+2026-09-10T09:47:00Z	harness	moved the preview to serve with cleanUrls	python http.server and -s fallback were serving the home page for extensionless routes, nearly verified the wrong page	/tmp/serve.json	every route resolves to its own HTML
+2026-09-10T09:50:00Z	motion	used CSS transitions plus one IntersectionObserver instead of an animation library	the installed stack already covers it, a library here is weight with no gain	app/components/Reveal.tsx, commit b46a9d5	reveals work, 0 console errors
+2026-09-10T09:52:00Z	fix	made card and row titles block elements	they rendered inline, so titles and descriptions ran together	v1 vs v2 screenshots	fixed
+2026-09-10T09:53:00Z	fix	moved the hero glow out of the container into a full-bleed section	the ambient light was clipped into a visible rectangle	v1 vs v2 screenshots	fixed
+2026-09-10T09:56:00Z	fix	strengthened the misc caption gradient	titles were unreadable on bright cover art	commit b46a9d5	.screens/final/misc__covers.png
+2026-09-10T09:58:00Z	verify	wrote scripts/check.mjs covering console errors, tone flip, mobile menu, anchors, math and code highlight, 320px overflow, reduced motion, keyboard order	turns the visual invariants into a gate anyone can rerun	scripts/check.mjs	16/16 pass
+2026-09-10T10:02:00Z	verify	ran Lighthouse and a real throttled LCP probe	wanted the honest number, not the simulated one	/tmp/lh2.json, /tmp/lcp-probe2.mjs	93 perf, 100 a11y, 100 best practices, 100 SEO, CLS 0, TBT 10ms, throttled LCP 0.76s
+2026-09-10T10:05:00Z	open	set SITE_URL to kenichirog.com	metadata, sitemap, and robots need an absolute base, and the domain came from the email address	lib/site.ts	open, change if the production domain differs
