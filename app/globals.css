@@ -677,6 +677,11 @@ a {
 .markdown-body ol {
   margin: 0 0 1.4rem;
   padding-left: 1.6rem;
+  list-style: disc;
+}
+
+.markdown-body ol {
+  list-style: decimal;
 }
 
 .markdown-body li {
