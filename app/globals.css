@@ -89,6 +89,7 @@ a {
 }
 
 .site-nav {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -98,6 +99,7 @@ a {
   display: flex;
   align-items: center;
   min-height: 1.75rem;
+  padding-left: 0.75rem;
   color: var(--muted);
   font-size: 0.875rem;
   text-decoration: none;
@@ -110,6 +112,7 @@ a {
 }
 
 .nav-dot {
+  display: none;
   width: 0.25rem;
   height: 0.25rem;
   margin-right: 0.5rem;
@@ -124,6 +127,17 @@ a {
 .nav-link.active .nav-dot {
   opacity: 1;
   transform: scale(1.25);
+}
+
+.nav-bounce-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0.25rem;
+  height: 0.25rem;
+  border-radius: 999px;
+  background: var(--accent-strong);
+  opacity: 0;
 }
 
 .site-main {
@@ -883,10 +897,16 @@ a {
   .nav-link {
     flex-direction: column-reverse;
     flex: 0 0 auto;
+    padding-left: 0;
   }
 
   .nav-dot {
+    display: block;
     margin: 0.25rem 0 0;
+  }
+
+  .nav-bounce-dot {
+    display: none;
   }
 
   .desktop-title {

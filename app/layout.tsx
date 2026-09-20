@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "katex/dist/katex.min.css";
 import "./globals.css";
+import SiteFrame from "./components/SiteFrame";
 
 export const metadata: Metadata = {
   title: "Kenichiro Goto | Software Engineer",
@@ -18,7 +19,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <SiteFrame>{children}</SiteFrame>
+      </body>
     </html>
   );
 }

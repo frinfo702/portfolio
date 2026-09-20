@@ -15,7 +15,6 @@ import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import CodeBlock from "../../components/CodeBlock";
-import SiteFrame from "../../components/SiteFrame";
 import {
   formatPostDate,
   getWritingPost,
@@ -53,36 +52,34 @@ export default async function WritingPostPage({ params }: Props) {
   const linkPreviews = await loadLinkPreviews(post.content);
 
   return (
-    <SiteFrame active="writing">
-      <article className="markdown-article">
-        <Link className="article-back" href="/writing">
-          Back to writing
-        </Link>
-        <header className="article-header">
-          <h2>{post.title}</h2>
-          <p>{post.description}</p>
-          <div className="article-meta">
-            <time dateTime={post.date}>{formatPostDate(post.date)}</time>
-            <span aria-hidden="true">·</span>
-            <span>{post.tags.join(" · ")}</span>
-          </div>
-        </header>
-        <div className="markdown-body">
-          <ReactMarkdown
-            components={createMarkdownComponents(linkPreviews)}
-            remarkPlugins={[remarkGfm, remarkMath]}
-            rehypePlugins={[
-              rehypeRaw,
-              rehypeKatex,
-              rehypeSlug,
-              [rehypeAutolinkHeadings, { behavior: "wrap" }],
-            ]}
-          >
-            {post.content}
-          </ReactMarkdown>
+    <article className="markdown-article">
+      <Link className="article-back" href="/writing">
+        Back to writing
+      </Link>
+      <header className="article-header">
+        <h2>{post.title}</h2>
+        <p>{post.description}</p>
+        <div className="article-meta">
+          <time dateTime={post.date}>{formatPostDate(post.date)}</time>
+          <span aria-hidden="true">·</span>
+          <span>{post.tags.join(" · ")}</span>
         </div>
-      </article>
-    </SiteFrame>
+      </header>
+      <div className="markdown-body">
+        <ReactMarkdown
+          components={createMarkdownComponents(linkPreviews)}
+          remarkPlugins={[remarkGfm, remarkMath]}
+          rehypePlugins={[
+            rehypeRaw,
+            rehypeKatex,
+            rehypeSlug,
+            [rehypeAutolinkHeadings, { behavior: "wrap" }],
+          ]}
+        >
+          {post.content}
+        </ReactMarkdown>
+      </div>
+    </article>
   );
 }
 

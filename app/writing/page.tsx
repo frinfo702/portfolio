@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import SiteFrame from "../components/SiteFrame";
 import { formatPostDate, getWritingPosts } from "../../lib/writing";
 
 export const metadata: Metadata = {
@@ -13,7 +12,7 @@ export default function WritingPage() {
   const posts = getWritingPosts();
 
   return (
-    <SiteFrame active="writing">
+    <>
       <h2 className="page-heading">Writing</h2>
       <p className="page-lede">
         These pieces are written by a human, not AI. Some are written in
@@ -30,6 +29,6 @@ export default function WritingPage() {
           </li>
         ))}
       </ol>
-    </SiteFrame>
+    </>
   );
 }

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import SiteFrame from "../components/SiteFrame";
 
 export const metadata: Metadata = {
   title: "Misc | Kenichiro Goto",
@@ -36,7 +35,7 @@ const lately = [
 
 export default function MiscPage() {
   return (
-    <SiteFrame active="misc">
+    <>
       <h2 className="page-heading">Miscellany</h2>
       <p className="page-lede">Things I have been enjoying lately.</p>
       <ul className="lately-list misc-list">
@@ -54,6 +53,6 @@ export default function MiscPage() {
           </li>
         ))}
       </ul>
-    </SiteFrame>
+    </>
   );
 }

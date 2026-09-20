@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { GeistPixelSquare } from "geist/font/pixel";
 import { SOCIAL_LINKS } from "../../lib/external-links";
+import BounceNav from "./BounceNav";
 import Jelly from "./Jelly";
 
 const SOCIAL_ICONS: Record<string, () => React.ReactNode> = {
@@ -9,21 +10,7 @@ const SOCIAL_ICONS: Record<string, () => React.ReactNode> = {
   linkedin: LinkedInIcon,
 };
 
-type PageName = "about" | "writing" | "misc";
-
-const pages = [
-  { name: "about", href: "/", label: "About" },
-  { name: "writing", href: "/writing", label: "Writing" },
-  { name: "misc", href: "/misc", label: "Misc" },
-] as const;
-
-export default function SiteFrame({
-  active,
-  children,
-}: {
-  active: PageName;
-  children: React.ReactNode;
-}) {
+export default function SiteFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className="site-shell">
       <aside className="site-sidebar">
@@ -33,21 +20,7 @@ export default function SiteFrame({
               Kenichiro Goto
             </Link>
           </h1>
-          <nav className="site-nav" aria-label="Primary navigation">
-            {pages.map((page) => (
-              <Link
-                key={page.name}
-                href={page.href}
-                className={
-                  active === page.name ? "nav-link active" : "nav-link"
-                }
-                aria-current={active === page.name ? "page" : undefined}
-              >
-                <span className="nav-dot" aria-hidden="true" />
-                {page.label}
-              </Link>
-            ))}
-          </nav>
+          <BounceNav />
         </div>
       </aside>
 
