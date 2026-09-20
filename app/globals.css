@@ -738,22 +738,9 @@ a {
   font-size: 0.84em;
 }
 
-.markdown-body pre {
+.markdown-body [data-slot="code-block"] {
   max-width: 100%;
   margin: 1.75rem 0;
-  padding: 1rem 1.15rem;
-  overflow-x: auto;
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  background: var(--surface);
-  font-size: 0.79rem;
-  line-height: 1.65;
-  tab-size: 2;
-}
-
-.markdown-body pre code {
-  padding: 0;
-  background: transparent;
 }
 
 .markdown-body table {

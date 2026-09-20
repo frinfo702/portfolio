@@ -7,7 +7,6 @@ import { Children, isValidElement } from "react";
 import type { ReactNode } from "react";
 import { getLinkPreview, type ILinkPreviewResponse } from "link-preview-js";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypeHighlight from "rehype-highlight";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
 import rehypeSlug from "rehype-slug";
@@ -15,6 +14,7 @@ import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
+import CodeBlock from "../../components/CodeBlock";
 import SiteFrame from "../../components/SiteFrame";
 import {
   formatPostDate,
@@ -74,7 +74,6 @@ export default async function WritingPostPage({ params }: Props) {
             rehypePlugins={[
               rehypeRaw,
               rehypeKatex,
-              rehypeHighlight,
               rehypeSlug,
               [rehypeAutolinkHeadings, { behavior: "wrap" }],
             ]}
@@ -91,6 +90,25 @@ function createMarkdownComponents(
   linkPreviews: ReadonlyMap<string, ILinkPreviewResponse | null>,
 ): Components {
   return {
+    pre({ children }) {
+      const child = Children.toArray(children)[0];
+      if (!isValidElement(child)) return <pre>{children}</pre>;
+
+      const { className, children: source } = child.props as {
+        className?: string;
+        children?: ReactNode;
+      };
+      const language = /language-([\w-]+)/.exec(className ?? "")?.[1];
+
+      return (
+        <CodeBlock
+          code={getTextContent(source)}
+          language={language ?? "text"}
+          accent="#34d399"
+          mode="dark"
+        />
+      );
+    },
     p({ children }) {
       const url = getStandaloneUrl(children);
       if (url && linkPreviews.has(url)) {
@@ -105,6 +123,15 @@ function createMarkdownComponents(
       return <a href={href}>{children}</a>;
     },
   };
+}
+
+function getTextContent(node: ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(getTextContent).join("");
+  if (!isValidElement(node)) return "";
+
+  const { children } = node.props as { children?: ReactNode };
+  return getTextContent(children);
 }
 
 function getStandaloneUrl(children: ReactNode): string | null {

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import "highlight.js/styles/github-dark-dimmed.css";
 import "katex/dist/katex.min.css";
 import "./globals.css";
 
