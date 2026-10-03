@@ -15,6 +15,7 @@ import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import CodeBlock from "../../components/CodeBlock";
+import PostAnimation from "../../components/animations/PostAnimation";
 import {
   formatPostDate,
   getWritingPost,
@@ -118,6 +119,15 @@ function createMarkdownComponents(
     },
     a({ href, children }) {
       return <a href={href}>{children}</a>;
+    },
+    div(props) {
+      const { node, ...rest } = props;
+      const animation = node?.properties.dataAnimation;
+      if (typeof animation === "string") {
+        return <PostAnimation name={animation} />;
+      }
+
+      return <div {...rest} />;
     },
   };
 }

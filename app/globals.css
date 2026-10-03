@@ -993,3 +993,92 @@ a {
     transition-duration: 0.01ms !important;
   }
 }
+
+.post-animation {
+  margin: 2rem 0;
+  padding: 0.85rem;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.post-animation canvas {
+  display: block;
+  width: 100%;
+}
+
+.post-animation figcaption {
+  margin-top: 0.6rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.post-animation-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.post-animation-controls button {
+  padding: 0.2rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.post-animation-controls button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--background);
+}
+
+.patchify-animation {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  container-type: inline-size;
+}
+
+.patchify-animation figcaption {
+  order: 2;
+}
+
+.markdown-body .patchify-steps {
+  display: grid;
+  order: 1;
+  gap: 0.15rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.markdown-body .patchify-steps li {
+  margin: 0;
+  padding-left: 0.65rem;
+  border-left: 2px solid var(--rule);
+  color: var(--dim);
+  transition: color 200ms ease, border-color 200ms ease;
+}
+
+.markdown-body .patchify-steps li[aria-current="step"] {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+@container (min-width: 440px) {
+  .markdown-body .patchify-steps {
+    position: absolute;
+    top: calc(0.85rem + 52px);
+    left: calc(0.85rem + 194px);
+    gap: 0.35rem;
+    margin: 0;
+  }
+}
