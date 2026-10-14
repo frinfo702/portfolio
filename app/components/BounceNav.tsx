@@ -18,7 +18,7 @@ function activeIndexFor(pathname: string) {
   );
 }
 
-type DotTarget = { y: number; path: MotionPath | null };
+type DotTarget = { x: number; path: MotionPath | null };
 
 export default function BounceNav() {
   const pathname = usePathname();
@@ -28,7 +28,7 @@ export default function BounceNav() {
   const navRef = useRef<HTMLElement>(null);
   const dotRef = useRef<HTMLSpanElement>(null);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
-  const prevY = useRef<number | null>(null);
+  const prevX = useRef<number | null>(null);
   const [dot, setDot] = useState<DotTarget | null>(null);
 
   useEffect(() => {
@@ -36,18 +36,18 @@ export default function BounceNav() {
     const marker = dotRef.current;
     if (!item || !marker) return;
 
-    const y = item.offsetTop + item.offsetHeight / 2 - marker.offsetWidth / 2;
-    const fromY = prevY.current;
-    prevY.current = y;
+    const x = item.offsetLeft + item.offsetWidth / 2 - marker.offsetWidth / 2;
+    const fromX = prevX.current;
+    prevX.current = x;
 
-    if (fromY === null || fromY === y || reduceMotion) {
-      setDot({ y, path: null });
+    if (fromX === null || fromX === x || reduceMotion) {
+      setDot({ x, path: null });
       return;
     }
 
-    const delta = y - fromY;
+    const delta = x - fromX;
     setDot({
-      y,
+      x,
       path: arc({
         strength: Math.min(0.8, 14 / Math.abs(delta)),
         direction: delta > 0 ? "ccw" : "cw",
@@ -62,7 +62,7 @@ export default function BounceNav() {
         className="nav-bounce-dot"
         aria-hidden="true"
         initial={false}
-        animate={{ y: dot?.y ?? 0, opacity: dot ? 1 : 0 }}
+        animate={{ x: dot?.x ?? 0, opacity: dot ? 1 : 0 }}
         transition={
           dot?.path
             ? { duration: 0.35, ease: "easeOut", path: dot.path }
@@ -81,7 +81,6 @@ export default function BounceNav() {
             className={active ? "nav-link active" : "nav-link"}
             aria-current={active ? "page" : undefined}
           >
-            <span className="nav-dot" aria-hidden="true" />
             {page.label}
           </Link>
         );

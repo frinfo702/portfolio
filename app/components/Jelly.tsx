@@ -47,7 +47,7 @@ export default function Jelly() {
     keyLight.position.set(2.5, 3, 4);
     scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(0x3ce6ad, 2.2);
+    const rimLight = new THREE.DirectionalLight(0xd6dade, 2.4);
     rimLight.position.set(-3, -1.5, 2.5);
     scene.add(rimLight);
 
@@ -69,29 +69,29 @@ export default function Jelly() {
     const grabbed = new Float32Array(positions.length / 3);
 
     const coreMaterial = new THREE.MeshStandardMaterial({
-      color: 0x35a37f,
-      roughness: 0.55,
-      metalness: 0,
-      envMapIntensity: 0.7,
+      color: 0x2b2f32,
+      roughness: 0.34,
+      metalness: 0.85,
+      envMapIntensity: 1.1,
     });
     const core = new THREE.Mesh(geometry, coreMaterial);
     core.scale.setScalar(0.62);
     scene.add(core);
 
     const shellMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0xf2fffb,
+      color: 0xf4f6f8,
       metalness: 0,
       roughness: 0.07,
       transmission: 1,
       thickness: 1.3,
       ior: 1.34,
-      dispersion: 0.35,
+      dispersion: 0.12,
       clearcoat: 1,
       clearcoatRoughness: 0.06,
-      iridescence: 0.35,
+      iridescence: 0.3,
       iridescenceIOR: 1.3,
       iridescenceThicknessRange: [120, 420],
-      attenuationColor: new THREE.Color(0x2fc493),
+      attenuationColor: new THREE.Color(0x8e9499),
       attenuationDistance: 2.4,
       envMapIntensity: 1.6,
     });

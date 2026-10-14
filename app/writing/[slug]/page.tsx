@@ -102,7 +102,7 @@ function createMarkdownComponents(
         <CodeBlock
           code={getTextContent(source)}
           language={language ?? "text"}
-          accent="#34d399"
+          accent="#cfd4d8"
           mode="dark"
         />
       );
