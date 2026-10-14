@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { SOCIAL_LINKS } from "../../lib/external-links";
-import BounceNav from "./BounceNav";
-import Jelly from "./Jelly";
 
 const SOCIAL_ICONS: Record<string, () => React.ReactNode> = {
   email: MailIcon,
@@ -12,13 +10,9 @@ const SOCIAL_ICONS: Record<string, () => React.ReactNode> = {
 export default function SiteFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className="site-shell">
-      <header className="site-plate">
-        <Jelly />
-        <h1 className="site-title">
-          <Link href="/">Kenichiro Goto</Link>
-        </h1>
-      </header>
-      <BounceNav />
+      <h1 className="site-title">
+        <Link href="/">Kenichiro Goto</Link>
+      </h1>
       <main className="site-main">{children}</main>
       <Footer />
     </div>

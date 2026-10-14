@@ -54,7 +54,7 @@ export default async function WritingPostPage({ params }: Props) {
 
   return (
     <article className="markdown-article">
-      <Link className="article-back" href="/writing">
+      <Link className="article-back" href="/#writing">
         Back to writing
       </Link>
       <header className="article-header">

@@ -77,6 +77,11 @@ a {
   color: inherit;
 }
 
+/* One weight across the page; hierarchy comes from size, color and spacing. */
+:where(b, strong, th, summary) {
+  font-weight: inherit;
+}
+
 :where(a, button):focus-visible {
   border-radius: 2px;
   outline: 1px solid var(--accent-strong);
@@ -88,27 +93,12 @@ a {
   margin: 0 auto;
 }
 
-.site-plate {
-  display: flex;
-  align-items: center;
-  gap: 1.1rem;
-  padding: 0.85rem 1.15rem;
-  border: 1px solid var(--edge);
-  border-radius: 7px;
-  background: var(--plate);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06),
-    inset 0 -1px 0 rgb(0 0 0 / 0.75), 0 30px 45px -30px rgb(0 0 0 / 0.9);
-}
-
 .site-title {
-  flex: 1;
-  margin: 0;
+  margin: 0 0 3.25rem;
   color: var(--text);
-  font-size: 1.02rem;
-  font-weight: 600;
+  font-size: 1rem;
   letter-spacing: 0.2em;
   line-height: 1.35;
-  text-shadow: 0 -1px 0 rgb(0 0 0 / 0.85), 0 1px 0 rgb(255 255 255 / 0.07);
   text-transform: uppercase;
 }
 
@@ -116,62 +106,9 @@ a {
   text-decoration: none;
 }
 
-.jelly {
-  width: 5.25rem;
-  height: 5.25rem;
-  flex: 0 0 5.25rem;
-}
-
-.jelly canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.jelly canvas:active {
-  cursor: grabbing;
-}
-
-.site-nav {
-  position: relative;
-  display: flex;
-  gap: 1.75rem;
-  margin: 1.5rem 0 2.75rem;
-  padding-bottom: 0.6rem;
-}
-
-.nav-link {
-  color: var(--dim);
-  font-size: 0.73rem;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  line-height: 1.4;
-  text-decoration: none;
-  text-transform: uppercase;
-  transition: color 150ms ease;
-}
-
-.nav-link:hover {
-  color: var(--body);
-}
-
-.nav-link.active {
-  color: var(--text);
-}
-
-.nav-bounce-dot {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 1rem;
-  height: 1px;
-  background: var(--accent);
-  opacity: 0;
+.site-section {
+  margin-top: 4.25rem;
+  scroll-margin-top: 2rem;
 }
 
 .site-main {
@@ -188,9 +125,7 @@ a {
   margin: 0 0 1.4rem;
 }
 
-.intro-section a,
-.entry a,
-.link-list > li > a > span {
+.intro-section a {
   color: var(--text);
   text-decoration: underline;
   text-decoration-color: rgb(255 255 255 / 0.28);
@@ -199,9 +134,7 @@ a {
   transition: text-decoration-color 150ms ease;
 }
 
-.intro-section a:hover,
-.entry a:hover,
-.link-list > li > a:hover > span {
+.intro-section a:hover {
   text-decoration-color: var(--accent-strong);
 }
 
@@ -209,7 +142,6 @@ a {
   margin: 0 0 1.9rem;
   color: var(--text);
   font-size: 0.78rem;
-  font-weight: 600;
   letter-spacing: 0.16em;
   line-height: 1.4;
   text-transform: uppercase;
@@ -255,7 +187,6 @@ a {
 .writing-list strong {
   display: block;
   font-size: 1rem;
-  font-weight: 600;
   line-height: 1.4;
 }
 
@@ -264,7 +195,6 @@ a {
   margin-top: 0.3rem;
   color: var(--muted);
   font-size: 0.82rem;
-  font-weight: 400;
   line-height: 1.55;
 }
 
@@ -382,7 +312,6 @@ a {
   margin: 0;
   color: var(--text);
   font-size: clamp(1.5rem, 4vw, 1.9rem);
-  font-weight: 650;
   letter-spacing: -0.02em;
   line-height: 1.25;
 }
@@ -423,7 +352,6 @@ a {
 .markdown-body h5,
 .markdown-body h6 {
   color: var(--text);
-  font-weight: 650;
   letter-spacing: -0.01em;
   line-height: 1.35;
   scroll-margin-top: 2rem;
@@ -490,7 +418,6 @@ a {
 
 .markdown-body strong {
   color: var(--text);
-  font-weight: 650;
 }
 
 .markdown-body ul,
@@ -589,7 +516,6 @@ a {
 .markdown-body th {
   background: var(--surface);
   color: var(--text);
-  font-weight: 600;
 }
 
 .markdown-body img {
@@ -611,7 +537,6 @@ a {
 
 .markdown-body summary {
   color: var(--text);
-  font-weight: 600;
   cursor: pointer;
 }
 
@@ -718,7 +643,6 @@ a {
   );
   color: var(--accent);
   font-size: 2.2rem;
-  font-weight: 600;
 }
 
 .link-preview-copy {
@@ -855,19 +779,9 @@ a {
   }
 
   .site-title {
+    margin-bottom: 2.5rem;
     font-size: 0.88rem;
     letter-spacing: 0.15em;
-  }
-
-  .jelly {
-    width: 3.6rem;
-    height: 3.6rem;
-    flex-basis: 3.6rem;
-  }
-
-  .site-nav {
-    gap: 1.4rem;
-    margin-bottom: 2.25rem;
   }
 
   .site-footer {
