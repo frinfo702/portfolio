@@ -52,7 +52,7 @@ function stepAt(t: number) {
   return t < 2 ? 0 : t < 4.8 ? 1 : t < 6.8 ? 2 : 3;
 }
 
-const TEXT_COLORS = ["#60a5fa", "#3b82f6", "#93c5fd"];
+const TEXT_COLORS = ["#e8eaec", "#8b8f93", "#c9ced2"];
 
 let sourceImage: HTMLCanvasElement | null = null;
 
@@ -125,7 +125,7 @@ function tokenX(index: number, l: Layout) {
 }
 
 function embeddingColor(index: number) {
-  return `hsl(158 64% ${34 + ((index * 37) % 28)}%)`;
+  return `hsl(210 6% ${36 + ((index * 37) % 30)}%)`;
 }
 
 function drawBracket(
@@ -253,8 +253,8 @@ function drawFrame(
 
   if (sweep > 0 && sweep < 1) {
     const glow = ctx.createLinearGradient(sweepX - 10, 0, sweepX + 2, 0);
-    glow.addColorStop(0, "rgba(52, 211, 153, 0)");
-    glow.addColorStop(1, "rgba(52, 211, 153, 0.55)");
+    glow.addColorStop(0, "rgba(201, 206, 210, 0)");
+    glow.addColorStop(1, "rgba(201, 206, 210, 0.45)");
     ctx.fillStyle = glow;
     ctx.fillRect(sweepX - 10, l.rowY - 10, 12, l.token + 20);
     ctx.fillStyle = COLORS.accent;

@@ -9,7 +9,7 @@ type Mode = "softmax" | "sigmoid";
 
 const N = 6;
 const CAPTIONS = ["a dog", "a cat", "a car", "a tree", "a cup", "a bird"];
-const SWATCHES = ["#f59e0b", "#f97316", "#ef4444", "#22c55e", "#a78bfa", "#38bdf8"];
+const SWATCHES = ["#e8eaec", "#c2c7cb", "#9ea4a9", "#7b8187", "#5b6167", "#3e444a"];
 // 1/τ for CLIP, t for SigLIP
 const SCALE = 10;
 const BIAS = -4;
@@ -132,8 +132,8 @@ function layout(width: number) {
 
 function cellColor(value: number) {
   const v = clamp01(value) ** 0.7;
-  const from = [15, 23, 42];
-  const to = [52, 211, 153];
+  const from = [16, 18, 19];
+  const to = [190, 196, 201];
   const mix = from.map((c, k) => Math.round(c + (to[k] - c) * v));
   return `rgb(${mix.join(", ")})`;
 }
@@ -244,7 +244,7 @@ export default function ClipMatrixAnimation() {
 
         if (l.cell >= 30) {
           ctx.fillStyle =
-            p > 0.55 ? "#022c22" : p > 0.2 ? COLORS.text : COLORS.dim;
+            p > 0.55 ? "#101214" : p > 0.2 ? COLORS.text : COLORS.dim;
           ctx.font = `10px ${FONT_MONO}`;
           ctx.textAlign = "center";
           ctx.fillText(p.toFixed(2), x + l.cell / 2, y + l.cell / 2 + 3.5);
@@ -253,7 +253,7 @@ export default function ClipMatrixAnimation() {
       }),
     );
 
-    ctx.strokeStyle = "rgba(248, 250, 252, 0.7)";
+    ctx.strokeStyle = "rgba(232, 234, 236, 0.6)";
     ctx.lineWidth = 1;
     ctx.setLineDash([3, 3]);
     for (let i = 0; i < N; i += 1) {

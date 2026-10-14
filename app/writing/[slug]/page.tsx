@@ -54,7 +54,7 @@ export default async function WritingPostPage({ params }: Props) {
 
   return (
     <article className="markdown-article">
-      <Link className="article-back" href="/writing">
+      <Link className="article-back" href="/#writing">
         Back to writing
       </Link>
       <header className="article-header">
@@ -102,7 +102,7 @@ function createMarkdownComponents(
         <CodeBlock
           code={getTextContent(source)}
           language={language ?? "text"}
-          accent="#34d399"
+          accent="#cfd4d8"
           mode="dark"
         />
       );

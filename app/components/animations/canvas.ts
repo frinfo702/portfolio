@@ -3,13 +3,13 @@ export const FONT_SANS =
 export const FONT_MONO = "ui-monospace, SFMono-Regular, Menlo, monospace";
 
 export const COLORS = {
-  text: "#f8fafc",
-  body: "#d1d5db",
-  muted: "#9ca3af",
-  dim: "#64748b",
-  accent: "#34d399",
-  rule: "#273244",
-  blue: "#60a5fa",
+  text: "#e8eaec",
+  body: "#b6babe",
+  muted: "#8b8f93",
+  dim: "#63676b",
+  accent: "#c9ced2",
+  rule: "#232628",
+  blue: "#8ea3b8",
 };
 
 export function clamp01(value: number) {

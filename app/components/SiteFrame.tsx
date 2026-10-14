@@ -1,8 +1,5 @@
 import Link from "next/link";
-import { GeistPixelSquare } from "geist/font/pixel";
 import { SOCIAL_LINKS } from "../../lib/external-links";
-import BounceNav from "./BounceNav";
-import Jelly from "./Jelly";
 
 const SOCIAL_ICONS: Record<string, () => React.ReactNode> = {
   email: MailIcon,
@@ -13,27 +10,11 @@ const SOCIAL_ICONS: Record<string, () => React.ReactNode> = {
 export default function SiteFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className="site-shell">
-      <aside className="site-sidebar">
-        <div className="sidebar-sticky">
-          <h1 className={`site-title mobile-title ${GeistPixelSquare.variable}`}>
-            <Link href="/" className="geist-pixel">
-              Kenichiro Goto
-            </Link>
-          </h1>
-          <BounceNav />
-        </div>
-      </aside>
-
-      <main className="site-main">
-        <Jelly />
-        <h1 className={`site-title desktop-title ${GeistPixelSquare.variable}`}>
-          <Link href="/" className="geist-pixel">
-            Kenichiro Goto
-          </Link>
-        </h1>
-        <div className="site-content">{children}</div>
-        <Footer />
-      </main>
+      <h1 className="site-title">
+        <Link href="/">Kenichiro Goto</Link>
+      </h1>
+      <main className="site-main">{children}</main>
+      <Footer />
     </div>
   );
 }
@@ -41,7 +22,7 @@ export default function SiteFrame({ children }: { children: React.ReactNode }) {
 function Footer() {
   return (
     <footer className="site-footer">
-      <span>© {new Date().getFullYear()} Kenichiro Goto.</span>
+      <span>© {new Date().getFullYear()} Kenichiro Goto</span>
       <div className="social-links">
         {SOCIAL_LINKS.map((link) => {
           const Icon = SOCIAL_ICONS[link.label];
