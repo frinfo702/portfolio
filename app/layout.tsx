@@ -1,14 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import "katex/dist/katex.min.css";
 import "./globals.css";
-import SiteFrame from "./components/SiteFrame";
+import RouteFrame from "./components/RouteFrame";
 
 export const metadata: Metadata = {
-  title: "Kenichiro Goto | Software Engineer",
+  title: "Kenichiro Goto",
   description:
-    "Personal portfolio of Kenichiro Goto, a software engineer and machine-learning researcher.",
+    "Kenichiro Goto.",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/phase-icon.svg",
   },
 };
 
@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <SiteFrame>{children}</SiteFrame>
+        <RouteFrame>{children}</RouteFrame>
       </body>
     </html>
   );
