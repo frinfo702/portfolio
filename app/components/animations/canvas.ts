@@ -1,6 +1,8 @@
-export const FONT_SANS =
-  'GeistSans, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
-export const FONT_MONO = "GeistMono, ui-monospace, SFMono-Regular, Menlo, monospace";
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
+
+export const FONT_SANS = `${GeistSans.style.fontFamily}, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif`;
+export const FONT_MONO = `${GeistMono.style.fontFamily}, ui-monospace, SFMono-Regular, Menlo, monospace`;
 
 export const COLORS = {
   text: "#ededed",
