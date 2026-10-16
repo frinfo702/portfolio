@@ -1,0 +1,37 @@
+.phase-experience { height: 300svh; background: #080a0d; color: #e9e9e7; }
+.phase-stage { position: sticky; top: 0; height: 100svh; min-height: 420px; overflow: hidden; isolation: isolate; }
+.phase-canvas, .phase-fallback { position: absolute; inset: 0; width: 100%; height: 100%; }
+.phase-canvas { opacity: 0; transition: opacity 1.4s ease; }
+.phase-experience[data-status="ready"] .phase-canvas { opacity: 1; }
+.phase-fallback { background: #080a0d url("/phase-mist.webp") center / cover no-repeat; }
+.phase-experience[data-status="fallback"] .phase-fallback { background-image: url("/phase-still.webp"); }
+.phase-header { position: absolute; top: max(34px, env(safe-area-inset-top)); left: 4.2%; z-index: 1; }
+.phase-name { text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: .035em; }
+.phase-footer { position: absolute; right: 4.2%; bottom: max(30px, env(safe-area-inset-bottom)); }
+.phase-pause { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; font: inherit; font-size: 17px; color: #a5a7aa; border: 0; background: transparent; cursor: pointer; }
+.phase-pause:disabled { visibility: hidden; }
+.phase-socials { position: absolute; top: 72%; left: 50%; display: flex; gap: 28px; transform: translateX(-50%); opacity: .15; transition: opacity 1.4s ease; }
+.phase-experience[data-revealed="true"] .phase-socials, .phase-experience[data-status="fallback"] .phase-socials, .phase-socials:focus-within { opacity: 1; }
+.phase-filter { position: absolute; pointer-events: none; }
+.phase-social { position: relative; display: grid; place-items: center; width: 48px; height: 48px; color: #eea4a5; -webkit-tap-highlight-color: transparent; }
+.phase-social svg { fill: currentColor; pointer-events: none; }
+.phase-social-icon { width: 25px; height: 25px; filter: drop-shadow(0 0 4px #ff55555c) drop-shadow(0 0 12px #ff252540); animation: phase-hover 6s ease-in-out infinite; }
+.phase-social-reflection { position: absolute; width: 34px; height: 48px; left: 7px; top: 55px; opacity: .3; transform: scaleY(-.85) skewX(-9deg); mask-image: linear-gradient(to top, #000 5%, transparent 90%); filter: drop-shadow(0 0 7px #ff303066); animation: phase-water 6s ease-in-out infinite; }
+.phase-social:nth-of-type(2) svg { animation-delay: -2s; }
+.phase-social:nth-of-type(3) svg { animation-delay: -4s; }
+.phase-social::after { content: ""; position: absolute; top: 64px; width: 56px; height: 13px; background: radial-gradient(ellipse, #ff343421, transparent 70%); pointer-events: none; }
+.phase-stage :focus-visible { outline: 1px solid #ff645d; outline-offset: 6px; }
+.phase-experience[data-paused="true"] .phase-social svg { animation-play-state: paused; }
+@keyframes phase-hover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes phase-water { 0%, 100% { transform: translateY(0) scaleY(-.85) skewX(-9deg); } 50% { transform: translateY(3px) scaleY(-.92) skewX(4deg); } }
+@media (hover: hover) { .phase-social:hover { color: #ffe3e3; } .phase-pause:hover { color: #fff; } }
+@media (max-width: 600px) {
+  .phase-header { left: 24px; top: max(25px, env(safe-area-inset-top)); }
+  .phase-name { font-size: 12px; }
+  .phase-footer { right: 20px; }
+  .phase-socials { top: 69%; gap: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .phase-canvas, .phase-socials { transition: none; }
+  .phase-social svg { animation: none; }
+}
