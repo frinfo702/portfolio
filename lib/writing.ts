@@ -44,11 +44,6 @@ export function stampDate(date: string): string {
   return date.replaceAll("-", ".");
 }
 
-/** 1-based position in publication order -> "LOG-01" */
-export function logIndex(position: number): string {
-  return `LOG-${String(position).padStart(2, "0")}`;
-}
-
 function readPost(slug: string): WritingPost {
   const filename = path.join(writingDirectory, `${slug}.md`);
   const source = fs.readFileSync(filename, "utf8");

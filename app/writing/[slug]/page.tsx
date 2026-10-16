@@ -19,7 +19,6 @@ import PostAnimation from "../../components/animations/PostAnimation";
 import {
   getWritingPost,
   getWritingPosts,
-  logIndex,
   stampDate,
 } from "../../../lib/writing";
 
@@ -52,17 +51,14 @@ export default async function WritingPostPage({ params }: Props) {
   if (!post) notFound();
 
   const linkPreviews = await loadLinkPreviews(post.content);
-  const posts = getWritingPosts();
-  const position = posts.length - posts.findIndex((p) => p.slug === slug);
 
   return (
     <article className="markdown-article">
       <Link className="article-back" href="/#writing">
-        Index / Log
+        Writing
       </Link>
       <header className="article-header">
         <div className="article-meta">
-          <span>{logIndex(position)}</span>
           <time dateTime={post.date}>{stampDate(post.date)}</time>
           {post.tags.map((tag) => (
             <span key={tag}>{tag}</span>
