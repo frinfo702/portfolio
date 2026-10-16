@@ -17,9 +17,10 @@ import remarkMath from "remark-math";
 import CodeBlock from "../../components/CodeBlock";
 import PostAnimation from "../../components/animations/PostAnimation";
 import {
-  formatPostDate,
   getWritingPost,
   getWritingPosts,
+  logIndex,
+  stampDate,
 } from "../../../lib/writing";
 
 type Props = {
@@ -51,20 +52,24 @@ export default async function WritingPostPage({ params }: Props) {
   if (!post) notFound();
 
   const linkPreviews = await loadLinkPreviews(post.content);
+  const posts = getWritingPosts();
+  const position = posts.length - posts.findIndex((p) => p.slug === slug);
 
   return (
     <article className="markdown-article">
       <Link className="article-back" href="/#writing">
-        Back to writing
+        Index / Log
       </Link>
       <header className="article-header">
-        <h2>{post.title}</h2>
-        <p>{post.description}</p>
         <div className="article-meta">
-          <time dateTime={post.date}>{formatPostDate(post.date)}</time>
-          <span aria-hidden="true">·</span>
-          <span>{post.tags.join(" · ")}</span>
+          <span>{logIndex(position)}</span>
+          <time dateTime={post.date}>{stampDate(post.date)}</time>
+          {post.tags.map((tag) => (
+            <span key={tag}>{tag}</span>
+          ))}
         </div>
+        <h1>{post.title}</h1>
+        <p>{post.description}</p>
       </header>
       <div className="markdown-body">
         <ReactMarkdown
@@ -102,7 +107,7 @@ function createMarkdownComponents(
         <CodeBlock
           code={getTextContent(source)}
           language={language ?? "text"}
-          accent="#cfd4d8"
+          accent="#ff3b3b"
           mode="dark"
         />
       );

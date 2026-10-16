@@ -1,15 +1,14 @@
 export const FONT_SANS =
-  'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
-export const FONT_MONO = "ui-monospace, SFMono-Regular, Menlo, monospace";
+  'GeistSans, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
+export const FONT_MONO = "GeistMono, ui-monospace, SFMono-Regular, Menlo, monospace";
 
 export const COLORS = {
-  text: "#e8eaec",
-  body: "#b6babe",
-  muted: "#8b8f93",
-  dim: "#63676b",
-  accent: "#c9ced2",
-  rule: "#232628",
-  blue: "#8ea3b8",
+  text: "#ededed",
+  body: "#b8b8b8",
+  muted: "#8a8a8a",
+  dim: "#5e5e5e",
+  accent: "#ff3b3b",
+  rule: "#222222",
 };
 
 export function clamp01(value: number) {

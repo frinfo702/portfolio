@@ -52,7 +52,7 @@ function stepAt(t: number) {
   return t < 2 ? 0 : t < 4.8 ? 1 : t < 6.8 ? 2 : 3;
 }
 
-const TEXT_COLORS = ["#e8eaec", "#8b8f93", "#c9ced2"];
+const TEXT_COLORS = ["#ededed", "#8a8a8a", "#c4c4c4"];
 
 let sourceImage: HTMLCanvasElement | null = null;
 
@@ -65,18 +65,18 @@ function getSourceImage() {
   const ctx = canvas.getContext("2d");
   if (ctx) {
     const sky = ctx.createLinearGradient(0, 0, 0, SOURCE_SIZE);
-    sky.addColorStop(0, "#1e3a8a");
-    sky.addColorStop(0.5, "#7c3aed");
-    sky.addColorStop(0.8, "#f472b6");
+    sky.addColorStop(0, "#0a0a0a");
+    sky.addColorStop(0.5, "#3a3a3a");
+    sky.addColorStop(0.8, "#8c8c8c");
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, SOURCE_SIZE, SOURCE_SIZE);
 
-    ctx.fillStyle = "#fbbf24";
+    ctx.fillStyle = "#ff3b3b";
     ctx.beginPath();
     ctx.arc(44, 24, 9, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = "#0f766e";
+    ctx.fillStyle = "#1c1c1c";
     ctx.beginPath();
     ctx.moveTo(0, 46);
     ctx.lineTo(17, 27);
@@ -87,7 +87,7 @@ function getSourceImage() {
     ctx.lineTo(0, 64);
     ctx.fill();
 
-    ctx.fillStyle = "#064e3b";
+    ctx.fillStyle = "#050505";
     ctx.beginPath();
     ctx.moveTo(0, 56);
     ctx.quadraticCurveTo(32, 48, 64, 56);
@@ -125,7 +125,7 @@ function tokenX(index: number, l: Layout) {
 }
 
 function embeddingColor(index: number) {
-  return `hsl(210 6% ${36 + ((index * 37) % 30)}%)`;
+  return `hsl(0 0% ${36 + ((index * 37) % 30)}%)`;
 }
 
 function drawBracket(
@@ -253,8 +253,8 @@ function drawFrame(
 
   if (sweep > 0 && sweep < 1) {
     const glow = ctx.createLinearGradient(sweepX - 10, 0, sweepX + 2, 0);
-    glow.addColorStop(0, "rgba(201, 206, 210, 0)");
-    glow.addColorStop(1, "rgba(201, 206, 210, 0.45)");
+    glow.addColorStop(0, "rgba(255, 59, 59, 0)");
+    glow.addColorStop(1, "rgba(255, 59, 59, 0.45)");
     ctx.fillStyle = glow;
     ctx.fillRect(sweepX - 10, l.rowY - 10, 12, l.token + 20);
     ctx.fillStyle = COLORS.accent;

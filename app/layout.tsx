@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
 import "katex/dist/katex.min.css";
 import "./globals.css";
 import SiteFrame from "./components/SiteFrame";
@@ -6,14 +8,14 @@ import SiteFrame from "./components/SiteFrame";
 export const metadata: Metadata = {
   title: "Kenichiro Goto | Software Engineer",
   description:
-    "Personal portfolio of Kenichiro Goto, a software engineer and machine-learning researcher.",
+    "Kenichiro Goto: software engineer and computer-vision researcher in Japan. Backend systems, infrastructure, and research on diffusion models and open-vocabulary detection.",
   icons: {
     icon: "/favicon.svg",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b0c0d",
+  themeColor: "#050505",
 };
 
 export default function RootLayout({
@@ -22,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body>
         <SiteFrame>{children}</SiteFrame>
       </body>

@@ -39,13 +39,14 @@ export function getWritingPost(slug: string): WritingPost | null {
   return readPost(slug);
 }
 
-export function formatPostDate(date: string): string {
-  return new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(`${date}T00:00:00Z`));
+/** "2026-10-02" -> "2026.10.02" */
+export function stampDate(date: string): string {
+  return date.replaceAll("-", ".");
+}
+
+/** 1-based position in publication order -> "LOG-01" */
+export function logIndex(position: number): string {
+  return `LOG-${String(position).padStart(2, "0")}`;
 }
 
 function readPost(slug: string): WritingPost {

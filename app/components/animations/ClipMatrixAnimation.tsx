@@ -9,7 +9,7 @@ type Mode = "softmax" | "sigmoid";
 
 const N = 6;
 const CAPTIONS = ["a dog", "a cat", "a car", "a tree", "a cup", "a bird"];
-const SWATCHES = ["#e8eaec", "#c2c7cb", "#9ea4a9", "#7b8187", "#5b6167", "#3e444a"];
+const SWATCHES = ["#ededed", "#c4c4c4", "#a0a0a0", "#7c7c7c", "#5c5c5c", "#3f3f3f"];
 // 1/τ for CLIP, t for SigLIP
 const SCALE = 10;
 const BIAS = -4;
@@ -163,7 +163,7 @@ function drawChart(
   ctx.fillText("step", l.chartX + l.chartW, l.chartY + l.chartH + 14);
   ctx.textAlign = "left";
 
-  ctx.strokeStyle = "rgba(100, 116, 139, 0.35)";
+  ctx.strokeStyle = "rgba(140, 140, 140, 0.35)";
   ctx.setLineDash([2, 3]);
   ctx.beginPath();
   points.forEach((v, k) => (k === 0 ? ctx.moveTo(toX(k), toY(v)) : ctx.lineTo(toX(k), toY(v))));
@@ -244,7 +244,7 @@ export default function ClipMatrixAnimation() {
 
         if (l.cell >= 30) {
           ctx.fillStyle =
-            p > 0.55 ? "#101214" : p > 0.2 ? COLORS.text : COLORS.dim;
+            p > 0.55 ? "#0a0a0a" : p > 0.2 ? COLORS.text : COLORS.dim;
           ctx.font = `10px ${FONT_MONO}`;
           ctx.textAlign = "center";
           ctx.fillText(p.toFixed(2), x + l.cell / 2, y + l.cell / 2 + 3.5);
@@ -253,7 +253,7 @@ export default function ClipMatrixAnimation() {
       }),
     );
 
-    ctx.strokeStyle = "rgba(232, 234, 236, 0.6)";
+    ctx.strokeStyle = "rgba(237, 237, 237, 0.6)";
     ctx.lineWidth = 1;
     ctx.setLineDash([3, 3]);
     for (let i = 0; i < N; i += 1) {
