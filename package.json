@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@jax-js/jax": "^0.1.13",
+    "bot-avatars": "0.2.2",
     "geist": "^1.7.2",
     "gray-matter": "^4.0.3",
     "katex": "^0.16.47",
