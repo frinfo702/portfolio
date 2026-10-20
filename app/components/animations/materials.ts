@@ -206,7 +206,7 @@ void main() {
   col = mix(col, lava(heat * (0.75 + 0.25 * k)), heat);
   // a black frame of cooled rock, the same bevel the ice has: dark at the
   // rim, a faint grey edge where the bevel catches the light
-  float frame = 1.0 - smoothstep(BEVEL * 0.55, BEVEL * 1.25, d);
+  float frame = 1.0 - smoothstep(1.6, 3.2, d);
   col = mix(col, vec3(0.018, 0.014, 0.012) + rough * 0.035, frame);
   col += exp(-pow((d - 1.4) / 0.9, 2.0)) * 0.16;
   gl_FragColor = vec4(min(col, 1.0), 1.0);
