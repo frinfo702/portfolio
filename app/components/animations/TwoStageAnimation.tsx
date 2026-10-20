@@ -178,21 +178,23 @@ function hatch(ctx: CanvasRenderingContext2D, box: Box) {
   ctx.stroke();
 }
 
-type Fill = { trained: boolean; time: number; heat: number; seed: number; pixel: number };
+// freeze: 1 is solid ice (frozen weights), 0 is magma (trained weights);
+// in between, frost is spreading over the magma or melting off it.
+type Fill = { freeze: number; time: number; heat: number; seed: number; pixel: number };
 
-// Ice for frozen weights, magma for weights being trained, clipped to `shape`.
+// Seconds for a module to freeze over or thaw when the stage changes.
+const FREEZE_SECONDS = 1.8;
+
 function material(ctx: CanvasRenderingContext2D, box: Box, shape: () => void, fill: Fill) {
   ctx.save();
   shape();
   ctx.clip();
-  const painted = paintMaterial(ctx, fill.trained ? "heat" : "ice", box, {
-    time: fill.time,
-    intensity: fill.heat,
-    seed: fill.seed,
-    scale: fill.pixel,
-  });
+  const common = { time: fill.time, seed: fill.seed, scale: fill.pixel };
+  let painted = true;
+  if (fill.freeze < 1) painted = paintMaterial(ctx, "heat", box, { ...common, intensity: fill.heat });
+  if (fill.freeze > 0) painted = paintMaterial(ctx, "ice", box, { ...common, cover: fill.freeze }) && painted;
   if (!painted) {
-    if (fill.trained) {
+    if (fill.freeze < 0.5) {
       ctx.globalAlpha = 0.3 + 0.5 * fill.heat;
       ctx.fillStyle = textColor(0.55);
       ctx.fillRect(box.x, box.y, box.w, box.h);
@@ -230,11 +232,11 @@ function stackCards(ctx: CanvasRenderingContext2D, box: Box, fill: Fill) {
       ctx.rect(card.x, card.y, card.w, card.h);
     };
     material(ctx, card, rect, { ...fill, seed: fill.seed + k * 10, heat: fill.heat * 0.6 });
-    if (fill.trained) {
-      ctx.fillStyle = "rgba(19, 22, 25, 0.35)";
+    if (fill.freeze < 1) {
+      ctx.fillStyle = `rgba(19, 22, 25, ${0.35 * (1 - fill.freeze)})`;
       ctx.fillRect(card.x, card.y, card.w, card.h);
     }
-    ctx.strokeStyle = fill.trained ? COLORS.dim : "rgba(200, 225, 245, 0.25)";
+    ctx.strokeStyle = fill.freeze < 0.5 ? COLORS.dim : "rgba(200, 225, 245, 0.25)";
     ctx.lineWidth = 1;
     ctx.strokeRect(card.x + 0.5, card.y + 0.5, card.w - 1, card.h - 1);
   }
@@ -281,6 +283,8 @@ function chips(
 export default function TwoStageAnimation() {
   const [stage, setStage] = useState<Stage>(1);
   const stageRef = useRef<Stage>(1);
+  // The language model starts frozen (stage 1) and eases toward its stage.
+  const freezeRef = useRef({ llm: 1, last: -1 });
   const { layerRef, tex, flush } = useTexLayer();
 
   const draw: DrawFrame = (ctx, width, _height, time) => {
@@ -312,6 +316,16 @@ export default function TwoStageAnimation() {
     const heat = (m: Module, box: Box, y = by) => (trained(m) ? 0.3 + 0.7 * Math.max(update, near(y, box, backwardOn)) : 0);
     // The embedding branch splits off at the LLM's base and reaches the table
     // just as the main gradient reaches the projector's input.
+    const fz = freezeRef.current;
+    // a redraw without time passing (paused, reduced motion) jumps to the end
+    const dt = fz.last < 0 || time === fz.last ? FREEZE_SECONDS : Math.max(0, time - fz.last);
+    fz.last = time;
+    const toward = trained("llm") ? 0 : 1;
+    const stepBy = dt / FREEZE_SECONDS;
+    fz.llm = toward > fz.llm ? Math.min(toward, fz.llm + stepBy) : Math.max(toward, fz.llm - stepBy);
+    const llmFreeze = easeInOut(fz.llm);
+    const llmHot = llmFreeze < 0.5;
+
     const embedBack = trained("llm") ? clamp01((by - Y.llmBottom) / (Y.stop - Y.llmBottom)) : 0;
     const embedHead = embedBack * EMBED_BACK_PATH.total;
     const embedY = embedBack > 0 ? EMBED_BACK_PATH.at(embedHead)[1] : -999;
@@ -344,8 +358,8 @@ export default function TwoStageAnimation() {
       ctx.beginPath();
       ctx.rect(BOX.vit.x, BOX.vit.y, BOX.vit.w, BOX.vit.h);
     };
-    stackCards(ctx, BOX.vit, { trained: false, time, heat: 0, seed: 1, pixel });
-    material(ctx, BOX.vit, vitRect, { trained: false, time, heat: 0, seed: 1, pixel });
+    stackCards(ctx, BOX.vit, { freeze: 1, time, heat: 0, seed: 1, pixel });
+    material(ctx, BOX.vit, vitRect, { freeze: 1, time, heat: 0, seed: 1, pixel });
     bands(ctx, BOX.vit, 6, depth(fy, BOX.vit, forwardOn), -9, false);
     outline(ctx, vitRect, false, 0);
     label("vit", LABELS.vit, XL, Y.vitTop + BOX.vit.h / 2, { html: true, align: "center", plate: true });
@@ -362,7 +376,7 @@ export default function TwoStageAnimation() {
       ctx.closePath();
     };
     const projHeat = heat("proj", BOX.proj);
-    material(ctx, BOX.proj, trap, { trained: true, time, heat: projHeat, seed: 2, pixel });
+    material(ctx, BOX.proj, trap, { freeze: 0, time, heat: projHeat, seed: 2, pixel });
     outline(ctx, trap, true, update);
     label("proj", LABELS.proj, XL, (Y.projTop + Y.projBottom) / 2, { html: true, align: "center", plate: true, size: 10.5 });
     label("proj-badge", LABELS.trained, BOX.proj.x - 8, Y.projTop + 10, { html: true, align: "right", plate: true, size: 10 });
@@ -381,8 +395,8 @@ export default function TwoStageAnimation() {
       ctx.beginPath();
       ctx.rect(BOX.embed.x, BOX.embed.y, BOX.embed.w, BOX.embed.h);
     };
-    material(ctx, BOX.embed, embedRect, { trained: trained("llm"), time, heat: heat("llm", BOX.embed, embedY), seed: 3, pixel });
-    outline(ctx, embedRect, trained("llm"), update);
+    material(ctx, BOX.embed, embedRect, { freeze: llmFreeze, time, heat: heat("llm", BOX.embed, embedY), seed: 3, pixel });
+    outline(ctx, embedRect, llmHot, update);
     label("embed", "<b>Embed</b>", XR, Y.embedTop + BOX.embed.h / 2, { html: true, align: "center", plate: true, size: 10.5 });
 
     // language model
@@ -390,12 +404,12 @@ export default function TwoStageAnimation() {
       ctx.beginPath();
       ctx.rect(BOX.llm.x, BOX.llm.y, BOX.llm.w, BOX.llm.h);
     };
-    stackCards(ctx, BOX.llm, { trained: trained("llm"), time, heat: heat("llm", BOX.llm), seed: 4, pixel });
-    material(ctx, BOX.llm, llmRect, { trained: trained("llm"), time, heat: heat("llm", BOX.llm), seed: 4, pixel });
+    stackCards(ctx, BOX.llm, { freeze: llmFreeze, time, heat: heat("llm", BOX.llm), seed: 4, pixel });
+    material(ctx, BOX.llm, llmRect, { freeze: llmFreeze, time, heat: heat("llm", BOX.llm), seed: 4, pixel });
     bands(ctx, BOX.llm, 7, depth(fy, BOX.llm, forwardOn), depth(by, BOX.llm, backwardOn), trained("llm"));
-    outline(ctx, llmRect, trained("llm"), update);
+    outline(ctx, llmRect, llmHot, update);
     label("llm", LABELS.llm, (XL + XR) / 2, Y.llmTop + BOX.llm.h / 2, { html: true, align: "center", plate: true });
-    label("llm-badge", trained("llm") ? LABELS.trained : LABELS.frozen, BOX.llm.x - 8, Y.llmTop + 12, {
+    label("llm-badge", llmHot ? LABELS.trained : LABELS.frozen, BOX.llm.x - 8, Y.llmTop + 12, {
       html: true,
       align: "right",
       plate: true,

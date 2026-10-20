@@ -21,6 +21,7 @@ uniform vec2 uRes;
 uniform float uTime;
 uniform float uIntensity;
 uniform float uSeed;
+uniform float uCover;
 
 vec2 hash2(vec2 p) {
   p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
@@ -71,6 +72,12 @@ float cells(vec2 p) {
 // A clear ice block: mostly transparent, so whatever is behind shows
 // through, with a bevelled rim that catches the light, a cloudy core, a few
 // air bubbles, and sharp specular highlights from a light at the top left.
+//
+// Frost grows over it the way the freezing-cube etude does it: a per-pixel
+// "freeze time" map (here: distance from the edge plus noise) is compared
+// with uCover, so frost creeps in from the edges with a ragged front as
+// uCover rises from 0 to 1. The frost itself is ridged noise (fern-like
+// crystals) lit as a bump map, with glitter.
 const ICE = `${COMMON}
 const float BEVEL = 9.0;
 
@@ -80,6 +87,23 @@ float inside(vec2 px) {
   float r = 7.0;
   vec2 q = abs(px - hs) - (hs - r);
   return -(length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r);
+}
+
+float ridge(vec2 p) {
+  float v = 0.0;
+  float a = 0.5;
+  for (int i = 0; i < 5; i++) {
+    float n = 1.0 - abs(noise(p) * 2.0 - 1.0);
+    v += a * n * n;
+    p = p * 2.1 + vec2(1.7, 9.2);
+    a *= 0.5;
+  }
+  return v;
+}
+
+float fern(vec2 px) {
+  vec2 w = vec2(fbm(px / 30.0 + uSeed), fbm(px / 30.0 + 4.0 + uSeed));
+  return ridge(px / 13.0 + w * 2.6);
 }
 
 // Surface height: a bevel up from the edge plus a gently melted top.
@@ -134,7 +158,31 @@ void main() {
 
   float alpha = 0.16 + rim * 0.55 + fresnel * 0.5 + core * 0.3 + veins * 0.2
     + spec + sheen * 0.15 + glint * 0.35 + edgeLine * 0.6 + abs(bubble) * 0.5;
-  gl_FragColor = vec4(min(col, 1.0), clamp(alpha, 0.0, 0.96));
+
+  // frost: where it has reached, how thick it is, and its growing front
+  float toCenter = clamp(d / (min(uRes.x, uRes.y) * 0.5), 0.0, 1.0);
+  float seed = 1.0 - toCenter * 0.85 + (fbm(px / 18.0 + uSeed * 5.0) - 0.5) * 0.5;
+  float level = seed + uCover * 1.3 - 1.05;
+  float frozen = smoothstep(-0.03, 0.03, level);
+  float front = exp(-pow(level / 0.02, 2.0)) * step(uCover, 0.995);
+  float f = fern(px);
+  float frost = smoothstep(0.42, 0.8, f) * frozen * (0.3 + 0.7 * clamp(seed, 0.0, 1.0));
+  vec2 g = vec2(fern(px + e.xy) - fern(px - e.xy), fern(px + e.yx) - fern(px - e.yx)) / (2.0 * e.x);
+  vec3 fn = normalize(vec3(-g * 5.0, 1.0));
+  float fspec = pow(max(dot(fn, h), 0.0), 36.0) * frost;
+  float glitter = step(0.992, hash2(floor(px / 1.5) + floor(uTime * 4.0)).x) * frost;
+
+  col = mix(col, vec3(0.9, 0.95, 1.0), frost * 0.7);
+  col += fspec * 0.9 + glitter + front * vec3(0.75, 0.92, 1.0) * 0.9;
+  alpha = max(alpha, frost * 0.8) + fspec * 0.5 + glitter;
+
+  // while freezing over something warm, the new ice is darker and thicker
+  float backing = frozen * clamp(1.0 - uCover, 0.0, 1.0);
+  col = mix(col, vec3(0.1, 0.14, 0.18), backing * 0.5 * (1.0 - frost));
+  alpha = max(alpha, backing * 0.85);
+
+  alpha = alpha * frozen + front * 0.8;
+  gl_FragColor = vec4(min(col, 1.0), clamp(alpha, 0.0, 0.97));
 }`;
 
 // Magma: plates of dark cooled crust drifting slowly, with molten cracks
@@ -183,6 +231,7 @@ type Program = {
   time: WebGLUniformLocation | null;
   intensity: WebGLUniformLocation | null;
   seed: WebGLUniformLocation | null;
+  cover: WebGLUniformLocation | null;
 };
 
 let state: { canvas: HTMLCanvasElement; gl: WebGLRenderingContext; programs: Record<Material, Program> } | null | false = null;
@@ -208,6 +257,7 @@ function link(gl: WebGLRenderingContext, fragment: string): Program {
     time: gl.getUniformLocation(program, "uTime"),
     intensity: gl.getUniformLocation(program, "uIntensity"),
     seed: gl.getUniformLocation(program, "uSeed"),
+    cover: gl.getUniformLocation(program, "uCover"),
   };
 }
 
@@ -238,7 +288,8 @@ export function paintMaterial(
   ctx: CanvasRenderingContext2D,
   kind: Material,
   rect: { x: number; y: number; w: number; h: number },
-  options: { time: number; intensity?: number; seed?: number; scale?: number },
+  // cover: how far frost has spread over ice, 0..1 (ice only).
+  options: { time: number; intensity?: number; seed?: number; scale?: number; cover?: number },
 ) {
   const s = setup();
   if (!s) return false;
@@ -254,6 +305,7 @@ export function paintMaterial(
   gl.uniform1f(program.time, options.time);
   gl.uniform1f(program.intensity, options.intensity ?? 0.5);
   gl.uniform1f(program.seed, options.seed ?? 0);
+  gl.uniform1f(program.cover, options.cover ?? 1);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   // the viewport sits at the bottom-left of the GL canvas
   ctx.drawImage(canvas, 0, SIZE - ph, pw, ph, rect.x, rect.y, rect.w, rect.h);
