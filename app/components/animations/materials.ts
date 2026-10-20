@@ -70,14 +70,14 @@ float cells(vec2 p) {
 `;
 
 // A clear ice block: mostly transparent, so whatever is behind shows
-// through, with a bevelled rim that catches the light, a cloudy core, a few
-// air bubbles, and sharp specular highlights from a light at the top left.
+// through, with a bevelled rim that catches the light, a cloudy core, and
+// sharp specular highlights from a light at the top left.
 //
 // Frost grows over it the way the freezing-cube etude does it: a per-pixel
 // "freeze time" map (here: distance from the edge plus noise) is compared
 // with uCover, so frost creeps in from the edges with a ragged front as
 // uCover rises from 0 to 1. The frost itself is ridged noise (fern-like
-// crystals) lit as a bump map, with glitter.
+// crystals) lit as a bump map.
 const ICE = `${COMMON}
 const float BEVEL = 9.0;
 
@@ -133,18 +133,6 @@ void main() {
   float core = smoothstep(BEVEL, BEVEL * 3.5, d) * smoothstep(0.35, 0.8, fbm(px / 26.0 + uSeed * 3.0));
   float veins = (1.0 - smoothstep(0.0, 0.035, cells(px / 70.0 + uSeed))) * smoothstep(BEVEL, BEVEL * 2.0, d);
 
-  // sparse air bubbles, each a dark ring with a bright fleck
-  vec2 cell = floor(px / 16.0);
-  vec2 rnd = hash2(cell + 7.0);
-  float bubble = 0.0;
-  if (rnd.x > 0.9 && d > BEVEL) {
-    vec2 c = (cell + 0.2 + 0.6 * hash2(cell + 3.0)) * 16.0;
-    float rad = 1.0 + 2.2 * rnd.y;
-    float dist = length(px - c);
-    bubble = smoothstep(rad, rad - 0.7, dist) - smoothstep(rad - 0.7, rad - 1.4, dist) * 0.6;
-    bubble += exp(-pow(length(px - c + vec2(rad * 0.35, -rad * 0.35)) / 0.6, 2.0)) * 1.2;
-  }
-
   // a glint that slides across the top face now and then
   float s = fract(uTime * 0.07 + uSeed * 0.13) * 3.0 - 1.0;
   float glint = exp(-pow((vUv.x * 0.7 + vUv.y * 0.5 - s) * 9.0, 2.0)) * smoothstep(0.0, BEVEL, d);
@@ -154,10 +142,10 @@ void main() {
   col = mix(col, vec3(0.86, 0.93, 0.99), rim * 0.6 + core * 0.35 + veins * 0.1);
   col -= innerEdge * 0.12;
   col += (spec * 1.4 + sheen * 0.22 + glint * 0.5) * vec3(1.0, 1.0, 0.98);
-  col += edgeLine * 0.55 + max(bubble, 0.0) * 0.3;
+  col += edgeLine * 0.55;
 
   float alpha = 0.16 + rim * 0.55 + fresnel * 0.5 + core * 0.3 + veins * 0.2
-    + spec + sheen * 0.15 + glint * 0.35 + edgeLine * 0.6 + abs(bubble) * 0.5;
+    + spec + sheen * 0.15 + glint * 0.35 + edgeLine * 0.6;
 
   // frost: where it has reached, how thick it is, and its growing front
   float toCenter = clamp(d / (min(uRes.x, uRes.y) * 0.5), 0.0, 1.0);
@@ -170,11 +158,10 @@ void main() {
   vec2 g = vec2(fern(px + e.xy) - fern(px - e.xy), fern(px + e.yx) - fern(px - e.yx)) / (2.0 * e.x);
   vec3 fn = normalize(vec3(-g * 5.0, 1.0));
   float fspec = pow(max(dot(fn, h), 0.0), 36.0) * frost;
-  float glitter = step(0.992, hash2(floor(px / 1.5) + floor(uTime * 4.0)).x) * frost;
 
   col = mix(col, vec3(0.9, 0.95, 1.0), frost * 0.7);
-  col += fspec * 0.9 + glitter + front * vec3(0.75, 0.92, 1.0) * 0.9;
-  alpha = max(alpha, frost * 0.8) + fspec * 0.5 + glitter;
+  col += fspec * 0.9 + front * vec3(0.75, 0.92, 1.0) * 0.9;
+  alpha = max(alpha, frost * 0.8) + fspec * 0.5;
 
   // while freezing over something warm, the new ice is darker and thicker
   float backing = frozen * clamp(1.0 - uCover, 0.0, 1.0);
