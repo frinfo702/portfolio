@@ -15,7 +15,7 @@ import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import CodeBlock from "../../components/CodeBlock";
-import NoteGhost from "../../components/NoteGhost";
+import Note from "../../components/Note";
 import PostAnimation from "../../components/animations/PostAnimation";
 import {
   formatPostDate,
@@ -122,12 +122,7 @@ function createMarkdownComponents(
     blockquote({ node, children }) {
       if (!node?.properties.dataNote) return <blockquote>{children}</blockquote>;
 
-      return (
-        <aside className="markdown-note">
-          <NoteGhost />
-          {children}
-        </aside>
-      );
+      return <Note>{children}</Note>;
     },
     a({ href, children }) {
       return <a href={href}>{children}</a>;
