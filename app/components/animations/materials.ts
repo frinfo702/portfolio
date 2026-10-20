@@ -204,11 +204,6 @@ void main() {
   float heat = clamp(crack * pulse + hairline * 0.35 * k, 0.0, 1.0);
   vec3 col = crust + glow * vec3(0.85, 0.24, 0.04) * 0.5 * k;
   col = mix(col, lava(heat * (0.75 + 0.25 * k)), heat);
-  // embers drifting up out of the cracks
-  vec2 cell = floor(vec2(px.x / 7.0, px.y / 7.0 - t * 1.4));
-  vec2 r = hash2(cell + 11.0);
-  float ember = step(0.985, r.x) * smoothstep(0.5, 0.0, length(fract(vec2(px.x / 7.0, px.y / 7.0 - t * 1.4)) - 0.5));
-  col += ember * vec3(1.0, 0.6, 0.2) * k;
   // a black frame of cooled rock, the same bevel the ice has: dark at the
   // rim, a faint grey edge where the bevel catches the light
   float frame = 1.0 - smoothstep(BEVEL * 0.55, BEVEL * 1.25, d);
