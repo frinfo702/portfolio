@@ -13,6 +13,7 @@ import {
   window01,
 } from "./canvas";
 import { ChapterBar, ChapterNote, useChapters, type Chapter } from "./Chapters";
+import { CanvasStage, texAt, useTexLayer } from "./TexLayer";
 import { useCanvasLoop, type DrawFrame } from "./useCanvasLoop";
 import { Figure } from "./Figure";
 
@@ -130,6 +131,8 @@ function chip(
 export default function LossMaskAnimation() {
   const chapters = useChapters(CHAPTERS);
 
+  const { layerRef, tex, flush } = useTexLayer();
+
   const draw: DrawFrame = (ctx, width, _height, time) => {
     const t = time % LOOP;
     const l = layout(width);
@@ -145,7 +148,7 @@ export default function LossMaskAnimation() {
       ctx.globalAlpha = fade * phase(t, 2.5, 3);
       ctx.fillText("target", PAD, l.targetY + l.chipH / 2 + 3);
       ctx.globalAlpha = fade * phase(t, 8.5, 9);
-      ctx.fillText("−log p", PAD, l.lossY + 14);
+      texAt(tex, ctx, "nll", "-\\log p", PAD, l.lossY + 14, { size: 11, color: COLORS.muted });
       ctx.globalAlpha = fade;
     }
 
@@ -234,7 +237,10 @@ export default function LossMaskAnimation() {
       ctx.globalAlpha = fade * total;
       ctx.font = `500 ${l.narrow ? 12 : 14}px ${FONT_MONO}`;
       ctx.fillStyle = COLORS.text;
-      ctx.fillText(`mean = ${MEAN.toFixed(2)}`, sumX - (l.narrow ? 12 : 16), sumY + 4);
+      texAt(tex, ctx, "mean", `\\mathcal{L}_\\text{LM} = ${MEAN.toFixed(2)}`, sumX - (l.narrow ? 12 : 16), sumY + 4, {
+        size: l.narrow ? 13 : 15,
+        color: COLORS.text,
+      });
     }
     ctx.globalAlpha = fade;
     const masked = phase(t, 6, 6.6) * (1 - phase(t, 12.2, 12.6));
@@ -246,6 +252,7 @@ export default function LossMaskAnimation() {
     }
     ctx.globalAlpha = 1;
     chapters.update(t);
+    flush();
   };
 
   const { canvasRef, ...loop } = useCanvasLoop({
@@ -262,8 +269,9 @@ export default function LossMaskAnimation() {
         fills={chapters.fills}
         loop={loop}
       />
-      <canvas
-        ref={canvasRef}
+      <CanvasStage
+        canvasRef={canvasRef}
+        layerRef={layerRef}
         role="img"
         aria-label="A training sequence of four image tokens, a question, and the answer 'Two dogs.'. The targets are the inputs shifted left by one; every target outside the answer becomes -100; the four remaining positions each get a loss bar, and the loss is their mean."
       />

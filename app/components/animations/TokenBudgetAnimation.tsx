@@ -2,8 +2,9 @@
 
 import katex from "katex";
 import { useRef, useState } from "react";
-import { COLORS, FONT_MONO, FONT_SANS, lerp, textColor, visionColor } from "./canvas";
+import { COLORS, FONT_MONO, lerp, textColor, visionColor } from "./canvas";
 import { landscape } from "./landscape";
+import { CanvasStage, texAt, useTexLayer } from "./TexLayer";
 import { useCanvasLoop, type DrawFrame } from "./useCanvasLoop";
 import { Figure } from "./Figure";
 
@@ -36,6 +37,8 @@ export default function TokenBudgetAnimation() {
   const [choice, setChoice] = useState<number | null>(null);
   const choiceRef = useRef<number | null>(null);
   const shown = useRef({ res: 224, last: -1 });
+
+  const { layerRef, tex, flush } = useTexLayer();
 
   const draw: DrawFrame = (ctx, width, _height, time) => {
     const l = layout(width);
@@ -77,23 +80,23 @@ export default function TokenBudgetAnimation() {
     ctx.font = small;
     ctx.fillStyle = COLORS.muted;
     ctx.fillText("image", l.leftX, l.top - 12);
-    ctx.fillStyle = COLORS.text;
-    ctx.font = `500 ${l.narrow ? 13 : 15}px ${FONT_SANS}`;
-    ctx.fillText(`${Math.round(res)} × ${Math.round(res)}`, l.leftX, l.top + l.side + 24);
-    ctx.font = small;
-    ctx.fillStyle = COLORS.muted;
-    ctx.fillText(
-      `${grid.toFixed(0)} × ${grid.toFixed(0)} patches → N = ${format(n)}`,
-      l.leftX,
-      l.top + l.side + 42,
-    );
+    texAt(tex, ctx, "res", `${Math.round(res)} \\times ${Math.round(res)}`, l.leftX, l.top + l.side + 24, {
+      size: l.narrow ? 14 : 16,
+      color: COLORS.text,
+    });
+    texAt(tex, ctx, "grid", `$${grid.toFixed(0)} \\times ${grid.toFixed(0)}$ patches, $N = ${format(n).replace(/,/g, "{,}")}$`, l.leftX, l.top + l.side + 44, {
+      size: l.narrow ? 10 : 11,
+      color: COLORS.muted,
+      inline: true,
+      mono: true,
+    });
 
     // Right: the N × N attention matrix, with every option outlined so the
     // quadratic jump is visible against the others.
     const rx = l.rightX;
     ctx.font = small;
     ctx.fillStyle = COLORS.muted;
-    ctx.fillText("attention N × N", rx, l.top - 12);
+    texAt(tex, ctx, "attn", "attention $N \\times N$", rx, l.top - 12, { size: l.narrow ? 10 : 11, color: COLORS.muted, inline: true, mono: true });
     RESOLUTIONS.forEach((option) => {
       const s = l.side * (tokens(option) / MAX_N);
       ctx.strokeStyle = COLORS.rule;
@@ -122,16 +125,16 @@ export default function TokenBudgetAnimation() {
     ctx.strokeStyle = COLORS.accent;
     ctx.strokeRect(rx + 0.5, l.top + l.side - s + 0.5, s - 1, s - 1);
 
-    ctx.fillStyle = COLORS.text;
-    ctx.font = `500 ${l.narrow ? 13 : 15}px ${FONT_SANS}`;
-    ctx.fillText(`${format(n * n)} pairs`, rx, l.top + l.side + 24);
-    ctx.font = small;
-    ctx.fillStyle = COLORS.muted;
-    ctx.fillText(
-      `× ${(n * n / tokens(224) ** 2).toFixed(1)} the cost at 224`,
-      rx,
-      l.top + l.side + 42,
-    );
+    texAt(tex, ctx, "pairs", `N^2 = ${format(n * n).replace(/,/g, "{,}")}`, rx, l.top + l.side + 24, {
+      size: l.narrow ? 14 : 16,
+      color: COLORS.text,
+    });
+    texAt(tex, ctx, "cost", `$\\times ${(n * n / tokens(224) ** 2).toFixed(1)}$ the cost at 224`, rx, l.top + l.side + 44, {
+      size: l.narrow ? 10 : 11,
+      color: COLORS.muted,
+      inline: true,
+      mono: true,
+    });
 
     // Bottom: how much of a 4096-token context the image eats.
     const bw = l.barW;
@@ -153,6 +156,7 @@ export default function TokenBudgetAnimation() {
       l.leftX,
       by - 10,
     );
+    flush();
   };
 
   const { canvasRef, redraw } = useCanvasLoop({
@@ -181,8 +185,9 @@ export default function TokenBudgetAnimation() {
           </button>
         ))}
       </div>
-      <canvas
-        ref={canvasRef}
+      <CanvasStage
+        canvasRef={canvasRef}
+        layerRef={layerRef}
         role="img"
         aria-label="As the image resolution grows from 224 to 672 pixels with 14 pixel patches, the number of visual tokens grows from 256 to 2304, the attention matrix grows quadratically, and the image takes up more of a 4096 token context."
       />

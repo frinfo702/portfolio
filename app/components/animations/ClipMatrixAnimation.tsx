@@ -14,6 +14,7 @@ import {
   phase,
   softmax,
 } from "./canvas";
+import { CanvasStage, texAt, useTexLayer, type Tex } from "./TexLayer";
 import { useCanvasLoop, type DrawFrame } from "./useCanvasLoop";
 import { Figure } from "./Figure";
 
@@ -143,6 +144,7 @@ function cellColor(value: number) {
 }
 
 function drawCircle(
+  tex: Tex,
   ctx: CanvasRenderingContext2D,
   l: Layout,
   progress: number,
@@ -200,7 +202,7 @@ function drawCircle(
     ctx.stroke();
     ctx.fillStyle = COLORS.text;
     ctx.font = small;
-    ctx.fillText(`cos = ${Math.cos(d).toFixed(2)}`, cx - 30, cy + 4);
+    texAt(tex, ctx, "cos", `\\cos\\theta = ${Math.cos(d).toFixed(2)}`, cx, cy + 4, { size: 12, color: COLORS.text, align: "center", plate: true });
   }
 
   text.forEach((b, j) => {
@@ -229,6 +231,7 @@ function drawCircle(
 }
 
 function drawMatrix(
+  tex: Tex,
   ctx: CanvasRenderingContext2D,
   l: Layout,
   probs: number[][],
@@ -256,7 +259,7 @@ function drawMatrix(
     ctx.fillRect(mx - 30, y + cell / 2 - 5, 10, 10);
     ctx.font = small;
     ctx.fillStyle = COLORS.dim;
-    ctx.fillText(`I${i + 1}`, mx - 17, y + cell / 2 + 3.5);
+    texAt(tex, ctx, `row-${i}`, `I_${i + 1}`, mx - 18, y + cell / 2 + 3.5, { size: 11, color: COLORS.muted });
 
     row.forEach((p, j) => {
       const x = mx + j * cell;
@@ -273,7 +276,10 @@ function drawMatrix(
     // Row sums make the softmax/sigmoid difference concrete.
     const sum = row.reduce((a, b) => a + b, 0);
     ctx.fillStyle = mode === "softmax" ? COLORS.muted : COLORS.text;
-    ctx.fillText(`Σ ${sum.toFixed(2)}`, mx + cell * N + 8, y + cell / 2 + 3.5);
+    texAt(tex, ctx, `sum-${i}`, `\\Sigma = ${sum.toFixed(2)}`, mx + cell * N + 8, y + cell / 2 + 3.5, {
+      size: 11,
+      color: mode === "softmax" ? COLORS.muted : COLORS.text,
+    });
   });
 
   ctx.strokeStyle = "rgba(232, 234, 236, 0.55)";
@@ -293,7 +299,7 @@ function drawMatrix(
   }
 }
 
-function drawChart(ctx: CanvasRenderingContext2D, l: Layout, points: number[], progress: number, value: number) {
+function drawChart(tex: Tex, ctx: CanvasRenderingContext2D, l: Layout, points: number[], progress: number, value: number) {
   const max = points[0] * 1.05;
   const toX = (k: number) => l.chartX + (k / CURVE_POINTS) * l.chartW;
   const toY = (v: number) => l.chartY + l.chartH - (v / max) * l.chartH;
@@ -308,7 +314,12 @@ function drawChart(ctx: CanvasRenderingContext2D, l: Layout, points: number[], p
 
   ctx.fillStyle = COLORS.dim;
   ctx.font = `10px ${FONT_MONO}`;
-  ctx.fillText(`loss ${value.toFixed(3)} · step ${Math.round(progress * 1000)}`, l.chartX, l.chartY - 10);
+  texAt(tex, ctx, "loss", `$\\mathcal{L} = ${value.toFixed(3)}$ · step ${Math.round(progress * 1000)}`, l.chartX, l.chartY - 10, {
+    size: 11,
+    color: COLORS.muted,
+    inline: true,
+    mono: true,
+  });
   ctx.textAlign = "right";
   ctx.fillText("step", l.chartX + l.chartW, l.chartY + l.chartH + 14);
   ctx.textAlign = "left";
@@ -340,6 +351,8 @@ export default function ClipMatrixAnimation() {
   const modeRef = useRef<Mode>("softmax");
   const hover = useRef<{ row: number; col: number } | null>(null);
 
+  const { layerRef, tex, flush } = useTexLayer();
+
   const draw: DrawFrame = (ctx, width, _height, time) => {
     const current = modeRef.current;
     const t = time % LOOP;
@@ -356,10 +369,11 @@ export default function ClipMatrixAnimation() {
 
     const fadeIn = lerp(0.2, 1, phase(t, 0, 0.4)) * (1 - 0.8 * phase(t, LOOP - 0.4, LOOP));
     ctx.globalAlpha = fadeIn;
-    drawCircle(ctx, l, progress, probs, focus);
-    drawMatrix(ctx, l, probs, current, focus);
-    drawChart(ctx, l, curve(current), progress, loss(cos, current));
+    drawCircle(tex, ctx, l, progress, probs, focus);
+    drawMatrix(tex, ctx, l, probs, current, focus);
+    drawChart(tex, ctx, l, curve(current), progress, loss(cos, current));
     ctx.globalAlpha = 1;
+    flush();
   };
 
   const { canvasRef, seek, redraw } = useCanvasLoop({
@@ -392,8 +406,9 @@ export default function ClipMatrixAnimation() {
           </button>
         ))}
       </div>
-      <canvas
-        ref={canvasRef}
+      <CanvasStage
+        canvasRef={canvasRef}
+        layerRef={layerRef}
         role="img"
         aria-label="Six images (squares) and six captions (dots) on a unit circle. As training proceeds each image moves next to its caption, the diagonal of the 6 by 6 probability matrix brightens, and the loss curve falls."
         onPointerMove={pick}

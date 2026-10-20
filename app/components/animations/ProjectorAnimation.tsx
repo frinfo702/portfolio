@@ -4,13 +4,13 @@ import { useRef, useState } from "react";
 import {
   COLORS,
   FONT_MONO,
-  FONT_SANS,
   easeInOut,
   hash01,
   phase,
   textColor,
   visionColor,
 } from "./canvas";
+import { CanvasStage, texAt, useTexLayer } from "./TexLayer";
 import { useCanvasLoop, type DrawFrame } from "./useCanvasLoop";
 import { Figure } from "./Figure";
 
@@ -30,19 +30,19 @@ const MODES: Record<
     label: "MLP (LLaVA-1.5)",
     out: N,
     llava: 576,
-    note: "one in, one out · width 1024 → 4096",
+    note: "one in, one out: width $1024 \\to 4096$",
   },
   merge: {
     label: "2×2 merge",
     out: N / 4,
     llava: 144,
-    note: "four neighbors concatenated · N/4 tokens, 4× channels",
+    note: "four neighbors concatenated: $N/4$ tokens, $4\\times$ channels",
   },
   resampler: {
     label: "Q-Former / resampler",
     out: QUERIES,
     llava: 64,
-    note: "M learned queries cross-attend to all patches · M is fixed",
+    note: "$M$ learned queries attend to all patches; $M$ is fixed",
   },
 };
 
@@ -90,6 +90,8 @@ export default function ProjectorAnimation() {
   const [mode, setMode] = useState<Mode>("mlp");
   const modeRef = useRef<{ mode: Mode; since: number; time: number }>({ mode: "mlp", since: 0, time: 0 });
 
+  const { layerRef, tex, flush } = useTexLayer();
+
   const draw: DrawFrame = (ctx, width, _height, time) => {
     const l = layout(width);
     const state = modeRef.current;
@@ -102,8 +104,8 @@ export default function ProjectorAnimation() {
 
     ctx.font = small;
     ctx.fillStyle = COLORS.muted;
-    ctx.fillText(`ViT output · N = ${N}`, l.inX, l.top - 12);
-    ctx.fillText(`to the LLM · ${MODES[current].out} tokens`, l.outX, l.top - 12);
+    texAt(tex, ctx, "in", `ViT output, $N = ${N}$`, l.inX, l.top - 12, { size: l.narrow ? 10 : 11, color: COLORS.muted, inline: true, mono: true });
+    texAt(tex, ctx, "out", `to the LLM, ${MODES[current].out} tokens`, l.outX, l.top - 12, { size: l.narrow ? 10 : 11, color: COLORS.muted, inline: true, mono: true });
 
     const outs = outputs(current, l);
     outs.forEach((out, k) => {
@@ -180,9 +182,7 @@ export default function ProjectorAnimation() {
     const used = MODES[current].llava / 4096;
     ctx.fillStyle = visionColor(0.65);
     ctx.fillRect(PAD, by, bw * used, 10);
-    ctx.font = `500 ${l.narrow ? 12 : 14}px ${FONT_SANS}`;
-    ctx.fillStyle = COLORS.text;
-    ctx.fillText(MODES[current].note, PAD, by - 12);
+    texAt(tex, ctx, "note", MODES[current].note, PAD, by - 12, { size: l.narrow ? 12 : 14, color: COLORS.text, inline: true });
     ctx.font = small;
     ctx.fillStyle = COLORS.muted;
     ctx.fillText(
@@ -190,6 +190,7 @@ export default function ProjectorAnimation() {
       PAD,
       by + 28,
     );
+    flush();
   };
 
   const { canvasRef, redraw } = useCanvasLoop({
@@ -213,8 +214,9 @@ export default function ProjectorAnimation() {
           </button>
         ))}
       </div>
-      <canvas
-        ref={canvasRef}
+      <CanvasStage
+        canvasRef={canvasRef}
+        layerRef={layerRef}
         role="img"
         aria-label="Sixteen patch tokens on the left are mapped to tokens for the language model on the right: one to one for an MLP, four to one for a 2 by 2 merge, and sixteen to a fixed six for a resampler."
       />

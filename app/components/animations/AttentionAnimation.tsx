@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { COLORS, FONT_MONO, FONT_SANS, lerp, softmax } from "./canvas";
 import { landscape, patchMeans } from "./landscape";
+import { CanvasStage, texAt, useTexLayer } from "./TexLayer";
 import { useCanvasLoop, type DrawFrame } from "./useCanvasLoop";
 import { Figure } from "./Figure";
 
@@ -63,6 +64,8 @@ export default function AttentionAnimation() {
   const queryAt = (time: number) =>
     hover.current ?? TOUR[Math.floor(time / STEP) % TOUR.length];
 
+  const { layerRef, tex, flush } = useTexLayer();
+
   const draw: DrawFrame = (ctx, width, _height, time) => {
     const l = layout(width);
     const current = modeRef.current;
@@ -80,7 +83,12 @@ export default function AttentionAnimation() {
     ctx.font = small;
     ctx.fillStyle = COLORS.muted;
     ctx.fillText(l.narrow ? "hover a patch" : "image · hover a patch to make it the query", l.imageX, l.top - 10);
-    ctx.fillText("attention weights softmax(QKᵀ/√d)", l.matrixX, l.top - 10);
+    texAt(tex, ctx, "head", "weights $\\operatorname{softmax}(QK^\\top/\\sqrt{d_k})$", l.matrixX, l.top - 10, {
+      size: l.narrow ? 10 : 11,
+      color: COLORS.muted,
+      inline: true,
+      mono: true,
+    });
 
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(landscape(GRID * 8), l.imageX, l.top, l.image, l.image);
@@ -153,7 +161,13 @@ export default function AttentionAnimation() {
     ctx.font = small;
     ctx.fillStyle = COLORS.muted;
     ctx.fillText(`sees ${visible} of ${N} patches`, l.imageX, l.top + l.image + 42);
-    ctx.fillText(current === "causal" ? "upper triangle masked to −∞" : "every entry is filled", l.matrixX, l.top + l.image + 42);
+    texAt(tex, ctx, "mask", current === "causal" ? "upper triangle set to $-\\infty$" : "every entry is filled", l.matrixX, l.top + l.image + 42, {
+      size: l.narrow ? 10 : 11,
+      color: COLORS.muted,
+      inline: true,
+      mono: true,
+    });
+    flush();
   };
 
   const { canvasRef, redraw } = useCanvasLoop({
@@ -190,8 +204,9 @@ export default function AttentionAnimation() {
           </button>
         ))}
       </div>
-      <canvas
-        ref={canvasRef}
+      <CanvasStage
+        canvasRef={canvasRef}
+        layerRef={layerRef}
         role="img"
         aria-label="A 6 by 6 patch image with one query patch highlighted. Patches it attends to stay bright and the rest darken. With the causal mask, patches after the query in reading order are blacked out, and the attention matrix becomes lower triangular."
         onPointerMove={pick}

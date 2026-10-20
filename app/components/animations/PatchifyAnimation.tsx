@@ -18,6 +18,7 @@ import {
 } from "./canvas";
 import { ChapterBar, ChapterNote, useChapters, type Chapter } from "./Chapters";
 import { landscape } from "./landscape";
+import { CanvasStage, texAt, useTexLayer, type Tex } from "./TexLayer";
 import { useCanvasLoop, type DrawFrame } from "./useCanvasLoop";
 import { Figure } from "./Figure";
 
@@ -236,6 +237,29 @@ function text(
   ctx.textAlign = "left";
 }
 
+// Like text(), but typeset with KaTeX; `inline` mixes text with $...$ math.
+function math(
+  tex: Tex,
+  ctx: CanvasRenderingContext2D,
+  key: string,
+  source: string,
+  x: number,
+  y: number,
+  font: string,
+  color: string,
+  align: CanvasTextAlign = "left",
+  inline = false,
+) {
+  const size = parseFloat(/([\d.]+)px/.exec(font)?.[1] ?? "12");
+  texAt(tex, ctx, key, source, x, y, {
+    size,
+    color,
+    align: align === "center" ? "center" : align === "right" ? "right" : "left",
+    inline,
+    mono: inline,
+  });
+}
+
 // Scan lines sweep left to right across the 16 columns; a column changes
 // when the line passes it, so the viewer sees one operation applied to all.
 function scanX(t: number, start: number, end: number, l: Layout) {
@@ -303,7 +327,7 @@ function drawImage(ctx: CanvasRenderingContext2D, t: number, l: Layout, s: Scene
   ctx.globalAlpha = fade;
 }
 
-function drawColumns(ctx: CanvasRenderingContext2D, t: number, l: Layout, s: Scene, fade: number) {
+function drawColumns(tex: Tex, ctx: CanvasRenderingContext2D, t: number, l: Layout, s: Scene, fade: number) {
   if (t < 3.5) return;
   const embedScan = scanX(t, 7.3, 9.3, l);
   const projScan = scanX(t, 15.4, 17.4, l);
@@ -380,7 +404,8 @@ function drawColumns(ctx: CanvasRenderingContext2D, t: number, l: Layout, s: Sce
     ctx.fillRect(sx - 24, top, 24, bottom - top);
     ctx.fillStyle = COLORS.accent;
     ctx.fillRect(sx, top, 2, bottom - top);
-    text(ctx, sx === embedScan ? "× E" : "MLP", sx + 6, top + 2, `11px ${FONT_MONO}`, COLORS.accent);
+    if (sx === embedScan) math(tex, ctx, "scan", "\\times E", sx + 6, top + 2, `12px ${FONT_MONO}`, COLORS.accent);
+    else text(ctx, "MLP", sx + 6, top + 2, `11px ${FONT_MONO}`, COLORS.accent);
     ctx.globalAlpha = fade;
   }
 }
@@ -484,27 +509,27 @@ function drawArcs(ctx: CanvasRenderingContext2D, t: number, l: Layout, s: Scene,
   ctx.globalAlpha = fade;
 }
 
-function drawBandLabels(ctx: CanvasRenderingContext2D, t: number, l: Layout, fade: number) {
+function drawBandLabels(tex: Tex, ctx: CanvasRenderingContext2D, t: number, l: Layout, fade: number) {
   const mid = (l.x16(0) + l.x16(PATCHES - 1) + l.c16) / 2;
   const font = `${l.narrow ? 10 : 11}px ${FONT_MONO}`;
   const labels: [number, number, number, string][] = [
-    [5.2, 7.2, l.flatH, "16 vectors · 192 dims each"],
-    [9.3, 11, l.embH, "z₀ : 16 × 1024"],
-    [11, 15, l.embH, "after 24 layers, still 16 × 1024"],
-    [17.2, 18.2, l.llmH, "H_v : 16 × 4096"],
+    [5.2, 7.2, l.flatH, "16 vectors, each $x_p^i \\in \\mathbb{R}^{192}$"],
+    [9.3, 11, l.embH, "$z_0 \\in \\mathbb{R}^{16 \\times 1024}$"],
+    [11, 15, l.embH, "after 24 layers, still $16 \\times 1024$"],
+    [17.2, 18.2, l.llmH, "$H_v \\in \\mathbb{R}^{16 \\times 4096}$"],
   ];
-  for (const [start, end, h, label] of labels) {
+  labels.forEach(([start, end, h, label], k) => {
     const a = window01(t, start, end, 0.3);
-    if (a === 0) continue;
+    if (a === 0) return;
     ctx.globalAlpha = fade * a;
-    text(ctx, label, mid, l.bandY + h + 22, font, COLORS.muted, "center");
-  }
+    math(tex, ctx, `band-${k}`, label, mid, l.bandY + h + 22, font, COLORS.muted, "center", true);
+  });
 
   const join = phase(t, 19, 19.5);
   if (join > 0) {
     ctx.globalAlpha = fade * join;
     const y = l.bandY + l.llmH + 10;
-    const bracket = (from: number, to: number, label: string) => {
+    const bracket = (key: string, from: number, to: number, label: string) => {
       ctx.strokeStyle = COLORS.dim;
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -513,16 +538,16 @@ function drawBandLabels(ctx: CanvasRenderingContext2D, t: number, l: Layout, fad
       ctx.lineTo(to, y);
       ctx.lineTo(to, y - 4);
       ctx.stroke();
-      text(ctx, label, (from + to) / 2, y + 15, font, COLORS.muted, "center");
+      math(tex, ctx, key, label, (from + to) / 2, y + 15, font, COLORS.muted, "center", true);
     };
-    bracket(l.slotX(0), l.slotX(PRE.length - 1) + l.col, "H_t");
-    bracket(l.slotX(PRE.length), l.slotX(PRE.length + PATCHES - 1) + l.col, "H_v : 16 tokens where <image> was");
-    bracket(l.slotX(PRE.length + PATCHES), l.slotX(SLOTS - 1) + l.col, "H_t");
+    bracket("ht-pre", l.slotX(0), l.slotX(PRE.length - 1) + l.col, "$H_t$");
+    bracket("hv", l.slotX(PRE.length), l.slotX(PRE.length + PATCHES - 1) + l.col, "$H_v$: 16 tokens where <image> was");
+    bracket("ht-post", l.slotX(PRE.length + PATCHES), l.slotX(SLOTS - 1) + l.col, "$H_t$");
   }
   ctx.globalAlpha = fade;
 }
 
-function drawPanel(ctx: CanvasRenderingContext2D, t: number, l: Layout, s: Scene, fade: number) {
+function drawPanel(tex: Tex, ctx: CanvasRenderingContext2D, t: number, l: Layout, s: Scene, fade: number) {
   const { panelX: px, panelY: py, panelW: pw, panelH: ph, narrow } = l;
   const small = `${narrow ? 9 : 11}px ${FONT_MONO}`;
   const label = `${narrow ? 10 : 12}px ${FONT_SANS}`;
@@ -531,9 +556,9 @@ function drawPanel(ctx: CanvasRenderingContext2D, t: number, l: Layout, s: Scene
   if (a0 > 0) {
     ctx.globalAlpha = fade * a0;
     const count = t < 1 ? 0 : Math.min(PATCHES, Math.floor((t - 1) / 0.1) + 1);
-    text(ctx, "H = W = 32,  P = 8", px, py + 14, small, COLORS.muted);
-    text(ctx, `N = ${count}`, px, py + ph * 0.62, `300 ${narrow ? 30 : 46}px ${FONT_SANS}`, COLORS.text);
-    text(ctx, "(32 / 8)² = 4 × 4", px, py + ph * 0.62 + (narrow ? 20 : 28), small, COLORS.muted);
+    math(tex, ctx, "hw", "H = W = 32,\\; P = 8", px, py + 14, small, COLORS.muted);
+    math(tex, ctx, "count", `N = ${count}`, px, py + ph * 0.62, `${narrow ? 26 : 38}px ${FONT_SANS}`, COLORS.text);
+    math(tex, ctx, "count-sub", "(32/8)^2 = 4 \\times 4", px, py + ph * 0.62 + (narrow ? 22 : 30), small, COLORS.muted);
   }
 
   const a1 = window01(t, 3, 7, 0.3);
@@ -563,14 +588,14 @@ function drawPanel(ctx: CanvasRenderingContext2D, t: number, l: Layout, s: Scene
     const info = phase(t, 3.5, 3.9);
     ctx.globalAlpha = fade * a1 * info;
     text(ctx, "patch 7, zoomed", px + size + 14, py + 14, label, COLORS.text);
-    text(ctx, "8 × 8 pixels", px + size + 14, py + (narrow ? 30 : 34), small, COLORS.muted);
+    math(tex, ctx, "zoom-px", "$8 \\times 8$ pixels", px + size + 14, py + (narrow ? 30 : 34), small, COLORS.muted, "left", true);
     const rowNow = Math.min(P, Math.max(0, Math.floor((t - 3.9) / 0.16) + 1));
     if (t > 3.9) {
       text(ctx, `row ${rowNow} / 8 → appended`, px + size + 14, py + (narrow ? 46 : 54), small, COLORS.muted);
     }
     const done = phase(t, 5.4, 5.8);
     ctx.globalAlpha = fade * a1 * done;
-    text(ctx, "64 pixels × 3 channels = x_p ∈ ℝ¹⁹²", px, lineY + lh + 16, small, COLORS.text);
+    math(tex, ctx, "flat", "64 pixels $\\times$ 3 channels: $x_p \\in \\mathbb{R}^{192}$", px, lineY + lh + 16, small, COLORS.text, "left", true);
   }
 
   const a2 = window01(t, 7, 9.6, 0.3);
@@ -583,7 +608,7 @@ function drawPanel(ctx: CanvasRenderingContext2D, t: number, l: Layout, s: Scene
       ctx.fillStyle = s.pixels[FOCUS][k];
       ctx.fillRect(px + k * lc, mid - 5, lc + 0.3, 10);
     }
-    text(ctx, "x_p (192)", px, mid + 24, small, COLORS.muted);
+    math(tex, ctx, "e-in", "x_p \\in \\mathbb{R}^{192}", px, mid + 26, small, COLORS.muted);
     const bx = px + iw + 12;
     const bw = pw * 0.22;
     const bh = ph * 0.5;
@@ -602,8 +627,8 @@ function drawPanel(ctx: CanvasRenderingContext2D, t: number, l: Layout, s: Scene
     ctx.stroke();
     ctx.strokeStyle = COLORS.accent;
     ctx.strokeRect(bx, mid - bh / 2, bw, bh);
-    text(ctx, "E", bx + bw / 2, mid + 7, `500 ${narrow ? 18 : 22}px ${FONT_SANS}`, COLORS.text, "center");
-    text(ctx, "192 × 1024", bx + bw / 2, mid + bh / 2 + 16, small, COLORS.muted, "center");
+    math(tex, ctx, "e", "E", bx + bw / 2, mid + 7, `${narrow ? 18 : 22}px ${FONT_SANS}`, COLORS.text, "center");
+    math(tex, ctx, "e-shape", "192 \\times 1024", bx + bw / 2, mid + bh / 2 + 18, small, COLORS.muted, "center");
     const pulse = (t * 1.4) % 1;
     ctx.fillStyle = COLORS.text;
     ctx.beginPath();
@@ -617,7 +642,7 @@ function drawPanel(ctx: CanvasRenderingContext2D, t: number, l: Layout, s: Scene
       ctx.fillStyle = visionColor(s.emb[FOCUS][k]);
       ctx.fillRect(ox + k * cw, mid - 7, cw - 1, 14);
     }
-    text(ctx, "z (1024)", ox, mid + 24, small, COLORS.muted);
+    math(tex, ctx, "e-out", "z \\in \\mathbb{R}^{1024}", ox, mid + 26, small, COLORS.muted);
   }
 
   const a2b = window01(t, 9.4, 11, 0.3);
@@ -633,7 +658,7 @@ function drawPanel(ctx: CanvasRenderingContext2D, t: number, l: Layout, s: Scene
       text(ctx, String(i + 1), x + chip / 2, y + chip / 2 + 4, `${narrow ? 9 : 11}px ${FONT_MONO}`, lit > 0.5 ? COLORS.background : COLORS.muted, "center");
     }
     const tx = px + chip * GRID + 14;
-    text(ctx, "+ E_pos", tx, py + 18, `500 ${narrow ? 14 : 18}px ${FONT_SANS}`, COLORS.text);
+    math(tex, ctx, "epos", "+\\,E_{\\text{pos}}", tx, py + 20, `${narrow ? 14 : 18}px ${FONT_SANS}`, COLORS.text);
     text(ctx, "one learned vector per position", tx, py + (narrow ? 36 : 42), small, COLORS.muted);
     text(ctx, "attention alone ignores order,", tx, py + (narrow ? 52 : 62), small, COLORS.muted);
     text(ctx, "so this is where position lives", tx, py + (narrow ? 66 : 80), small, COLORS.muted);
@@ -663,7 +688,7 @@ function drawPanel(ctx: CanvasRenderingContext2D, t: number, l: Layout, s: Scene
     const tx = px + m + 14;
     const layer = Math.min(24, 1 + Math.floor(phase(t, 11.2, 14.6) * 23));
     text(ctx, `layer ${layer} / 24`, tx, py + 14, small, COLORS.text);
-    text(ctx, "16 × 16", tx, py + (narrow ? 30 : 34), small, COLORS.muted);
+    math(tex, ctx, "attn-shape", "16 \\times 16", tx, py + (narrow ? 30 : 34), small, COLORS.muted);
     text(ctx, "row = query", tx, py + (narrow ? 46 : 54), small, COLORS.muted);
     text(ctx, "no mask", tx, py + (narrow ? 62 : 74), small, COLORS.muted);
   }
@@ -689,8 +714,8 @@ function drawPanel(ctx: CanvasRenderingContext2D, t: number, l: Layout, s: Scene
     drawCells(ctx, vx, mid - vh / 2, 8, vh, n, (k) =>
       g < 0.5 ? visionColor(s.emb[FOCUS][k % EMB_CELLS]) : textColor(s.llm[FOCUS][k]),
     );
-    text(ctx, "D_v = 1024", px, py + ph - 2, small, COLORS.muted);
-    text(ctx, "D_t = 4096", px + pw, py + ph - 2, small, COLORS.text, "right");
+    math(tex, ctx, "dv", "D_v = 1024", px, py + ph - 2, small, COLORS.muted);
+    math(tex, ctx, "dt", "D_t = 4096", px + pw, py + ph - 2, small, COLORS.text, "right");
   }
 
   const a5 = window01(t, 18, LOOP, 0.3);
@@ -757,7 +782,7 @@ function drawPanel(ctx: CanvasRenderingContext2D, t: number, l: Layout, s: Scene
     }
     const tx = px + m + 14;
     text(ctx, "causal mask", tx, top + 12, label, COLORS.text);
-    text(ctx, "position t sees 1 … t", tx, top + (narrow ? 28 : 32), small, COLORS.muted);
+    math(tex, ctx, "causal", "position $t$ sees $1, \\dots, t$", tx, top + (narrow ? 28 : 32), small, COLORS.muted, "left", true);
     text(ctx, "image tokens included", tx, top + (narrow ? 42 : 50), small, COLORS.muted);
   }
   ctx.globalAlpha = fade;
@@ -772,15 +797,17 @@ export default function PatchifyAnimation() {
     const s = getScene();
     const fade = phase(t, 0, 0.35) * (1 - phase(t, LOOP - 0.4, LOOP));
     drawImage(ctx, t, l, s, fade);
-    drawPanel(ctx, t, l, s, fade);
+    drawPanel(tex, ctx, t, l, s, fade);
     drawArcs(ctx, t, l, s, fade);
-    drawColumns(ctx, t, l, s, fade);
+    drawColumns(tex, ctx, t, l, s, fade);
     drawTextColumns(ctx, t, l, s, fade);
     drawIndexChips(ctx, t, l, fade);
-    drawBandLabels(ctx, t, l, fade);
+    drawBandLabels(tex, ctx, t, l, fade);
+    flush();
     chapters.update(t);
   };
 
+  const { layerRef, tex, flush } = useTexLayer();
   const { canvasRef, ...loop } = useCanvasLoop({
     draw,
     height: (width) => layout(width).height,
@@ -795,8 +822,9 @@ export default function PatchifyAnimation() {
         fills={chapters.fills}
         loop={loop}
       />
-      <canvas
-        ref={canvasRef}
+      <CanvasStage
+        canvasRef={canvasRef}
+        layerRef={layerRef}
         role="img"
         aria-label="A 32 by 32 image is cut into a 4 by 4 grid of patches. Each patch's pixels are laid out as one column vector, mapped by a matrix E and a position embedding into the encoder's space, passed through ViT self-attention, recolored by the projector into the language model's space, and spliced into a row of text tokens read under a causal mask."
       />

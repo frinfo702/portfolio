@@ -4,10 +4,8 @@ import { useRef, useState } from "react";
 import {
   COLORS,
   FONT_MONO,
-  FONT_SANS,
   clamp01,
   easeInOut,
-  hash01,
   phase,
   textColor,
   visionColor,
@@ -15,6 +13,8 @@ import {
 } from "./canvas";
 import { Figure } from "./Figure";
 import { landscape } from "./landscape";
+import { paintMaterial } from "./materials";
+import { CanvasStage, texHtml, useTexLayer, type Tex } from "./TexLayer";
 import { useCanvasLoop, type DrawFrame } from "./useCanvasLoop";
 
 type Stage = 1 | 2;
@@ -25,36 +25,58 @@ const STAGES: Record<Stage, { label: string; data: string; trained: Module[] }> 
   2: { label: "Stage 2 · instruction tuning", data: "visual QA and chat", trained: ["proj", "llm"] },
 };
 
-// The diagram is laid out on a fixed 480-unit-wide board and scaled to fit,
-// like a figure in a paper.
+// The diagram is laid out on a fixed board, centered on x = 240, and scaled
+// to fit, like a figure in a paper.
 const BOARD_W = 480;
-const BOARD_H = 470;
-const LOOP = 4.4;
+const BOARD_H = 486;
+const LOOP = 4.6;
 // One step: forward pass, then backward pass, then the weight update.
 const FORWARD = [0.2, 1.7] as const;
-const BACKWARD = [2, 3.4] as const;
-const UPDATE = [3.3, 4.1] as const;
+const BACKWARD = [2, 3.5] as const;
+const UPDATE = [3.4, 4.3] as const;
 
-const XL = 178;
-const XR = 352;
+const XL = 150;
+const XR = 330;
 const Y = {
-  out: 30,
-  llmTop: 62,
-  llmBottom: 150,
-  tokens: 174,
-  projTop: 206,
-  projBottom: 246,
-  stop: 262,
-  vitTop: 278,
-  vitBottom: 352,
-  image: 376,
-  embedTop: 300,
-  embedBottom: 330,
-  text: 404,
+  out: 26,
+  llmTop: 70,
+  llmBottom: 160,
+  tokens: 184,
+  projTop: 220,
+  projBottom: 264,
+  stop: 282,
+  vitTop: 304,
+  vitBottom: 378,
+  embedTop: 318,
+  embedBottom: 352,
+  image: 400,
+  text: 414,
 };
-const LOSS_X = 448;
+const LOSS_X = 444;
+
+const BOX = {
+  llm: { x: XL - 80, y: Y.llmTop, w: XR - XL + 160, h: Y.llmBottom - Y.llmTop },
+  vit: { x: XL - 64, y: Y.vitTop, w: 128, h: Y.vitBottom - Y.vitTop },
+  embed: { x: XR - 46, y: Y.embedTop, w: 92, h: Y.embedBottom - Y.embedTop },
+  proj: { x: XL - 66, y: Y.projTop, w: 132, h: Y.projBottom - Y.projTop },
+};
+type Box = (typeof BOX)[keyof typeof BOX];
+
 const OUT_WORDS = ["Two", "dogs", "."];
 const TEXT_WORDS = ["What", "is", "this", "?"];
+
+const SNOWFLAKE = `<svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M8 1.5v13M2.4 4.75l11.2 6.5M2.4 11.25l11.2-6.5M6.3 2.6 8 4.2l1.7-1.6M6.3 13.4 8 11.8l1.7 1.6"/></svg>`;
+const FLAME = `<svg class="icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8.4 1.2c.5 2.4 3.9 4.3 3.9 8.1A4.3 4.3 0 0 1 8 13.8a4.3 4.3 0 0 1-4.3-4.5c0-1.9 1-3.2 1.9-4 .1 1.3.7 2.3 1.6 2.6-.3-2.4.3-4.6 1.2-6.7Z"/></svg>`;
+
+const LABELS = {
+  llm: `<b>Language model</b><small>Vicuna-7B · causal decoder</small>`,
+  vit: `<b>Vision encoder</b><small>ViT-L/14 · CLIP</small>`,
+  proj: `<b>Projector</b><small>${texHtml("W_2\\,\\mathrm{GELU}(W_1 z)")}</small>`,
+  image: `<b>image</b><small>336 × 336</small>`,
+  text: `<b>instruction</b><small>text tokens</small>`,
+  frozen: `${SNOWFLAKE}frozen`,
+  trained: `${FLAME}trained`,
+};
 
 type Point = [number, number];
 
@@ -75,7 +97,7 @@ function polyline(points: Point[]) {
     }
     return points[points.length - 1];
   };
-  return { points, total, at };
+  return { total, at };
 }
 
 type Path = ReturnType<typeof polyline>;
@@ -89,11 +111,11 @@ const FORWARD_PATH = polyline([
   [XL, Y.tokens + 9],
   [XL, Y.llmBottom],
   [XL, Y.llmTop],
-  [XR, Y.out + 10],
-  [LOSS_X, Y.out],
+  [XR, Y.out + 9],
+  [LOSS_X - 16, Y.out + 9],
 ]);
 const TEXT_PATH = polyline([
-  [XR, Y.text - 10],
+  [XR, Y.text],
   [XR, Y.embedBottom],
   [XR, Y.embedTop],
   [XR, Y.tokens + 9],
@@ -101,8 +123,8 @@ const TEXT_PATH = polyline([
 ]);
 // Gradients flow from the loss back to the projector's input and no further.
 const BACKWARD_PATH = polyline([
-  [LOSS_X, Y.out],
-  [XR, Y.out + 10],
+  [LOSS_X - 16, Y.out + 9],
+  [XR, Y.out + 9],
   [XL, Y.llmTop],
   [XL, Y.llmBottom],
   [XL, Y.tokens + 9],
@@ -145,91 +167,78 @@ function comet(ctx: CanvasRenderingContext2D, path: Path, head: number, color: s
   ctx.fill();
 }
 
-function snowflake(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  ctx.strokeStyle = COLORS.muted;
-  ctx.lineWidth = 1.1;
-  ctx.beginPath();
-  for (let k = 0; k < 3; k += 1) {
-    const a = (k * Math.PI) / 3;
-    ctx.moveTo(x - Math.cos(a) * 5, y - Math.sin(a) * 5);
-    ctx.lineTo(x + Math.cos(a) * 5, y + Math.sin(a) * 5);
-  }
-  ctx.stroke();
-}
-
-function flame(ctx: CanvasRenderingContext2D, x: number, y: number, heat: number) {
-  ctx.fillStyle = `rgba(236, 196, 140, ${0.65 + 0.35 * heat})`;
-  ctx.beginPath();
-  ctx.moveTo(x, y - 6 - heat * 1.5);
-  ctx.quadraticCurveTo(x + 5, y - 1, x + 3.5, y + 3);
-  ctx.quadraticCurveTo(x, y + 6, x - 3.5, y + 3);
-  ctx.quadraticCurveTo(x - 5, y - 1, x, y - 6 - heat * 1.5);
-  ctx.fill();
-}
-
-function hatchRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(x, y, w, h);
-  ctx.clip();
+function hatch(ctx: CanvasRenderingContext2D, box: Box) {
   ctx.strokeStyle = COLORS.rule;
   ctx.lineWidth = 1;
   ctx.beginPath();
-  for (let k = -h; k < w; k += 6) {
-    ctx.moveTo(x + k, y + h);
-    ctx.lineTo(x + k + h, y);
+  for (let k = -box.h; k < box.w; k += 6) {
+    ctx.moveTo(box.x + k, box.y + box.h);
+    ctx.lineTo(box.x + k + box.h, box.y);
   }
   ctx.stroke();
+}
+
+type Fill = { trained: boolean; time: number; heat: number; seed: number; pixel: number };
+
+// Ice for frozen weights, heat for weights being trained, clipped to `shape`.
+function material(ctx: CanvasRenderingContext2D, box: Box, shape: () => void, fill: Fill) {
+  ctx.save();
+  shape();
+  ctx.clip();
+  ctx.fillStyle = COLORS.surface;
+  ctx.fillRect(box.x, box.y, box.w, box.h);
+  const painted = paintMaterial(ctx, fill.trained ? "heat" : "ice", box, {
+    time: fill.time,
+    intensity: fill.heat,
+    seed: fill.seed,
+    scale: fill.pixel,
+  });
+  if (!painted) {
+    if (fill.trained) {
+      ctx.globalAlpha = 0.3 + 0.5 * fill.heat;
+      ctx.fillStyle = textColor(0.55);
+      ctx.fillRect(box.x, box.y, box.w, box.h);
+      ctx.globalAlpha = 1;
+    } else {
+      hatch(ctx, box);
+    }
+  }
   ctx.restore();
 }
 
-type ModuleState = { trained: boolean; update: number };
-
-// A stack of identical blocks, drawn as offset cards the way papers draw "× L".
-// Its bands are layers: they light bottom-up going forward, top-down going back.
-function blockStack(
-  ctx: CanvasRenderingContext2D,
-  box: { x: number; y: number; w: number; h: number },
-  layers: number,
-  bands: number,
-  tint: (v: number) => string,
-  state: ModuleState,
-  forwardDepth: number,
-  backwardDepth: number,
-) {
-  const { x, y, w, h } = box;
-  for (let k = 2; k >= 1; k -= 1) {
-    ctx.fillStyle = COLORS.surface;
-    ctx.fillRect(x + k * 5, y - k * 5, w, h);
-    ctx.strokeStyle = COLORS.rule;
-    ctx.strokeRect(x + k * 5 + 0.5, y - k * 5 + 0.5, w - 1, h - 1);
-  }
-  ctx.fillStyle = COLORS.surface;
-  ctx.fillRect(x, y, w, h);
-  if (!state.trained) hatchRect(ctx, x, y, w, h);
-
-  const bh = h / bands;
-  for (let b = 0; b < bands; b += 1) {
-    const level = 1 - (b + 0.5) / bands;
-    const fwd = clamp01(1 - Math.abs(forwardDepth - level) * 4);
-    const back = clamp01(1 - Math.abs(backwardDepth - level) * 4);
-    const base = state.trained ? 0.18 + 0.5 * state.update : 0;
-    const a = Math.max(base, fwd * 0.55, back * (state.trained ? 0.8 : 0.3));
+// Layer bands light bottom-up on the forward pass and top-down on the
+// backward pass, over the material.
+function bands(ctx: CanvasRenderingContext2D, box: Box, count: number, forward: number, backward: number, trained: boolean) {
+  const bh = box.h / count;
+  for (let b = 0; b < count; b += 1) {
+    const level = 1 - (b + 0.5) / count;
+    const fwd = clamp01(1 - Math.abs(forward - level) * 4);
+    const back = clamp01(1 - Math.abs(backward - level) * 4);
+    const a = Math.max(fwd * 0.28, back * (trained ? 0.4 : 0.16));
     if (a <= 0) continue;
     ctx.globalAlpha = a;
-    ctx.fillStyle = back > fwd && state.trained ? textColor(0.85) : tint(0.6 + 0.3 * hash01(b, layers));
-    ctx.fillRect(x + 4, y + b * bh + 2, w - 8, bh - 4);
+    ctx.fillStyle = back > fwd ? "#fff4e0" : "#e6eef6";
+    ctx.fillRect(box.x + 3, box.y + b * bh + 2, box.w - 6, bh - 4);
   }
   ctx.globalAlpha = 1;
-  ctx.strokeStyle = state.trained ? COLORS.text : COLORS.dim;
-  ctx.lineWidth = 1 + state.update * 1.5;
-  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
+}
+
+function stackCards(ctx: CanvasRenderingContext2D, box: Box) {
+  for (let k = 2; k >= 1; k -= 1) {
+    ctx.fillStyle = COLORS.surface;
+    ctx.fillRect(box.x + k * 5, box.y - k * 5, box.w, box.h);
+    ctx.strokeStyle = COLORS.rule;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(box.x + k * 5 + 0.5, box.y - k * 5 + 0.5, box.w - 1, box.h - 1);
+  }
+}
+
+function outline(ctx: CanvasRenderingContext2D, shape: () => void, trained: boolean, update: number) {
+  shape();
+  ctx.strokeStyle = trained ? COLORS.text : COLORS.dim;
+  ctx.lineWidth = trained ? 1 + update * 1.5 : 1;
+  ctx.stroke();
   ctx.lineWidth = 1;
-  ctx.font = `10px ${FONT_MONO}`;
-  ctx.fillStyle = COLORS.muted;
-  ctx.textAlign = "right";
-  ctx.fillText(`× ${layers}`, x + w + 10, y + h + 12);
-  ctx.textAlign = "left";
 }
 
 function chips(
@@ -259,33 +268,21 @@ function chips(
     }
   }
   ctx.globalAlpha = 1;
-}
-
-function badge(ctx: CanvasRenderingContext2D, x: number, y: number, trained: boolean, heat: number) {
-  if (trained) flame(ctx, x, y, heat);
-  else snowflake(ctx, x, y);
-  ctx.font = `10px ${FONT_MONO}`;
-  ctx.fillStyle = trained ? COLORS.text : COLORS.muted;
-  ctx.fillText(trained ? "trained" : "frozen", x + 9, y + 3.5);
-}
-
-function title(ctx: CanvasRenderingContext2D, label: string, sub: string, x: number, y: number, align: CanvasTextAlign) {
-  ctx.textAlign = align;
-  ctx.font = `500 12px ${FONT_SANS}`;
-  ctx.fillStyle = COLORS.text;
-  ctx.fillText(label, x, y);
-  ctx.font = `10px ${FONT_MONO}`;
-  ctx.fillStyle = COLORS.muted;
-  ctx.fillText(sub, x, y + 14);
-  ctx.textAlign = "left";
+  return total;
 }
 
 export default function TwoStageAnimation() {
   const [stage, setStage] = useState<Stage>(1);
   const stageRef = useRef<Stage>(1);
+  const { layerRef, tex, flush } = useTexLayer();
 
   const draw: DrawFrame = (ctx, width, _height, time) => {
     const scale = width / BOARD_W;
+    const pixel = scale * Math.min(window.devicePixelRatio || 1, 2);
+    // Labels live in CSS pixels; their type scales gently with the figure.
+    const font = (size: number) => size * Math.min(1.15, Math.max(0.78, scale));
+    const label: Tex = (key, source, x, y, options = {}) =>
+      tex(key, source, x * scale, y * scale, { ...options, size: font(options.size ?? 11) });
     ctx.save();
     ctx.scale(scale, scale);
 
@@ -296,18 +293,16 @@ export default function TwoStageAnimation() {
     const update = window01(t, ...UPDATE, 0.25);
     const forwardOn = window01(t, FORWARD[0], BACKWARD[0] + 0.2, 0.2);
     const backwardOn = window01(t, BACKWARD[0], UPDATE[1], 0.2);
-    const state = (m: Module): ModuleState => {
-      const trained = current.trained.includes(m);
-      return { trained, update: trained ? update : 0 };
-    };
+    const trained = (m: Module) => current.trained.includes(m);
 
     const fwdHead = fwd * FORWARD_PATH.total;
     const backHead = back * BACKWARD_PATH.total;
     const fy = FORWARD_PATH.at(fwdHead)[1];
     const by = BACKWARD_PATH.at(backHead)[1];
-    // How far a pass has climbed through a module, 0 at its bottom and 1 at its top.
-    const depth = (y: number, top: number, bottom: number, on: number) =>
-      on > 0 ? 1 - (y - top) / (bottom - top) : -9;
+    // How far a pass has climbed through a box, 0 at its bottom and 1 at its top.
+    const depth = (y: number, box: Box, on: number) => (on > 0 ? 1 - (y - box.y) / box.h : -9);
+    const near = (y: number, box: Box, on: number) => clamp01(1 - Math.abs(y - (box.y + box.h / 2)) / box.h) * on;
+    const heat = (m: Module, box: Box) => (trained(m) ? 0.3 + 0.7 * Math.max(update, near(by, box, backwardOn)) : 0);
 
     // faint wiring underneath everything
     ctx.strokeStyle = COLORS.rule;
@@ -328,106 +323,78 @@ export default function TwoStageAnimation() {
       ctx.lineTo(XL + 26, Y.image + k * 13);
     }
     ctx.stroke();
-    title(ctx, "image", "336 × 336", XL - 40, Y.image + 22, "right");
-    chips(ctx, XR, Y.text - 10, TEXT_WORDS.length, () => COLORS.accent, 1, TEXT_WORDS);
-    title(ctx, "instruction", "text tokens", XR, Y.text + 26, "center");
+    label("image", LABELS.image, XL - 38, Y.image + 26, { html: true, align: "right" });
+    chips(ctx, XR, Y.text, TEXT_WORDS.length, () => COLORS.accent, 1, TEXT_WORDS);
+    label("text", LABELS.text, XR, Y.text + 44, { html: true, align: "center" });
 
-    // vision encoder
-    blockStack(ctx, { x: XL - 62, y: Y.vitTop, w: 124, h: Y.vitBottom - Y.vitTop }, 24, 6, visionColor,
-      state("vit"), depth(fy, Y.vitTop, Y.vitBottom, forwardOn), -9);
-    title(ctx, "Vision encoder", "ViT-L/14 · CLIP", XL - 76, Y.vitTop + 26, "right");
-    badge(ctx, XL - 140, Y.vitTop + 54, false, 0);
+    // vision encoder: always frozen
+    const vitRect = () => {
+      ctx.beginPath();
+      ctx.rect(BOX.vit.x, BOX.vit.y, BOX.vit.w, BOX.vit.h);
+    };
+    stackCards(ctx, BOX.vit);
+    material(ctx, BOX.vit, vitRect, { trained: false, time, heat: 0, seed: 1, pixel });
+    bands(ctx, BOX.vit, 6, depth(fy, BOX.vit, forwardOn), -9, false);
+    outline(ctx, vitRect, false, 0);
+    label("vit", LABELS.vit, XL, Y.vitTop + BOX.vit.h / 2, { html: true, align: "center", plate: true });
+    label("vit-badge", LABELS.frozen, BOX.vit.x - 8, Y.vitTop + 12, { html: true, align: "right", plate: true, size: 10 });
+    label("vit-layers", "\\times 24", BOX.vit.x + BOX.vit.w + 14, Y.vitBottom + 8, { color: COLORS.muted, size: 10 });
 
-    // projector: a trapezoid, narrow at 1024 and wide at 4096
-    const proj = state("proj");
+    // projector: a trapezoid, narrow at D_v and wide at D_t
     const trap = () => {
       ctx.beginPath();
-      ctx.moveTo(XL - 34, Y.projBottom);
-      ctx.lineTo(XL + 34, Y.projBottom);
-      ctx.lineTo(XL + 64, Y.projTop);
-      ctx.lineTo(XL - 64, Y.projTop);
+      ctx.moveTo(XL - 36, Y.projBottom);
+      ctx.lineTo(XL + 36, Y.projBottom);
+      ctx.lineTo(XL + 66, Y.projTop);
+      ctx.lineTo(XL - 66, Y.projTop);
       ctx.closePath();
     };
-    trap();
-    ctx.fillStyle = COLORS.surface;
-    ctx.fill();
-    const projMid = (Y.projTop + Y.projBottom) / 2;
-    const projHit = clamp01(1 - Math.abs(by - projMid) / 30) * backwardOn;
-    const projFwd = clamp01(1 - Math.abs(fy - projMid) / 30) * forwardOn;
-    ctx.globalAlpha = Math.max(0.2 + 0.6 * proj.update, projHit * 0.9, projFwd * 0.6);
-    const grad = ctx.createLinearGradient(0, Y.projBottom, 0, Y.projTop);
-    grad.addColorStop(0, visionColor(0.55));
-    grad.addColorStop(1, textColor(0.6));
-    ctx.fillStyle = grad;
-    trap();
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = COLORS.text;
-    ctx.lineWidth = 1 + proj.update * 1.5;
-    trap();
-    ctx.stroke();
-    ctx.lineWidth = 1;
-    ctx.font = `10px ${FONT_MONO}`;
-    ctx.fillStyle = COLORS.text;
-    ctx.textAlign = "center";
-    ctx.fillText("W₁ · GELU · W₂", XL, Y.projTop + 24);
-    ctx.textAlign = "left";
-    ctx.fillStyle = COLORS.muted;
-    ctx.fillText("4096", XL + 68, Y.projTop + 9);
-    ctx.fillText("1024", XL + 40, Y.projBottom + 10);
-    title(ctx, "Projector", "2-layer MLP", XL - 76, Y.projTop + 14, "right");
-    badge(ctx, XL - 140, Y.projTop + 40, true, proj.update);
+    const projHeat = heat("proj", BOX.proj);
+    material(ctx, BOX.proj, trap, { trained: true, time, heat: projHeat, seed: 2, pixel });
+    outline(ctx, trap, true, update);
+    label("proj", LABELS.proj, XL, (Y.projTop + Y.projBottom) / 2, { html: true, align: "center", plate: true, size: 10.5 });
+    label("proj-badge", LABELS.trained, BOX.proj.x - 8, Y.projTop + 10, { html: true, align: "right", plate: true, size: 10 });
+    label("proj-dt", "D_t = 4096", XL + 72, Y.projTop + 4, { color: COLORS.muted, size: 10 });
+    label("proj-dv", "D_v = 1024", XL + 46, Y.projBottom + 4, { color: COLORS.muted, size: 10 });
 
-    // token rows: visual tokens on the left, text embeddings on the right
+    // token rows
     const tokLit = clamp01(1 - Math.abs(fy - Y.tokens) / 30) * forwardOn;
-    chips(ctx, XL, Y.tokens, 6, (k) => textColor(0.45 + 0.4 * hash01(k, 5)), 0.5 + 0.5 * tokLit);
-    chips(ctx, XR, Y.tokens, 4, (k) => textColor(0.3 + 0.5 * hash01(k, 9)), 0.5 + 0.5 * tokLit);
-    ctx.font = `10px ${FONT_MONO}`;
-    ctx.fillStyle = COLORS.muted;
-    ctx.fillText("H_v", XL + 66, Y.tokens + 13);
-    ctx.fillText("H_t", XR + 46, Y.tokens + 13);
+    const vw = chips(ctx, XL, Y.tokens, 6, (k) => textColor(0.5 + 0.06 * k), 0.5 + 0.5 * tokLit);
+    const tw = chips(ctx, XR, Y.tokens, 4, (k) => textColor(0.35 + 0.1 * k), 0.5 + 0.5 * tokLit);
+    label("hv", "H_v", XL + vw / 2 + 8, Y.tokens + 9, { color: COLORS.muted });
+    label("ht", "H_t", XR + tw / 2 + 8, Y.tokens + 9, { color: COLORS.muted });
 
     // embedding table, part of the language model
-    const llm = state("llm");
-    const embed = { x: XR - 40, y: Y.embedTop, w: 80, h: Y.embedBottom - Y.embedTop };
-    ctx.fillStyle = COLORS.surface;
-    ctx.fillRect(embed.x, embed.y, embed.w, embed.h);
-    if (llm.trained) {
-      ctx.globalAlpha = 0.18 + 0.5 * llm.update;
-      ctx.fillStyle = textColor(0.6);
-      ctx.fillRect(embed.x, embed.y, embed.w, embed.h);
-      ctx.globalAlpha = 1;
-    } else {
-      hatchRect(ctx, embed.x, embed.y, embed.w, embed.h);
-    }
-    ctx.strokeStyle = llm.trained ? COLORS.text : COLORS.dim;
-    ctx.strokeRect(embed.x + 0.5, embed.y + 0.5, embed.w - 1, embed.h - 1);
-    ctx.fillStyle = COLORS.body;
-    ctx.textAlign = "center";
-    ctx.fillText("Embed", XR, Y.embedTop + 19);
-    ctx.textAlign = "left";
+    const embedRect = () => {
+      ctx.beginPath();
+      ctx.rect(BOX.embed.x, BOX.embed.y, BOX.embed.w, BOX.embed.h);
+    };
+    material(ctx, BOX.embed, embedRect, { trained: trained("llm"), time, heat: heat("llm", BOX.embed), seed: 3, pixel });
+    outline(ctx, embedRect, trained("llm"), update);
+    label("embed", "<b>Embed</b>", XR, Y.embedTop + BOX.embed.h / 2, { html: true, align: "center", plate: true, size: 10.5 });
 
     // language model
-    blockStack(ctx, { x: XL - 76, y: Y.llmTop, w: XR - XL + 152, h: Y.llmBottom - Y.llmTop }, 32, 7, textColor,
-      llm, depth(fy, Y.llmTop, Y.llmBottom, forwardOn), depth(by, Y.llmTop, Y.llmBottom, backwardOn));
-    ctx.font = `500 12px ${FONT_SANS}`;
-    ctx.fillStyle = COLORS.text;
-    ctx.textAlign = "center";
-    ctx.fillText("Language model", (XL + XR) / 2, (Y.llmTop + Y.llmBottom) / 2 - 2);
-    ctx.font = `10px ${FONT_MONO}`;
-    ctx.fillStyle = COLORS.muted;
-    ctx.fillText("Vicuna-7B · causal decoder", (XL + XR) / 2, (Y.llmTop + Y.llmBottom) / 2 + 13);
-    ctx.textAlign = "left";
-    badge(ctx, XL - 64, Y.llmTop + 14, llm.trained, llm.update);
+    const llmRect = () => {
+      ctx.beginPath();
+      ctx.rect(BOX.llm.x, BOX.llm.y, BOX.llm.w, BOX.llm.h);
+    };
+    stackCards(ctx, BOX.llm);
+    material(ctx, BOX.llm, llmRect, { trained: trained("llm"), time, heat: heat("llm", BOX.llm), seed: 4, pixel });
+    bands(ctx, BOX.llm, 7, depth(fy, BOX.llm, forwardOn), depth(by, BOX.llm, backwardOn), trained("llm"));
+    outline(ctx, llmRect, trained("llm"), update);
+    label("llm", LABELS.llm, (XL + XR) / 2, Y.llmTop + BOX.llm.h / 2, { html: true, align: "center", plate: true });
+    label("llm-badge", trained("llm") ? LABELS.trained : LABELS.frozen, BOX.llm.x - 8, Y.llmTop + 12, {
+      html: true,
+      align: "right",
+      plate: true,
+      size: 10,
+    });
+    label("llm-layers", "\\times 32", BOX.llm.x + BOX.llm.w + 14, Y.llmBottom + 8, { color: COLORS.muted, size: 10 });
 
     // outputs and loss
     const outLit = clamp01(1 - Math.abs(fwd - 0.9) * 6) * forwardOn;
-    chips(ctx, XR, Y.out, OUT_WORDS.length, () => textColor(0.85), 0.4 + 0.6 * outLit, OUT_WORDS);
-    ctx.font = `10px ${FONT_MONO}`;
-    ctx.fillStyle = COLORS.muted;
-    ctx.textAlign = "right";
-    ctx.fillText("answer", XR - 70, Y.out + 13);
-    ctx.textAlign = "left";
+    const ow = chips(ctx, XR, Y.out, OUT_WORDS.length, () => textColor(0.85), 0.4 + 0.6 * outLit, OUT_WORDS);
+    label("answer", "answer", XR - ow / 2 - 8, Y.out + 9, { text: true, align: "right", color: COLORS.muted, size: 10 });
     const lossGlow = Math.max(fwd > 0.97 ? forwardOn : 0, backwardOn * (1 - back));
     ctx.strokeStyle = COLORS.text;
     ctx.lineWidth = 1 + lossGlow;
@@ -435,11 +402,7 @@ export default function TwoStageAnimation() {
     ctx.arc(LOSS_X, Y.out + 9, 16, 0, Math.PI * 2);
     ctx.stroke();
     ctx.lineWidth = 1;
-    ctx.fillStyle = COLORS.text;
-    ctx.font = `italic 13px ${FONT_SANS}`;
-    ctx.textAlign = "center";
-    ctx.fillText("ℒ", LOSS_X, Y.out + 14);
-    ctx.textAlign = "left";
+    label("loss", "\\mathcal{L}", LOSS_X, Y.out + 9, { align: "center", size: 13 });
 
     // where the gradient stops
     ctx.strokeStyle = COLORS.muted;
@@ -450,36 +413,30 @@ export default function TwoStageAnimation() {
     ctx.moveTo(XL + 5, Y.stop - 5);
     ctx.lineTo(XL - 5, Y.stop + 5);
     ctx.stroke();
-    ctx.font = `10px ${FONT_MONO}`;
-    ctx.fillStyle = COLORS.muted;
-    ctx.fillText("no gradient", XL + 10, Y.stop + 4);
+    label("stop", "no gradient", XL + 12, Y.stop, { text: true, color: COLORS.muted, size: 10 });
 
     // the passes themselves
     if (forwardOn > 0) {
       ctx.globalAlpha = forwardOn;
-      comet(ctx, FORWARD_PATH, fwdHead, visionColor(0.8), 1.8);
-      comet(ctx, TEXT_PATH, Math.min(1, fwd * 1.4) * TEXT_PATH.total, textColor(0.8), 1.8);
+      comet(ctx, FORWARD_PATH, fwdHead, visionColor(0.85), 1.8);
+      comet(ctx, TEXT_PATH, Math.min(1, fwd * 1.4) * TEXT_PATH.total, textColor(0.85), 1.8);
     }
     if (backwardOn > 0) {
       ctx.globalAlpha = backwardOn;
-      const inFrozenLlm = !llm.trained && by > Y.llmTop - 10 && by < Y.llmBottom + 4;
-      comet(ctx, BACKWARD_PATH, backHead, inFrozenLlm ? "rgba(236, 232, 223, 0.55)" : COLORS.text, 2);
-      if (llm.trained && by > Y.llmBottom) {
+      const inFrozenLlm = !trained("llm") && by > Y.llmTop - 10 && by < Y.llmBottom + 4;
+      comet(ctx, BACKWARD_PATH, backHead, inFrozenLlm ? "rgba(236, 232, 223, 0.5)" : COLORS.text, 2);
+      if (trained("llm") && by > Y.llmBottom) {
         const embedHead = clamp01((by - Y.llmBottom) / (Y.embedTop - Y.llmBottom)) * EMBED_BACK_PATH.total;
         comet(ctx, EMBED_BACK_PATH, embedHead, COLORS.text, 2);
       }
     }
     ctx.globalAlpha = 1;
 
-    ctx.font = `10px ${FONT_MONO}`;
-    ctx.fillStyle = COLORS.muted;
-    ctx.fillText(`data: ${current.data}`, 12, BOARD_H - 10);
     const step = t < BACKWARD[0] ? "forward" : t < UPDATE[0] ? "backward" : "update";
-    ctx.textAlign = "right";
-    ctx.fillStyle = COLORS.text;
-    ctx.fillText(step, BOARD_W - 12, BOARD_H - 10);
-    ctx.textAlign = "left";
+    label("data", `data: ${current.data}`, 12, BOARD_H - 12, { text: true, color: COLORS.muted, size: 10 });
+    label("step", step, BOARD_W - 12, BOARD_H - 12, { text: true, align: "right", color: COLORS.text, size: 10 });
     ctx.restore();
+    flush();
   };
 
   const { canvasRef, redraw } = useCanvasLoop({
@@ -503,16 +460,17 @@ export default function TwoStageAnimation() {
           </button>
         ))}
       </div>
-      <canvas
-        ref={canvasRef}
+      <CanvasStage
+        canvasRef={canvasRef}
+        layerRef={layerRef}
         role="img"
-        aria-label="Architecture diagram of LLaVA, read bottom to top: the image enters a frozen ViT, a projector maps its features to visual tokens, and the visual and text tokens enter the language model, which predicts the answer and the loss. A forward pass rises through the diagram, then the gradient descends from the loss and stops at the projector's input. In stage 1 only the projector is updated, although the gradient passes through the frozen language model. In stage 2 the language model and its embedding table are updated too."
+        aria-label="Architecture diagram of LLaVA, read bottom to top: the image enters a frozen ViT, a projector maps its features to visual tokens, and the visual and text tokens enter the language model, which predicts the answer and the loss. Frozen modules are drawn as ice and trained ones as heat. A forward pass rises through the diagram, then the gradient descends from the loss and stops at the projector's input. In stage 1 only the projector is updated, although the gradient passes through the frozen language model. In stage 2 the language model and its embedding table are updated too."
       />
       <figcaption>
-        Read bottom to top, as in the LLaVA paper. Each step plays a forward pass, the
-        backward pass, and the update. In stage 1 the gradient still travels through the
-        frozen language model to reach the projector: frozen means its weights are not
-        updated, not that it is skipped. The ViT never receives a gradient.
+        Read bottom to top, as in the LLaVA paper. Ice marks frozen weights and heat marks weights
+        being trained. Each step plays a forward pass, the backward pass, and the update. In stage 1
+        the gradient still travels through the frozen language model to reach the projector: frozen
+        means its weights are not updated, not that it is skipped. The ViT never receives a gradient.
       </figcaption>
     </Figure>
   );
