@@ -3,12 +3,12 @@ export const FONT_SANS =
 export const FONT_MONO = "ui-monospace, SFMono-Regular, Menlo, monospace";
 
 export const COLORS = {
-  text: "#e8eaec",
-  body: "#b6babe",
-  muted: "#8b8f93",
-  dim: "#63676b",
-  accent: "#c9ced2",
-  rule: "#232628",
+  text: "#ece8df",
+  body: "#b4b6b5",
+  muted: "#858a8e",
+  dim: "#565c62",
+  accent: "#cfd7de",
+  rule: "#1f2428",
   blue: "#8ea3b8",
 };
 
