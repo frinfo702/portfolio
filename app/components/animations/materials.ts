@@ -223,6 +223,8 @@ type Program = {
 
 let state: { canvas: HTMLCanvasElement; gl: WebGLRenderingContext; programs: Record<Material, Program> } | null | false = null;
 
+const stills = new Map<string, HTMLCanvasElement>();
+
 function compile(gl: WebGLRenderingContext, type: number, source: string) {
   const shader = gl.createShader(type)!;
   gl.shaderSource(shader, source);
@@ -284,6 +286,14 @@ export function paintMaterial(
   const scale = options.scale ?? 1;
   const pw = Math.max(1, Math.min(SIZE, Math.round(rect.w * scale)));
   const ph = Math.max(1, Math.min(SIZE, Math.round(rect.h * scale)));
+  // Ice ignores uTime, so fully frosted ice is a still image: render it once.
+  const still = kind === "ice" && (options.cover ?? 1) >= 1;
+  const key = `${rect.w}x${rect.h}@${pw}x${ph}:${options.seed ?? 0}`;
+  const hit = still && stills.get(key);
+  if (hit) {
+    ctx.drawImage(hit, rect.x, rect.y, rect.w, rect.h);
+    return true;
+  }
   const program = programs[kind];
   gl.viewport(0, 0, pw, ph);
   gl.useProgram(program.program);
@@ -296,5 +306,14 @@ export function paintMaterial(
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   // the viewport sits at the bottom-left of the GL canvas
   ctx.drawImage(canvas, 0, SIZE - ph, pw, ph, rect.x, rect.y, rect.w, rect.h);
+  if (still) {
+    // ponytail: a resize leaves old sizes behind; clearing at 32 bounds it
+    if (stills.size >= 32) stills.clear();
+    const copy = document.createElement("canvas");
+    copy.width = pw;
+    copy.height = ph;
+    copy.getContext("2d")!.drawImage(canvas, 0, SIZE - ph, pw, ph, 0, 0, pw, ph);
+    stills.set(key, copy);
+  }
   return true;
 }
