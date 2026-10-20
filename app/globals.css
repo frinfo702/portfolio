@@ -709,7 +709,8 @@ a {
   position: relative;
   margin: 2.5rem 0 1.75rem;
   padding: 1.75rem 1.25rem 1.1rem;
-  border: 2px dotted var(--dim);
+  /* SVG dashes: CSS `dashed` can't set the dash length. Stroke is --dim. */
+  background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' rx='8' fill='none' stroke='%23565c62' stroke-width='3' stroke-dasharray='10 6'/%3e%3c/svg%3e");
   border-radius: 0.5rem;
 }
 
