@@ -1,6 +1,36 @@
 {
   "version": 1,
   "skills": {
+    "animate": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/animate/SKILL.md",
+      "computedHash": "7598d33e7f60dd5c24531eaaa897621cc3bdb48e8050324211627973bc59c4ce"
+    },
+    "animate-expo": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/animate-expo/SKILL.md",
+      "computedHash": "5de09593d564091f9db60aabede7bed760251e118548272050a247c653c417d2"
+    },
+    "animation-performance": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/animation-performance/SKILL.md",
+      "computedHash": "b68ba704106e27b1f83df0cb817e09ec947abb76825d86eabdee2954b6c1bb84"
+    },
+    "animation-vocabulary": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/animation-vocabulary/SKILL.md",
+      "computedHash": "0058036865ecbb864fd0c4132efcc62425355d6e99c7e6ef6a936742d62a5dea"
+    },
+    "apple-design": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/apple-design/SKILL.md",
+      "computedHash": "0190417d092a0df447b000154e39733ea6d97efad6d3bec8a6ce3845aeb88914"
+    },
     "architect": {
       "source": "michael-denyer/pstack-claude",
       "ref": "main",
@@ -36,6 +66,12 @@
       "skillPath": "plugins/pstack/skills/blast-radius/SKILL.md",
       "computedHash": "c42993a59fe3b33d414b81b23ed1dfee0aa1cfad8f417f89bd66469a30de1f11"
     },
+    "break-ui": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/break-ui/SKILL.md",
+      "computedHash": "60ada67662925f4df5e3c6ff41cac3ab241b66f8898100a5ffcd7ba7196cb868"
+    },
     "bro": {
       "source": "michael-denyer/pstack-claude",
       "ref": "main",
@@ -64,6 +100,12 @@
       "skillPath": "plugins/pstack/skills/figure-it-out/SKILL.md",
       "computedHash": "00527c496c640eaf32ce5ddb8606390cf6567ee32bbbcfcd2517a96a52fd5819"
     },
+    "find-animation-opportunities": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-animation-opportunities/SKILL.md",
+      "computedHash": "465d087c41768e4f14ed640dd049036009f613feb55baaa5831b68b33178f9d2"
+    },
     "fix-ci": {
       "source": "michael-denyer/pstack-claude",
       "ref": "main",
@@ -78,6 +120,13 @@
       "skillPath": "plugins/pstack/skills/fix-merge-conflicts/SKILL.md",
       "computedHash": "7235ec27587296b270d37ed858adddb34e0064c811eab7d36f5fa9b5419555d2"
     },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "89496d5dd00f4810205f351759594fc2742bf8eea85a2f2b2d1de59f4bd91576"
+    },
     "get-pr-comments": {
       "source": "michael-denyer/pstack-claude",
       "ref": "main",
@@ -91,6 +140,12 @@
       "sourceType": "github",
       "skillPath": "plugins/pstack/skills/how/SKILL.md",
       "computedHash": "91404a79d1e60df8f68ee3430a61ef2c2c120b6f841d3ea4e953206de128b23d"
+    },
+    "improve-animations": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/improve-animations/SKILL.md",
+      "computedHash": "524ea241e41d58bbdd8e288700fe24f5725e2a2f3ae7186ad7cebf9055058356"
     },
     "interrogate": {
       "source": "michael-denyer/pstack-claude",
@@ -119,6 +174,12 @@
       "sourceType": "github",
       "skillPath": "plugins/pstack/skills/no-comments/SKILL.md",
       "computedHash": "c4c2a39baa768d6b9d3db6a2023860692b5e567157f3d65d98092f4b2ef1b30c"
+    },
+    "pick-ui-library": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/pick-ui-library/SKILL.md",
+      "computedHash": "5d2a77bf0ecafbda85aa95fb49999b6d77945d9066ec83d970b62e5b388cd686"
     },
     "poteto-mode": {
       "source": "michael-denyer/pstack-claude",
@@ -287,6 +348,12 @@
       "sourceType": "github",
       "skillPath": "plugins/pstack/skills/reflect/SKILL.md",
       "computedHash": "a48d03bf95b2e2e3e090537cb9c8d95defe893cb0fec8a4dbe4527f714536266"
+    },
+    "review-animations": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/review-animations/SKILL.md",
+      "computedHash": "b4e5f0f4fe3e2743c85bf7354108f48a0b9d502cb20ef5c4a9c195da91f93736"
     },
     "setup-pstack": {
       "source": "michael-denyer/pstack-claude",
