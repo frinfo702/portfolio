@@ -180,7 +180,7 @@ function hatch(ctx: CanvasRenderingContext2D, box: Box) {
 
 type Fill = { trained: boolean; time: number; heat: number; seed: number; pixel: number };
 
-// Ice for frozen weights, heat for weights being trained, clipped to `shape`.
+// Ice for frozen weights, magma for weights being trained, clipped to `shape`.
 function material(ctx: CanvasRenderingContext2D, box: Box, shape: () => void, fill: Fill) {
   ctx.save();
   shape();
@@ -473,10 +473,10 @@ export default function TwoStageAnimation() {
         canvasRef={canvasRef}
         layerRef={layerRef}
         role="img"
-        aria-label="Architecture diagram of LLaVA, read bottom to top: the image enters a frozen ViT, a projector maps its features to visual tokens, and the visual and text tokens enter the language model, which predicts the answer and the loss. Frozen modules are drawn as ice and trained ones as heat. A forward pass rises through the diagram, then the gradient descends from the loss and stops at the projector's input. In stage 1 only the projector is updated, although the gradient passes through the frozen language model. In stage 2 the language model and its embedding table are updated too."
+        aria-label="Architecture diagram of LLaVA, read bottom to top: the image enters a frozen ViT, a projector maps its features to visual tokens, and the visual and text tokens enter the language model, which predicts the answer and the loss. Frozen modules are drawn as ice and trained ones as magma. A forward pass rises through the diagram, then the gradient descends from the loss and stops at the projector's input. In stage 1 only the projector is updated, although the gradient passes through the frozen language model. In stage 2 the language model and its embedding table are updated too."
       />
       <figcaption>
-        Read bottom to top, as in the LLaVA paper. Ice marks frozen weights and heat marks weights
+        Read bottom to top, as in the LLaVA paper. Ice marks frozen weights and magma marks weights
         being trained. Each step plays a forward pass, the backward pass, and the update. In stage 1
         the gradient still travels through the frozen language model to reach the projector: frozen
         means its weights are not updated, not that it is skipped. The ViT never receives a gradient.

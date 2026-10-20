@@ -1,6 +1,6 @@
 // Procedural materials for module fills, rendered with WebGL into one shared
 // offscreen canvas and then copied into a 2D canvas with drawImage:
-// ice for frozen weights, slow-moving heat for weights being trained.
+// ice for frozen weights, magma for weights being trained.
 
 export type Material = "ice" | "heat";
 
@@ -137,24 +137,44 @@ void main() {
   gl_FragColor = vec4(min(col, 1.0), clamp(alpha, 0.0, 0.96));
 }`;
 
+// Magma: plates of dark cooled crust drifting slowly, with molten cracks
+// between them. uIntensity widens and brightens the cracks, so a gradient
+// arriving or a weight update reads as the rock heating up.
 const HEAT = `${COMMON}
+vec3 lava(float h) {
+  vec3 col = mix(vec3(0.35, 0.04, 0.02), vec3(0.93, 0.33, 0.06), smoothstep(0.0, 0.55, h));
+  return mix(col, vec3(1.0, 0.86, 0.5), smoothstep(0.6, 1.0, h));
+}
+
 void main() {
   vec2 px = vUv * uRes;
-  vec2 p = px / 46.0;
   float t = uTime;
-  vec2 flow = vec2(fbm(p + vec2(0.0, -t * 0.35)), fbm(p * 1.3 + vec2(5.2, -t * 0.5)));
-  float n = fbm(p * 1.7 + flow * 1.8 + vec2(0.0, -t * 0.8));
-  float heat = smoothstep(0.2, 0.8, n);
-  float k = 0.65 + 0.35 * uIntensity;
+  float k = 0.55 + 0.45 * uIntensity;
+  vec2 p = px / 24.0;
+  vec2 flow = vec2(fbm(p * 0.55 + vec2(t * 0.04, 0.0)), fbm(p * 0.55 + vec2(3.1, -t * 0.035)));
+  vec2 q = p + (flow - 0.5) * 1.5 + vec2(t * 0.03, -t * 0.05);
 
-  vec3 dark = vec3(0.2, 0.13, 0.08);
-  vec3 amber = vec3(0.8, 0.52, 0.25);
-  vec3 hot = vec3(0.97, 0.84, 0.6);
-  vec3 col = mix(dark, amber, heat * k);
-  col = mix(col, hot, pow(heat, 2.5) * (0.35 + 0.65 * uIntensity));
-  // faint grain so it does not look like a gradient
-  col += (hash2(floor(px)).x - 0.5) * 0.025;
-  gl_FragColor = vec4(col, 1.0);
+  float e = cells(q + uSeed);
+  float fine = cells(q * 2.4 + 5.0 + uSeed);
+  float crack = 1.0 - smoothstep(0.0, 0.035 + 0.075 * k, e);
+  float hairline = (1.0 - smoothstep(0.0, 0.025, fine)) * smoothstep(0.12, 0.3, e);
+  float glow = exp(-e * (11.0 - 5.0 * k));
+  float pulse = 0.75 + 0.25 * sin(t * 1.8 + fbm(q * 1.3) * 6.2832);
+
+  // crust: rough basalt, a little lighter in the middle of each plate
+  float rough = fbm(px / 5.0 + uSeed);
+  vec3 crust = mix(vec3(0.045, 0.032, 0.028), vec3(0.15, 0.11, 0.09), rough);
+  crust *= 0.75 + 0.5 * smoothstep(0.05, 0.5, e);
+
+  float heat = clamp(crack * pulse + hairline * 0.35 * k, 0.0, 1.0);
+  vec3 col = crust + glow * vec3(0.85, 0.24, 0.04) * 0.5 * k;
+  col = mix(col, lava(heat * (0.75 + 0.25 * k)), heat);
+  // embers drifting up out of the cracks
+  vec2 cell = floor(vec2(px.x / 7.0, px.y / 7.0 - t * 1.4));
+  vec2 r = hash2(cell + 11.0);
+  float ember = step(0.985, r.x) * smoothstep(0.5, 0.0, length(fract(vec2(px.x / 7.0, px.y / 7.0 - t * 1.4)) - 0.5));
+  col += ember * vec3(1.0, 0.6, 0.2) * k;
+  gl_FragColor = vec4(min(col, 1.0), 1.0);
 }`;
 
 type Program = {
