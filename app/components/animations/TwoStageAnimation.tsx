@@ -185,8 +185,6 @@ function material(ctx: CanvasRenderingContext2D, box: Box, shape: () => void, fi
   ctx.save();
   shape();
   ctx.clip();
-  ctx.fillStyle = COLORS.surface;
-  ctx.fillRect(box.x, box.y, box.w, box.h);
   const painted = paintMaterial(ctx, fill.trained ? "heat" : "ice", box, {
     time: fill.time,
     intensity: fill.heat,
@@ -223,13 +221,22 @@ function bands(ctx: CanvasRenderingContext2D, box: Box, count: number, forward: 
   ctx.globalAlpha = 1;
 }
 
-function stackCards(ctx: CanvasRenderingContext2D, box: Box) {
+// The cards behind a stack get the same material, a little dimmer.
+function stackCards(ctx: CanvasRenderingContext2D, box: Box, fill: Fill) {
   for (let k = 2; k >= 1; k -= 1) {
-    ctx.fillStyle = COLORS.surface;
-    ctx.fillRect(box.x + k * 5, box.y - k * 5, box.w, box.h);
-    ctx.strokeStyle = COLORS.rule;
+    const card = { ...box, x: box.x + k * 5, y: box.y - k * 5 };
+    const rect = () => {
+      ctx.beginPath();
+      ctx.rect(card.x, card.y, card.w, card.h);
+    };
+    material(ctx, card, rect, { ...fill, seed: fill.seed + k * 10, heat: fill.heat * 0.6 });
+    if (fill.trained) {
+      ctx.fillStyle = "rgba(19, 22, 25, 0.35)";
+      ctx.fillRect(card.x, card.y, card.w, card.h);
+    }
+    ctx.strokeStyle = fill.trained ? COLORS.dim : "rgba(200, 225, 245, 0.25)";
     ctx.lineWidth = 1;
-    ctx.strokeRect(box.x + k * 5 + 0.5, box.y - k * 5 + 0.5, box.w - 1, box.h - 1);
+    ctx.strokeRect(card.x + 0.5, card.y + 0.5, card.w - 1, card.h - 1);
   }
 }
 
@@ -302,7 +309,12 @@ export default function TwoStageAnimation() {
     // How far a pass has climbed through a box, 0 at its bottom and 1 at its top.
     const depth = (y: number, box: Box, on: number) => (on > 0 ? 1 - (y - box.y) / box.h : -9);
     const near = (y: number, box: Box, on: number) => clamp01(1 - Math.abs(y - (box.y + box.h / 2)) / box.h) * on;
-    const heat = (m: Module, box: Box) => (trained(m) ? 0.3 + 0.7 * Math.max(update, near(by, box, backwardOn)) : 0);
+    const heat = (m: Module, box: Box, y = by) => (trained(m) ? 0.3 + 0.7 * Math.max(update, near(y, box, backwardOn)) : 0);
+    // The embedding branch splits off at the LLM's base and reaches the table
+    // just as the main gradient reaches the projector's input.
+    const embedBack = trained("llm") ? clamp01((by - Y.llmBottom) / (Y.stop - Y.llmBottom)) : 0;
+    const embedHead = embedBack * EMBED_BACK_PATH.total;
+    const embedY = embedBack > 0 ? EMBED_BACK_PATH.at(embedHead)[1] : -999;
 
     // faint wiring underneath everything
     ctx.strokeStyle = COLORS.rule;
@@ -332,7 +344,7 @@ export default function TwoStageAnimation() {
       ctx.beginPath();
       ctx.rect(BOX.vit.x, BOX.vit.y, BOX.vit.w, BOX.vit.h);
     };
-    stackCards(ctx, BOX.vit);
+    stackCards(ctx, BOX.vit, { trained: false, time, heat: 0, seed: 1, pixel });
     material(ctx, BOX.vit, vitRect, { trained: false, time, heat: 0, seed: 1, pixel });
     bands(ctx, BOX.vit, 6, depth(fy, BOX.vit, forwardOn), -9, false);
     outline(ctx, vitRect, false, 0);
@@ -369,7 +381,7 @@ export default function TwoStageAnimation() {
       ctx.beginPath();
       ctx.rect(BOX.embed.x, BOX.embed.y, BOX.embed.w, BOX.embed.h);
     };
-    material(ctx, BOX.embed, embedRect, { trained: trained("llm"), time, heat: heat("llm", BOX.embed), seed: 3, pixel });
+    material(ctx, BOX.embed, embedRect, { trained: trained("llm"), time, heat: heat("llm", BOX.embed, embedY), seed: 3, pixel });
     outline(ctx, embedRect, trained("llm"), update);
     label("embed", "<b>Embed</b>", XR, Y.embedTop + BOX.embed.h / 2, { html: true, align: "center", plate: true, size: 10.5 });
 
@@ -378,7 +390,7 @@ export default function TwoStageAnimation() {
       ctx.beginPath();
       ctx.rect(BOX.llm.x, BOX.llm.y, BOX.llm.w, BOX.llm.h);
     };
-    stackCards(ctx, BOX.llm);
+    stackCards(ctx, BOX.llm, { trained: trained("llm"), time, heat: heat("llm", BOX.llm), seed: 4, pixel });
     material(ctx, BOX.llm, llmRect, { trained: trained("llm"), time, heat: heat("llm", BOX.llm), seed: 4, pixel });
     bands(ctx, BOX.llm, 7, depth(fy, BOX.llm, forwardOn), depth(by, BOX.llm, backwardOn), trained("llm"));
     outline(ctx, llmRect, trained("llm"), update);
@@ -425,10 +437,7 @@ export default function TwoStageAnimation() {
       ctx.globalAlpha = backwardOn;
       const inFrozenLlm = !trained("llm") && by > Y.llmTop - 10 && by < Y.llmBottom + 4;
       comet(ctx, BACKWARD_PATH, backHead, inFrozenLlm ? "rgba(236, 232, 223, 0.5)" : COLORS.text, 2);
-      if (trained("llm") && by > Y.llmBottom) {
-        const embedHead = clamp01((by - Y.llmBottom) / (Y.embedTop - Y.llmBottom)) * EMBED_BACK_PATH.total;
-        comet(ctx, EMBED_BACK_PATH, embedHead, COLORS.text, 2);
-      }
+      if (embedBack > 0) comet(ctx, EMBED_BACK_PATH, embedHead, COLORS.text, 2);
     }
     ctx.globalAlpha = 1;
 

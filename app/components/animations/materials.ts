@@ -68,28 +68,73 @@ float cells(vec2 p) {
 }
 `;
 
+// A clear ice block: mostly transparent, so whatever is behind shows
+// through, with a bevelled rim that catches the light, a cloudy core, a few
+// air bubbles, and sharp specular highlights from a light at the top left.
 const ICE = `${COMMON}
+const float BEVEL = 9.0;
+
+// Inside distance to the edge of a rounded rectangle filling the canvas.
+float inside(vec2 px) {
+  vec2 hs = uRes * 0.5;
+  float r = 7.0;
+  vec2 q = abs(px - hs) - (hs - r);
+  return -(length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r);
+}
+
+// Surface height: a bevel up from the edge plus a gently melted top.
+float height(vec2 px) {
+  float d = inside(px);
+  float bevel = 1.0 - pow(1.0 - clamp(d / BEVEL, 0.0, 1.0), 2.0);
+  return bevel * 3.0 + fbm(px / 38.0 + uSeed) * 1.6;
+}
+
 void main() {
   vec2 px = vUv * uRes;
-  vec2 p = px / 34.0;
-  float warp = fbm(p * 0.8);
-  float crack = 1.0 - smoothstep(0.0, 0.05, cells(p + warp * 0.7));
-  float hair = 1.0 - smoothstep(0.0, 0.025, cells(p * 2.6 + 4.0 + warp));
-  float frost = fbm(px / 9.0);
-  vec2 q = min(vUv, 1.0 - vUv) * uRes;
-  float rim = 1.0 - smoothstep(0.0, 22.0, min(q.x, q.y));
+  float d = inside(px);
+  if (d < 0.0) { gl_FragColor = vec4(0.0); return; }
 
-  vec3 deep = vec3(0.07, 0.11, 0.15);
-  vec3 body = vec3(0.33, 0.45, 0.55);
-  vec3 white = vec3(0.84, 0.91, 0.96);
-  vec3 col = mix(deep, body, 0.2 + 0.45 * fbm(p * 0.5 + 3.0));
-  col = mix(col, white, crack * 0.6 + hair * 0.22);
-  col = mix(col, white, rim * frost * 0.55);
-  // a slow glint crossing the surface
-  float s = fract(uTime * 0.09) * 2.6 - 0.8;
-  float glint = exp(-pow((vUv.x * 0.8 + vUv.y * 0.6 - s) * 7.0, 2.0));
-  col += glint * (0.12 + 0.25 * crack) * vec3(0.85, 0.93, 1.0);
-  gl_FragColor = vec4(col, 1.0);
+  vec2 e = vec2(0.75, 0.0);
+  vec2 grad = vec2(height(px + e.xy) - height(px - e.xy), height(px + e.yx) - height(px - e.yx)) / (2.0 * e.x);
+  vec3 n = normalize(vec3(-grad * 1.4, 1.0));
+  vec3 light = normalize(vec3(-0.55, 0.65, 0.7));
+  vec3 h = normalize(light + vec3(0.0, 0.0, 1.0));
+  float spec = pow(max(dot(n, h), 0.0), 90.0);
+  float sheen = pow(max(dot(n, h), 0.0), 9.0);
+  float fresnel = pow(1.0 - n.z, 1.6);
+
+  float rim = 1.0 - smoothstep(0.0, BEVEL * 1.6, d);
+  float edgeLine = exp(-pow((d - 1.6) / 0.9, 2.0));
+  float innerEdge = exp(-pow((d - BEVEL) / 1.8, 2.0));
+  float core = smoothstep(BEVEL, BEVEL * 3.5, d) * smoothstep(0.35, 0.8, fbm(px / 26.0 + uSeed * 3.0));
+  float veins = (1.0 - smoothstep(0.0, 0.035, cells(px / 70.0 + uSeed))) * smoothstep(BEVEL, BEVEL * 2.0, d);
+
+  // sparse air bubbles, each a dark ring with a bright fleck
+  vec2 cell = floor(px / 16.0);
+  vec2 rnd = hash2(cell + 7.0);
+  float bubble = 0.0;
+  if (rnd.x > 0.9 && d > BEVEL) {
+    vec2 c = (cell + 0.2 + 0.6 * hash2(cell + 3.0)) * 16.0;
+    float rad = 1.0 + 2.2 * rnd.y;
+    float dist = length(px - c);
+    bubble = smoothstep(rad, rad - 0.7, dist) - smoothstep(rad - 0.7, rad - 1.4, dist) * 0.6;
+    bubble += exp(-pow(length(px - c + vec2(rad * 0.35, -rad * 0.35)) / 0.6, 2.0)) * 1.2;
+  }
+
+  // a glint that slides across the top face now and then
+  float s = fract(uTime * 0.07 + uSeed * 0.13) * 3.0 - 1.0;
+  float glint = exp(-pow((vUv.x * 0.7 + vUv.y * 0.5 - s) * 9.0, 2.0)) * smoothstep(0.0, BEVEL, d);
+
+  vec3 tint = vec3(0.56, 0.74, 0.88);
+  vec3 col = tint * (0.45 + 0.4 * vUv.y);
+  col = mix(col, vec3(0.86, 0.93, 0.99), rim * 0.6 + core * 0.35 + veins * 0.1);
+  col -= innerEdge * 0.12;
+  col += (spec * 1.4 + sheen * 0.22 + glint * 0.5) * vec3(1.0, 1.0, 0.98);
+  col += edgeLine * 0.55 + max(bubble, 0.0) * 0.3;
+
+  float alpha = 0.16 + rim * 0.55 + fresnel * 0.5 + core * 0.3 + veins * 0.2
+    + spec + sheen * 0.15 + glint * 0.35 + edgeLine * 0.6 + abs(bubble) * 0.5;
+  gl_FragColor = vec4(min(col, 1.0), clamp(alpha, 0.0, 0.96));
 }`;
 
 const HEAT = `${COMMON}
