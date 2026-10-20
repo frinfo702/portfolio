@@ -16,11 +16,21 @@ type Options = {
   stillTime: number;
 };
 
+type Controls = {
+  seek: (time: number) => void;
+  redraw: () => void;
+  setPaused: (paused: boolean) => void;
+};
+
 export function useCanvasLoop({ draw, height, stillTime }: Options) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawRef = useRef(draw);
   const heightRef = useRef(height);
-  const restartRef = useRef(() => {});
+  const controlsRef = useRef<Controls>({
+    seek: () => {},
+    redraw: () => {},
+    setPaused: () => {},
+  });
 
   useEffect(() => {
     drawRef.current = draw;
@@ -38,20 +48,17 @@ export function useCanvasLoop({ draw, height, stillTime }: Options) {
 
     let width = 0;
     let viewHeight = 0;
-    let elapsed = 0;
+    let elapsed = reduceMotion ? stillTime : 0;
     let last = 0;
     let frame = 0;
+    let visible = false;
+    let paused = false;
 
     const render = () => {
       if (width === 0) return;
       ctx.clearRect(0, 0, width, viewHeight);
       ctx.globalAlpha = 1;
-      drawRef.current(
-        ctx,
-        width,
-        viewHeight,
-        reduceMotion ? stillTime : elapsed,
-      );
+      drawRef.current(ctx, width, viewHeight, elapsed);
     };
 
     const resize = () => {
@@ -75,35 +82,53 @@ export function useCanvasLoop({ draw, height, stillTime }: Options) {
     };
 
     const play = () => {
-      if (reduceMotion || frame) return;
+      if (reduceMotion || paused || !visible || frame) return;
       last = performance.now();
       frame = requestAnimationFrame(tick);
     };
 
-    const pause = () => {
+    const stop = () => {
       cancelAnimationFrame(frame);
       frame = 0;
     };
 
-    restartRef.current = () => {
-      elapsed = 0;
-      render();
+    controlsRef.current = {
+      seek: (time) => {
+        elapsed = time;
+        render();
+      },
+      // Only needed when the loop is idle (paused, offscreen, reduced motion).
+      redraw: () => {
+        if (!frame) render();
+      },
+      setPaused: (next) => {
+        paused = next;
+        if (paused) stop();
+        else play();
+      },
     };
 
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(canvas);
-    const visibility = new IntersectionObserver(([entry]) =>
-      entry.isIntersecting ? play() : pause(),
-    );
+    const visibility = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) play();
+      else stop();
+    });
     visibility.observe(canvas);
     resize();
 
     return () => {
-      pause();
+      stop();
       resizeObserver.disconnect();
       visibility.disconnect();
     };
   }, [stillTime]);
 
-  return { canvasRef, restart: () => restartRef.current() };
+  return {
+    canvasRef,
+    seek: (time: number) => controlsRef.current.seek(time),
+    redraw: () => controlsRef.current.redraw(),
+    setPaused: (paused: boolean) => controlsRef.current.setPaused(paused),
+  };
 }
