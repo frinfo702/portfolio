@@ -16,4 +16,5 @@ tags:
 - 読む、聞く、書く、話すを別々に測る
 - テストの点数と実際の運用能力を混同しない
 
-参考にしているチャンネルの一つは [Ryan Peterman](https://www.youtube.com/@RyanLPeterman)。
+> [!NOTE]
+> 参考にしているチャンネルの一つは [Ryan Peterman](https://www.youtube.com/@RyanLPeterman)。
