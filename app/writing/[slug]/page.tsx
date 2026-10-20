@@ -15,6 +15,7 @@ import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import CodeBlock from "../../components/CodeBlock";
+import Note from "../../components/Note";
 import PostAnimation from "../../components/animations/PostAnimation";
 import {
   formatPostDate,
@@ -72,6 +73,7 @@ export default async function WritingPostPage({ params }: Props) {
           remarkPlugins={[remarkGfm, remarkMath]}
           rehypePlugins={[
             rehypeRaw,
+            rehypeNote,
             rehypeKatex,
             rehypeSlug,
             [rehypeAutolinkHeadings, { behavior: "wrap" }],
@@ -117,6 +119,11 @@ function createMarkdownComponents(
 
       return <p>{children}</p>;
     },
+    blockquote({ node, children }) {
+      if (!node?.properties.dataNote) return <blockquote>{children}</blockquote>;
+
+      return <Note>{children}</Note>;
+    },
     a({ href, children }) {
       return <a href={href}>{children}</a>;
     },
@@ -130,6 +137,34 @@ function createMarkdownComponents(
       return <div {...rest} />;
     },
   };
+}
+
+type HastNode = {
+  type: string;
+  tagName?: string;
+  value?: string;
+  properties?: Record<string, unknown>;
+  children?: HastNode[];
+};
+
+// GitHub-style alert: a blockquote opening with `[!NOTE]`.
+function rehypeNote() {
+  return markNotes;
+}
+
+function markNotes(node: HastNode) {
+  for (const child of node.children ?? []) markNotes(child);
+  if (node.tagName !== "blockquote" || !node.children) return;
+
+  const p = node.children.find((child) => child.type === "element");
+  const text = p?.tagName === "p" ? p.children?.[0] : undefined;
+  if (text?.type !== "text" || !/^\[!NOTE\]/i.test(text.value ?? "")) return;
+
+  text.value = text.value!.replace(/^\[!NOTE\]\s*/i, "");
+  if (!text.value && p!.children!.length === 1) {
+    node.children = node.children.filter((child) => child !== p);
+  }
+  node.properties = { ...node.properties, dataNote: true };
 }
 
 function getTextContent(node: ReactNode): string {
