@@ -11,6 +11,9 @@ importers:
       '@jax-js/jax':
         specifier: ^0.1.13
         version: 0.1.24
+      bot-avatars:
+        specifier: 0.2.2
+        version: 0.2.2(react@19.2.4)
       geist:
         specifier: ^1.7.2
         version: 1.7.2(next@16.2.4(@babel/core@7.29.7(supports-color@10.2.2))(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
@@ -1314,6 +1317,11 @@ packages:
 
   boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
+
+  bot-avatars@0.2.2:
+    resolution: {integrity: sha512-EszpDsXfbO7SD3Jv/g8/7mt3I4EpN4WuDy6Uk3reuzIgU+dl4iKtk+fuIzGgfXjOraF1jQqUjaDOdcql1khXHQ==}
+    peerDependencies:
+      react: '>=18.0.0'
 
   brace-expansion@1.1.18:
     resolution: {integrity: sha512-Edep/X9fGqVNmzKBVsDYIOtD+z1tuezV70LBjdCst9Tqu76lsnvRiZ6oTic1n+/BIwX6QDGAO94PN4N2SADvtw==}
@@ -4058,6 +4066,10 @@ snapshots:
   blake3-wasm@2.1.5: {}
 
   boolbase@1.0.0: {}
+
+  bot-avatars@0.2.2(react@19.2.4):
+    dependencies:
+      react: 19.2.4
 
   brace-expansion@1.1.18:
     dependencies:
