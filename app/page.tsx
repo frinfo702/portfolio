@@ -21,41 +21,43 @@ export default function Home() {
 
       <section className="intro-section">
         <p>
-          I&apos;m a software engineer and computer-vision researcher based in
-          Japan.
-        </p>
-        <p>
-          I study Information Science and Engineering at{" "}
+          I&apos;m a software engineer in Japan, studying Information Science and
+          Engineering at{" "}
           <a href="https://www.ritsumei.ac.jp/" target="_blank" rel="noreferrer">
             Ritsumeikan University
           </a>
-          , where I work on diffusion models, open-vocabulary detection, and deep
-          learning.
+          .
+        </p>
+        <p>
+          My research is on 3D scene understanding: recognizing objects and the
+          spatial relationships between them, with 3D Gaussian Splatting and
+          vision-language models.
         </p>
         <p>
           I&apos;ve worked at{" "}
-          <a href="https://www.pixiv.co.jp/" target="_blank" rel="noreferrer">
-            pixiv
-          </a>
-          ,{" "}
-          <a href="https://www.cyberagent.co.jp/" target="_blank" rel="noreferrer">
-            CyberAgent
-          </a>
-          , and{" "}
           <a href="https://plaid.co.jp/" target="_blank" rel="noreferrer">
             PLAID
           </a>
-          , building backend systems, infrastructure, and agentic systems with
-          exceptional teammates.
+          ,{" "}
+          <a href="https://www.pixiv.co.jp/" target="_blank" rel="noreferrer">
+            pixiv
+          </a>
+          , and{" "}
+          <a href="https://www.cyberagent.co.jp/" target="_blank" rel="noreferrer">
+            CyberAgent
+          </a>
+          , mostly on backend systems and infrastructure.
         </p>
         <p>
-          I mostly write Go and Scala for production, and Python and PyTorch for
-          research. I also enjoy building things from first principles, such as{" "}
+          On the side, I build tools for my own workflow, such as{" "}
+          <a href="https://github.com/frinfo702/raptor" target="_blank" rel="noreferrer">
+            raptor
+          </a>
+          , a terminal multiplexer built on Ghostty, and{" "}
           <a href="https://github.com/frinfo702/mompiler" target="_blank" rel="noreferrer">
             mompiler
           </a>
-          , a small C compiler. See my{" "}
-          <a href="/resume/kenichiro_goto.pdf">resume</a> for more detail.
+          , a small C compiler.
         </p>
         <p>
           You can find me on{" "}
@@ -66,7 +68,8 @@ export default function Home() {
           <a href="https://www.linkedin.com/in/frinfo702/" target="_blank" rel="noreferrer">
             LinkedIn
           </a>
-          , or reach me via <a href="mailto:me@kenichirog.com">email</a>.
+          , read my <a href="/resume/kenichiro_goto.pdf">resume</a>, or reach me
+          via <a href="mailto:me@kenichirog.com">email</a>.
         </p>
       </section>
 
