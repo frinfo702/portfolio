@@ -210,18 +210,20 @@ function material(ctx: CanvasRenderingContext2D, box: Box, shape: () => void, fi
 function stackCards(ctx: CanvasRenderingContext2D, box: Box, fill: Fill) {
   for (let k = 2; k >= 1; k -= 1) {
     const card = { ...box, x: box.x + k * 5, y: box.y - k * 5 };
+    // the materials draw their own rounded frame, matching the 7-unit radius
     const rect = () => {
       ctx.beginPath();
-      ctx.rect(card.x, card.y, card.w, card.h);
+      ctx.roundRect(card.x, card.y, card.w, card.h, 7);
     };
     material(ctx, card, rect, { ...fill, seed: fill.seed + k * 10, heat: fill.heat * 0.6 });
     if (fill.freeze < 1) {
+      ctx.save();
+      rect();
+      ctx.clip();
       ctx.fillStyle = `rgba(19, 22, 25, ${0.35 * (1 - fill.freeze)})`;
       ctx.fillRect(card.x, card.y, card.w, card.h);
+      ctx.restore();
     }
-    ctx.strokeStyle = fill.freeze < 0.5 ? COLORS.dim : "rgba(200, 225, 245, 0.25)";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(card.x + 0.5, card.y + 0.5, card.w - 1, card.h - 1);
   }
 }
 

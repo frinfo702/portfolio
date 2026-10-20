@@ -50,6 +50,17 @@ float fbm(vec2 p) {
   return v;
 }
 
+// Both materials share one block outline: a rounded rectangle with a bevel.
+const float BEVEL = 9.0;
+
+// Inside distance to the edge of a rounded rectangle filling the canvas.
+float inside(vec2 px) {
+  vec2 hs = uRes * 0.5;
+  float r = 7.0;
+  vec2 q = abs(px - hs) - (hs - r);
+  return -(length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r);
+}
+
 // Distance to the nearest Voronoi cell border: thin values are cracks.
 float cells(vec2 p) {
   vec2 n = floor(p);
@@ -79,15 +90,6 @@ float cells(vec2 p) {
 // uCover rises from 0 to 1. The frost itself is ridged noise (fern-like
 // crystals) lit as a bump map.
 const ICE = `${COMMON}
-const float BEVEL = 9.0;
-
-// Inside distance to the edge of a rounded rectangle filling the canvas.
-float inside(vec2 px) {
-  vec2 hs = uRes * 0.5;
-  float r = 7.0;
-  vec2 q = abs(px - hs) - (hs - r);
-  return -(length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r);
-}
 
 float ridge(vec2 p) {
   float v = 0.0;
@@ -179,6 +181,8 @@ vec3 lava(float h) {
 
 void main() {
   vec2 px = vUv * uRes;
+  float d = inside(px);
+  if (d < 0.0) { gl_FragColor = vec4(0.0); return; }
   float t = uTime;
   float k = 0.55 + 0.45 * uIntensity;
   vec2 p = px / 24.0;
@@ -205,6 +209,11 @@ void main() {
   vec2 r = hash2(cell + 11.0);
   float ember = step(0.985, r.x) * smoothstep(0.5, 0.0, length(fract(vec2(px.x / 7.0, px.y / 7.0 - t * 1.4)) - 0.5));
   col += ember * vec3(1.0, 0.6, 0.2) * k;
+  // a black frame of cooled rock, the same bevel the ice has: dark at the
+  // rim, a faint grey edge where the bevel catches the light
+  float frame = 1.0 - smoothstep(BEVEL * 0.55, BEVEL * 1.25, d);
+  col = mix(col, vec3(0.018, 0.014, 0.012) + rough * 0.035, frame);
+  col += exp(-pow((d - 1.4) / 0.9, 2.0)) * 0.16;
   gl_FragColor = vec4(min(col, 1.0), 1.0);
 }`;
 
