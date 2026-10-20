@@ -133,19 +133,15 @@ void main() {
   float core = smoothstep(BEVEL, BEVEL * 3.5, d) * smoothstep(0.35, 0.8, fbm(px / 26.0 + uSeed * 3.0));
   float veins = (1.0 - smoothstep(0.0, 0.035, cells(px / 70.0 + uSeed))) * smoothstep(BEVEL, BEVEL * 2.0, d);
 
-  // a glint that slides across the top face now and then
-  float s = fract(uTime * 0.07 + uSeed * 0.13) * 3.0 - 1.0;
-  float glint = exp(-pow((vUv.x * 0.7 + vUv.y * 0.5 - s) * 9.0, 2.0)) * smoothstep(0.0, BEVEL, d);
-
   vec3 tint = vec3(0.56, 0.74, 0.88);
   vec3 col = tint * (0.45 + 0.4 * vUv.y);
   col = mix(col, vec3(0.86, 0.93, 0.99), rim * 0.6 + core * 0.35 + veins * 0.1);
   col -= innerEdge * 0.12;
-  col += (spec * 1.4 + sheen * 0.22 + glint * 0.5) * vec3(1.0, 1.0, 0.98);
+  col += (spec * 1.4 + sheen * 0.22) * vec3(1.0, 1.0, 0.98);
   col += edgeLine * 0.55;
 
   float alpha = 0.16 + rim * 0.55 + fresnel * 0.5 + core * 0.3 + veins * 0.2
-    + spec + sheen * 0.15 + glint * 0.35 + edgeLine * 0.6;
+    + spec + sheen * 0.15 + edgeLine * 0.6;
 
   // frost: where it has reached, how thick it is, and its growing front
   float toCenter = clamp(d / (min(uRes.x, uRes.y) * 0.5), 0.0, 1.0);

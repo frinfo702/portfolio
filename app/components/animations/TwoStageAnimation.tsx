@@ -206,23 +206,6 @@ function material(ctx: CanvasRenderingContext2D, box: Box, shape: () => void, fi
   ctx.restore();
 }
 
-// Layer bands light bottom-up on the forward pass and top-down on the
-// backward pass, over the material.
-function bands(ctx: CanvasRenderingContext2D, box: Box, count: number, forward: number, backward: number, trained: boolean) {
-  const bh = box.h / count;
-  for (let b = 0; b < count; b += 1) {
-    const level = 1 - (b + 0.5) / count;
-    const fwd = clamp01(1 - Math.abs(forward - level) * 4);
-    const back = clamp01(1 - Math.abs(backward - level) * 4);
-    const a = Math.max(fwd * 0.28, back * (trained ? 0.4 : 0.16));
-    if (a <= 0) continue;
-    ctx.globalAlpha = a;
-    ctx.fillStyle = back > fwd ? "#fff4e0" : "#e6eef6";
-    ctx.fillRect(box.x + 3, box.y + b * bh + 2, box.w - 6, bh - 4);
-  }
-  ctx.globalAlpha = 1;
-}
-
 // The cards behind a stack get the same material, a little dimmer.
 function stackCards(ctx: CanvasRenderingContext2D, box: Box, fill: Fill) {
   for (let k = 2; k >= 1; k -= 1) {
@@ -310,8 +293,6 @@ export default function TwoStageAnimation() {
     const backHead = back * BACKWARD_PATH.total;
     const fy = FORWARD_PATH.at(fwdHead)[1];
     const by = BACKWARD_PATH.at(backHead)[1];
-    // How far a pass has climbed through a box, 0 at its bottom and 1 at its top.
-    const depth = (y: number, box: Box, on: number) => (on > 0 ? 1 - (y - box.y) / box.h : -9);
     const near = (y: number, box: Box, on: number) => clamp01(1 - Math.abs(y - (box.y + box.h / 2)) / box.h) * on;
     const heat = (m: Module, box: Box, y = by) => (trained(m) ? 0.3 + 0.7 * Math.max(update, near(y, box, backwardOn)) : 0);
     // The embedding branch splits off at the LLM's base and reaches the table
@@ -360,7 +341,6 @@ export default function TwoStageAnimation() {
     };
     stackCards(ctx, BOX.vit, { freeze: 1, time, heat: 0, seed: 1, pixel });
     material(ctx, BOX.vit, vitRect, { freeze: 1, time, heat: 0, seed: 1, pixel });
-    bands(ctx, BOX.vit, 6, depth(fy, BOX.vit, forwardOn), -9, false);
     outline(ctx, vitRect, false, 0);
     label("vit", LABELS.vit, XL, Y.vitTop + BOX.vit.h / 2, { html: true, align: "center", plate: true });
     label("vit-badge", LABELS.frozen, BOX.vit.x - 8, Y.vitTop + 12, { html: true, align: "right", plate: true, size: 10 });
@@ -406,7 +386,6 @@ export default function TwoStageAnimation() {
     };
     stackCards(ctx, BOX.llm, { freeze: llmFreeze, time, heat: heat("llm", BOX.llm), seed: 4, pixel });
     material(ctx, BOX.llm, llmRect, { freeze: llmFreeze, time, heat: heat("llm", BOX.llm), seed: 4, pixel });
-    bands(ctx, BOX.llm, 7, depth(fy, BOX.llm, forwardOn), depth(by, BOX.llm, backwardOn), trained("llm"));
     outline(ctx, llmRect, llmHot, update);
     label("llm", LABELS.llm, (XL + XR) / 2, Y.llmTop + BOX.llm.h / 2, { html: true, align: "center", plate: true });
     label("llm-badge", llmHot ? LABELS.trained : LABELS.frozen, BOX.llm.x - 8, Y.llmTop + 12, {
