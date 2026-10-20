@@ -341,7 +341,6 @@ export default function TwoStageAnimation() {
     };
     stackCards(ctx, BOX.vit, { freeze: 1, time, heat: 0, seed: 1, pixel });
     material(ctx, BOX.vit, vitRect, { freeze: 1, time, heat: 0, seed: 1, pixel });
-    outline(ctx, vitRect, false, 0);
     label("vit", LABELS.vit, XL, Y.vitTop + BOX.vit.h / 2, { html: true, align: "center", plate: true });
     label("vit-badge", LABELS.frozen, BOX.vit.x - 8, Y.vitTop + 12, { html: true, align: "right", plate: true, size: 10 });
     label("vit-layers", "\\times 24", BOX.vit.x + BOX.vit.w + 14, Y.vitBottom + 8, { color: COLORS.muted, size: 10 });
@@ -376,7 +375,6 @@ export default function TwoStageAnimation() {
       ctx.rect(BOX.embed.x, BOX.embed.y, BOX.embed.w, BOX.embed.h);
     };
     material(ctx, BOX.embed, embedRect, { freeze: llmFreeze, time, heat: heat("llm", BOX.embed, embedY), seed: 3, pixel });
-    outline(ctx, embedRect, llmHot, update);
     label("embed", "<b>Embed</b>", XR, Y.embedTop + BOX.embed.h / 2, { html: true, align: "center", plate: true, size: 10.5 });
 
     // language model
@@ -386,7 +384,6 @@ export default function TwoStageAnimation() {
     };
     stackCards(ctx, BOX.llm, { freeze: llmFreeze, time, heat: heat("llm", BOX.llm), seed: 4, pixel });
     material(ctx, BOX.llm, llmRect, { freeze: llmFreeze, time, heat: heat("llm", BOX.llm), seed: 4, pixel });
-    outline(ctx, llmRect, llmHot, update);
     label("llm", LABELS.llm, (XL + XR) / 2, Y.llmTop + BOX.llm.h / 2, { html: true, align: "center", plate: true });
     label("llm-badge", llmHot ? LABELS.trained : LABELS.frozen, BOX.llm.x - 8, Y.llmTop + 12, {
       html: true,
