@@ -9,7 +9,8 @@
     "preview:serve": "SKIP_BUILD=1 bash scripts/preview.sh",
     "start": "next start",
     "lint": "eslint",
-    "deploy": "wrangler pages deploy out"
+    "deploy": "wrangler pages deploy out",
+    "postinstall": "node scripts/patch-bot-avatars.mjs"
   },
   "dependencies": {
     "@jax-js/jax": "^0.1.13",
