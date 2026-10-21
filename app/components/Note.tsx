@@ -4,7 +4,7 @@ import { BotAvatar } from "bot-avatars";
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
-const STROKE = 2;
+const STROKE = 1;
 const RADIUS = 8;
 const DASH = 10;
 const GAP = 6;
@@ -30,6 +30,9 @@ export default function Note({ children }: { children: ReactNode }) {
         className="markdown-note-ghost"
         type="ghost"
         size={40}
+        // Calm while idle: no idle flips, small glances. A click still hops.
+        jumpEvery={0}
+        turn={0.35}
         aria-hidden
       />
       {children}
