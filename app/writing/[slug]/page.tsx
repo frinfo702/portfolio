@@ -16,7 +16,6 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import CodeBlock from "../../components/CodeBlock";
 import Note from "../../components/Note";
-import PostAnimation from "../../components/animations/PostAnimation";
 import {
   formatPostDate,
   getWritingPost,
@@ -30,7 +29,9 @@ type Props = {
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return getWritingPosts().map((post) => ({ slug: post.slug }));
+  const posts = getWritingPosts().map((post) => ({ slug: post.slug }));
+  // output: "export" rejects an empty list; the placeholder renders notFound().
+  return posts.length > 0 ? posts : [{ slug: "_" }];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -126,15 +127,6 @@ function createMarkdownComponents(
     },
     a({ href, children }) {
       return <a href={href}>{children}</a>;
-    },
-    div(props) {
-      const { node, ...rest } = props;
-      const animation = node?.properties.dataAnimation;
-      if (typeof animation === "string") {
-        return <PostAnimation name={animation} />;
-      }
-
-      return <div {...rest} />;
     },
   };
 }
