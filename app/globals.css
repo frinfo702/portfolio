@@ -33,13 +33,19 @@ html {
   font-size: 15px;
   background: var(--background);
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   display: flow-root;
-  min-height: 100vh;
+  min-height: 100svh;
   margin: 0;
-  padding: 5.5rem 0 5rem;
+  padding:
+    calc(5.5rem + env(safe-area-inset-top, 0px))
+    env(safe-area-inset-right, 0px)
+    calc(5rem + env(safe-area-inset-bottom, 0px))
+    env(safe-area-inset-left, 0px);
   background: var(--background);
   color: var(--body);
   font-family: var(--font-sans);
@@ -54,6 +60,26 @@ body {
 
 a {
   color: inherit;
+}
+
+/* Taps fire immediately; long-press callouts stay off controls, never content. */
+a,
+button,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+button,
+[role="button"] {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input,
+textarea,
+select {
+  font-size: 16px; /* under 16px, iOS Safari zooms the page on focus */
 }
 
 :where(b, strong, th, summary) {
@@ -112,11 +138,6 @@ a {
   transition: text-decoration-color 150ms ease;
 }
 
-.intro-section a:hover,
-.markdown-body a:hover {
-  text-decoration-color: var(--text);
-}
-
 /* Writing: year in a left column, titles in a hairline-ruled list. */
 .writing {
   margin-top: 4rem;
@@ -167,12 +188,6 @@ a {
   text-decoration: none;
 }
 
-.writing-year a:hover {
-  text-decoration: underline;
-  text-decoration-color: var(--underline);
-  text-underline-offset: 0.22em;
-}
-
 .writing-year time {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
@@ -188,15 +203,14 @@ a {
   letter-spacing: 0.06em;
   text-decoration: none;
   transition: color 150ms ease;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .article-back::before {
   content: "←";
   margin-right: 0.45rem;
-}
-
-.article-back:hover {
-  color: var(--text);
 }
 
 .article-header {
@@ -289,10 +303,6 @@ a {
   font-size: 0.8em;
   opacity: 0;
   transition: opacity 150ms ease;
-}
-
-.markdown-body :is(h1, h2, h3, h4, h5, h6):hover > a::after {
-  opacity: 1;
 }
 
 .markdown-body p {
@@ -447,6 +457,13 @@ a {
   overflow-y: hidden;
 }
 
+/* Horizontal scrollers stop at their edge instead of triggering the back gesture. */
+[data-slot="code-block-viewport"],
+.markdown-body table,
+.markdown-body .katex-display {
+  overscroll-behavior-x: contain;
+}
+
 .markdown-body .footnotes {
   margin-top: 3.5rem;
   padding-top: 1rem;
@@ -478,10 +495,6 @@ a {
   border-radius: 6px;
   background: var(--surface);
   transition: border-color 150ms ease;
-}
-
-.link-preview:hover {
-  border-color: var(--dim);
 }
 
 .markdown-body .link-preview-link {
@@ -572,9 +585,53 @@ a {
   text-transform: none;
 }
 
+/*
+ * Hover is a mouse capability, not a screen width. Touch browsers fake :hover
+ * and leave it stuck after a tap, so every hover rule lives behind this gate.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .intro-section a:hover,
+  .markdown-body a:hover {
+    text-decoration-color: var(--text);
+  }
+
+  .writing-year a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--underline);
+    text-underline-offset: 0.22em;
+  }
+
+  .article-back:hover {
+    color: var(--text);
+  }
+
+  .markdown-body :is(h1, h2, h3, h4, h5, h6):hover > a::after {
+    opacity: 1;
+  }
+
+  .link-preview:hover {
+    border-color: var(--dim);
+  }
+}
+
+/*
+ * The tap highlight is off, so links get their own press state. It fires on
+ * contact, not on release, and needs no transition.
+ */
+.intro-section a:active,
+.markdown-body a:active,
+.writing-year a:active,
+.article-back:active {
+  opacity: 0.7;
+}
+
 @media (max-width: 40rem) {
   body {
-    padding: 3.5rem 0 3.5rem;
+    padding:
+      calc(3.5rem + env(safe-area-inset-top, 0px))
+      env(safe-area-inset-right, 0px)
+      calc(3.5rem + env(safe-area-inset-bottom, 0px))
+      env(safe-area-inset-left, 0px);
   }
 
   .site-shell {
