@@ -41,15 +41,17 @@ command -v npx >/dev/null 2>&1 || command -v python3 >/dev/null 2>&1 \
   || die "need npx or python3 to serve the preview"
 
 info "Preview ready"
-printf '    Portfolio  http://localhost:%s/\n' "$PORT"
-printf '    Writing    http://localhost:%s/writing\n' "$PORT"
+printf '    Home       http://localhost:%s/\n' "$PORT"
+if compgen -G "content/writing/*.md" >/dev/null; then
+  printf '    Writing    http://localhost:%s/writing\n' "$PORT"
+fi
 printf '\n    Ctrl+C to stop\n\n'
 
 serve_cmd() {
-  # Prefer `serve` (clean static hosting + SPA-friendly fallbacks).
-  # Fall back to Python's http.server when npx is unavailable.
+  # Prefer `serve` (clean static hosting). Unknown paths fall through to
+  # 404.html, matching the deployed site. Fall back to python3 when needed.
   if command -v npx >/dev/null 2>&1; then
-    npx --yes serve "$OUT_DIR" -l "$PORT" --no-port-switching -s
+    npx --yes serve "$OUT_DIR" -l "$PORT" --no-port-switching
   else
     info "npx not found; using python3 -m http.server"
     cd "$OUT_DIR"

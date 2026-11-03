@@ -45,3 +45,6 @@ next-env.d.ts
 
 # superpower
 /.superpowers
+
+# local git worktrees
+/design-practice

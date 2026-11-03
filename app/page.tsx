@@ -1,22 +1,21 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { getWritingPosts } from "../lib/writing";
+import { formatPostDate, getWritingPosts } from "../lib/writing";
 
-const updated = new Intl.DateTimeFormat("en-US", {
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-  timeZone: "Asia/Tokyo",
-}).format(new Date());
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default function Home() {
   const posts = getWritingPosts();
+  const latestPost = posts[0];
   const years = Map.groupBy(posts, (post) => post.date.slice(0, 4));
 
   return (
     <>
       <header className="home-header">
         <h1>Kenichiro Goto</h1>
-        <p>Updated {updated}</p>
+        {latestPost && <p>Updated {formatPostDate(latestPost.date)}</p>}
       </header>
 
       <section className="intro-section">
@@ -73,24 +72,26 @@ export default function Home() {
         </p>
       </section>
 
-      <section className="writing" id="writing">
-        <h2>Writing</h2>
-        {[...years].map(([year, items]) => (
-          <div className="writing-year" key={year}>
-            <span className="writing-year-label">{year}</span>
-            <ol>
-              {items.map((post) => (
-                <li key={post.slug}>
-                  <Link href={`/writing/${post.slug}`}>{post.title}</Link>
-                  <time dateTime={post.date}>
-                    {post.date.slice(8, 10)}/{post.date.slice(5, 7)}
-                  </time>
-                </li>
-              ))}
-            </ol>
-          </div>
-        ))}
-      </section>
+      {posts.length > 0 && (
+        <section className="writing" id="writing" aria-labelledby="writing-title">
+          <h2 id="writing-title">Writing</h2>
+          {[...years].map(([year, items]) => (
+            <div className="writing-year" key={year}>
+              <span className="writing-year-label">{year}</span>
+              <ol>
+                {items.map((post) => (
+                  <li key={post.slug}>
+                    <Link href={`/writing/${post.slug}`}>{post.title}</Link>
+                    <time dateTime={post.date}>
+                      {post.date.slice(8, 10)}/{post.date.slice(5, 7)}
+                    </time>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))}
+        </section>
+      )}
     </>
   );
 }

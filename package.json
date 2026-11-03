@@ -2,12 +2,15 @@
   "name": "portfolio",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "NODE_ENV=development next dev --webpack",
-    "build": "next build",
+    "build": "next build && node scripts/clean-empty-writing.mjs",
     "preview": "bash scripts/preview.sh",
     "preview:serve": "SKIP_BUILD=1 bash scripts/preview.sh",
-    "start": "next start",
+    "start": "SKIP_BUILD=1 WATCH=0 bash scripts/preview.sh",
     "lint": "eslint",
     "deploy": "wrangler pages deploy out",
     "postinstall": "node scripts/patch-bot-avatars.mjs"

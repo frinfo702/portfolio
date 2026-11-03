@@ -23,6 +23,8 @@ const eslintConfig = defineConfig([
     ".claude/**",
     ".cursor/**",
     ".superpowers/**",
+    // Local git worktrees live outside the app
+    "design-practice/**",
   ]),
 ]);
 

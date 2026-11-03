@@ -1,0 +1,7 @@
+/opengraph-image
+  Content-Type: image/png
+  Cache-Control: public, max-age=3600
+
+/writing/*/opengraph-image
+  Content-Type: image/png
+  Cache-Control: public, max-age=3600

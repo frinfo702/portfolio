@@ -1,16 +1,39 @@
 import type { Metadata, Viewport } from "next";
 import { GeistMono } from "geist/font/mono";
-import { Inter } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
 import "katex/dist/katex.min.css";
 import "./globals.css";
 import SiteFrame from "./components/SiteFrame";
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+import { siteDescription, siteName, siteUrl } from "../lib/site";
 
 export const metadata: Metadata = {
-  title: "Kenichiro Goto",
-  description:
-    "Kenichiro Goto.",
+  metadataBase: siteUrl,
+  title: {
+    default: siteName,
+    template: `%s | ${siteName}`,
+  },
+  description: siteDescription,
+  applicationName: siteName,
+  authors: [{ name: siteName, url: siteUrl.toString() }],
+  creator: siteName,
+  alternates: {
+    types: {
+      "application/rss+xml": "/feed.xml",
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "/",
+    siteName,
+    title: siteName,
+    description: siteDescription,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteName,
+    description: siteDescription,
+  },
   icons: {
     icon: "/icon.svg",
   },
@@ -28,7 +51,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${GeistMono.variable}`}>
+    <html
+      lang="en"
+      className={`${GeistSans.variable} ${GeistMono.variable}`}
+    >
       <body>
         <SiteFrame>{children}</SiteFrame>
       </body>

@@ -45,6 +45,12 @@
       "skillPath": "plugins/pstack/skills/arena/SKILL.md",
       "computedHash": "0f620c6ae02adfdc065bff42a9aebd16e7cc95420100e47141fbba4a0279cb98"
     },
+    "ask-sonner": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/ask-sonner/SKILL.md",
+      "computedHash": "8bd257b845985f4b35b603b510a126604176521094af79c4b7347ffeb8a8f7ab"
+    },
     "automate-me": {
       "source": "michael-denyer/pstack-claude",
       "ref": "main",
@@ -92,6 +98,12 @@
       "sourceType": "github",
       "skillPath": "plugins/pstack/skills/deslop/SKILL.md",
       "computedHash": "4fb68eed4f32450986fbeda9c3d3eb2b9e99f0a3818d37b7fe6d9cf532865189"
+    },
+    "emil-design-eng": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/emil-design-eng/SKILL.md",
+      "computedHash": "51f2537e04d15911b41d78e2de24c36a0e26d41beae15e82a954fe5496a5eda9"
     },
     "figure-it-out": {
       "source": "michael-denyer/pstack-claude",
@@ -167,6 +179,12 @@
       "sourceType": "github",
       "skillPath": "plugins/pstack/skills/make-pr-easy-to-review/SKILL.md",
       "computedHash": "99742f3086552163c6aa1f2f15bc097f9d08abfb52c4bbd98ae6b8143b31406f"
+    },
+    "mobile-native": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/mobile-native/SKILL.md",
+      "computedHash": "f221cea36642168df6d3d6d7f236237cbf1ae669138ff7df07775674223d49ad"
     },
     "no-comments": {
       "source": "michael-denyer/pstack-claude",
@@ -335,6 +353,12 @@
       "skillPath": "plugins/pstack/skills/principle-type-system-discipline/SKILL.md",
       "computedHash": "833f52938cd28153dc4e50eb3898f87962929a064b010e0e706daa7683fdb8cf"
     },
+    "prototype": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/prototype/SKILL.md",
+      "computedHash": "77be567d8c946608fdd15e61b62ab383cdf289a194dce2479828b7eda860d3ba"
+    },
     "recall": {
       "source": "michael-denyer/pstack-claude",
       "ref": "main",
@@ -348,6 +372,12 @@
       "sourceType": "github",
       "skillPath": "plugins/pstack/skills/reflect/SKILL.md",
       "computedHash": "a48d03bf95b2e2e3e090537cb9c8d95defe893cb0fec8a4dbe4527f714536266"
+    },
+    "remove-animations": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remove-animations/SKILL.md",
+      "computedHash": "5d738305c722c25e054a9e3b67e68d4429617d9fbae4bc8861b73cc25c8ba84c"
     },
     "review-animations": {
       "source": "emilkowalski/skills",
@@ -431,6 +461,12 @@
       "sourceType": "github",
       "skillPath": "plugins/pstack/skills/why/SKILL.md",
       "computedHash": "aa36719b9f0ee824d6bbd859bf3f9124b7691558bc7c104a37918fe032cbc4d7"
+    },
+    "write-swift": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/write-swift/SKILL.md",
+      "computedHash": "f20bb9cf51dbee1900b264820a12f1d3d378dc4d23ac758e7ba9e644c49a2459"
     }
   }
 }

@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# kenichirog.com
 
-## Getting Started
+Personal site for Kenichiro Goto, built with Next.js 16 and deployed as a static export to Cloudflare Pages.
 
-First, run the development server:
+## Development
+
+Requires Node.js 22 or newer.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
+npm run lint
+npm run build      # writes the static site to out/
+npm run preview    # build, watch, and serve out/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Writing
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Posts live in `content/writing/<slug>.md`. The filename becomes the URL slug and must contain only lowercase letters, numbers, and hyphens.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```md
+---
+title: "VLM notes 1: from pixels to tokens"
+description: "How a vision-language model turns an image into tokens."
+date: "2026-10-02"
+tags: ["vision", "language models"]
+---
 
-## Learn More
+Markdown starts here.
+```
 
-To learn more about Next.js, take a look at the following resources:
+The landing page hides the Writing section when there are no posts. With at least one post, the home page, sitemap, RSS feed, and per-post OG image are generated at build time.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Site metadata
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+`NEXT_PUBLIC_SITE_URL` overrides the production origin (default: `https://kenichirog.com`). It is used for canonical URLs, Open Graph metadata, `sitemap.xml`, `robots.txt`, and `feed.xml`.
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Pushing to `main` runs `.github/workflows/deploy-cloudflare.yml`: install, lint, build, then deploy `out/` to the `portfolio` Cloudflare Pages project. Pull requests build and lint without deploying.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project layout
+
+- `app/page.tsx`: landing page and writing index
+- `app/writing/[slug]/page.tsx`: Markdown article rendering
+- `app/opengraph-image.tsx`, `app/writing/[slug]/opengraph-image.tsx`: generated social cards
+- `app/feed.xml/route.ts`: RSS feed
+- `app/sitemap.ts`, `app/robots.ts`: crawler metadata
+- `lib/writing.ts`: Markdown loading and front matter validation
+- `lib/site.ts`: site name, description, and origin
+- `lib/og.tsx`: shared Open Graph image renderer
+- `content/writing/`: posts
+- `public/`: static assets and resume

@@ -18,9 +18,10 @@ import CodeBlock from "../../components/CodeBlock";
 import Note from "../../components/Note";
 import {
   formatPostDate,
+  getWritingParams,
   getWritingPost,
-  getWritingPosts,
 } from "../../../lib/writing";
+import { siteName } from "../../../lib/site";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -29,20 +30,40 @@ type Props = {
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  const posts = getWritingPosts().map((post) => ({ slug: post.slug }));
-  // output: "export" rejects an empty list; the placeholder renders notFound().
-  return posts.length > 0 ? posts : [{ slug: "_" }];
+  return getWritingParams();
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = getWritingPost(slug);
 
-  if (!post) return {};
+  if (!post) {
+    return {
+      title: "Not found",
+      robots: { index: false, follow: false },
+    };
+  }
 
   return {
-    title: `${post.title} | Kenichiro Goto`,
+    title: post.title,
     description: post.description,
+    alternates: {
+      canonical: `/writing/${slug}`,
+    },
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description: post.description,
+      url: `/writing/${slug}`,
+      publishedTime: `${post.date}T00:00:00.000Z`,
+      authors: [siteName],
+      tags: post.tags,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.description,
+    },
   };
 }
 
@@ -60,7 +81,7 @@ export default async function WritingPostPage({ params }: Props) {
         Back to writing
       </Link>
       <header className="article-header">
-        <h2>{post.title}</h2>
+        <h1>{post.title}</h1>
         <p>{post.description}</p>
         <div className="article-meta">
           <time dateTime={post.date}>{formatPostDate(post.date)}</time>

@@ -30,6 +30,17 @@ export function getWritingPosts(): WritingPostSummary[] {
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
+// output: "export" rejects an empty list, so an unlinked placeholder is
+// generated in an empty content directory and removed after the build.
+export const EMPTY_WRITING_SLUG = "_";
+
+export function getWritingParams(): { slug: string }[] {
+  const posts = getWritingPosts();
+  return posts.length > 0
+    ? posts.map((post) => ({ slug: post.slug }))
+    : [{ slug: EMPTY_WRITING_SLUG }];
+}
+
 export function getWritingPost(slug: string): WritingPost | null {
   if (!/^[a-z0-9-]+$/.test(slug)) return null;
 

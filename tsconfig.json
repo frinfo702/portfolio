@@ -19,7 +19,7 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./*"]
     }
   },
   "include": [
@@ -36,6 +36,7 @@
     ".agents",
     ".claude",
     ".cursor",
-    ".superpowers"
+    ".superpowers",
+    "design-practice"
   ]
 }
