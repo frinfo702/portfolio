@@ -1,10 +1,12 @@
 @import "tailwindcss";
 
 /*
- * Paper: a white page, black text, grey for everything secondary.
+ * Follows the system theme. Paper: a white page, black text. Night: a
+ * blue-black page, ivory text. Grey for everything secondary in both.
  * No accent color; hierarchy comes from tone, size and hairlines.
  */
 :root {
+  color-scheme: light;
   --background: #ffffff;
   --surface: #f4f5f6;
   --surface-raised: #eceef0;
@@ -17,10 +19,60 @@
   --rule: #e6e8eb;
   --edge: #e3e6e9;
   --underline: #c2c7cc;
+  --selection: rgb(0 0 0 / 0.1);
+  --scrim: rgb(255 255 255 / 0.28);
+  --scroll-shadow: rgb(0 0 0 / 0.16);
+  --preview-wash: rgb(255 255 255 / 0.25);
+  --preview-mark: #ffffff, #eef0f2 55%, #dfe2e6 92%;
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono",
     Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --background: #0c0e10;
+    --surface: #131619;
+    --surface-raised: #1a1e22;
+    --text: #ece8df;
+    --body: #c9c6bf;
+    --muted: #7d8287;
+    --dim: #565c62;
+    --accent: #cfd7de;
+    --accent-strong: #f4f6f8;
+    --rule: #1d2125;
+    --edge: #1b1f23;
+    --underline: #3a4046;
+    --selection: rgb(207 215 222 / 0.22);
+    --scrim: rgb(12 14 16 / 0.35);
+    --scroll-shadow: rgb(255 255 255 / 0.14);
+    --preview-wash: rgb(0 0 0 / 0.25);
+    --preview-mark: #3d4247, #1c1f21 55%, #0e1011 92%;
+  }
+}
+
+/* An explicit choice from the theme toggle (app/components/ThemeToggle.tsx). */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #0c0e10;
+  --surface: #131619;
+  --surface-raised: #1a1e22;
+  --text: #ece8df;
+  --body: #c9c6bf;
+  --muted: #7d8287;
+  --dim: #565c62;
+  --accent: #cfd7de;
+  --accent-strong: #f4f6f8;
+  --rule: #1d2125;
+  --edge: #1b1f23;
+  --underline: #3a4046;
+  --selection: rgb(207 215 222 / 0.22);
+  --scrim: rgb(12 14 16 / 0.35);
+  --scroll-shadow: rgb(255 255 255 / 0.14);
+  --preview-wash: rgb(0 0 0 / 0.25);
+  --preview-mark: #3d4247, #1c1f21 55%, #0e1011 92%;
 }
 
 * {
@@ -55,7 +107,7 @@ body {
 }
 
 ::selection {
-  background: rgb(0 0 0 / 0.1);
+  background: var(--selection);
 }
 
 a {
@@ -118,7 +170,36 @@ select {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgb(255 255 255 / 0.28);
+  background: var(--scrim);
+}
+
+.theme-toggle {
+  position: fixed;
+  top: calc(1.1rem + env(safe-area-inset-top, 0px));
+  right: calc(1.1rem + env(safe-area-inset-right, 0px));
+  z-index: 10;
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--background) 70%, transparent);
+  color: var(--muted);
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.theme-toggle:hover {
+  border-color: var(--underline);
+  color: var(--text);
+}
+
+.theme-toggle[hidden] {
+  display: none;
 }
 
 .site-shell {
@@ -213,6 +294,7 @@ select {
 
 .writing-year a {
   min-width: 0;
+  overflow-wrap: anywhere; /* identifiers in titles have no break points */
   color: var(--text);
   text-decoration: none;
 }
@@ -249,6 +331,7 @@ select {
 
 .article-header h1 {
   margin: 0;
+  overflow-wrap: anywhere;
   color: var(--text);
   font-size: clamp(1.5rem, 4vw, 1.9rem);
   letter-spacing: -0.02em;
@@ -516,6 +599,17 @@ select {
   overflow-y: hidden;
 }
 
+/* Scroll hint: a soft shadow at each edge that still has content past it. The page-coloured
+   covers scroll with the content (local) and hide the shadow once that edge is reached. */
+.markdown-body table,
+.markdown-body .katex-display {
+  background:
+    linear-gradient(to right, var(--background) 40%, transparent) left / 2rem 100% no-repeat local,
+    linear-gradient(to left, var(--background) 40%, transparent) right / 2rem 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, var(--scroll-shadow), transparent) left / 0.75rem 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, var(--scroll-shadow), transparent) right / 0.75rem 100% no-repeat scroll;
+}
+
 /* Horizontal scrollers stop at their edge instead of triggering the back gesture. */
 [data-slot="code-block-viewport"],
 .markdown-body table,
@@ -577,7 +671,7 @@ select {
 .link-preview-media::after {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.25));
+  background: linear-gradient(90deg, transparent, var(--preview-wash));
   content: "";
 }
 
@@ -590,12 +684,7 @@ select {
 }
 
 .link-preview-mark {
-  background: radial-gradient(
-    circle at 70% 22%,
-    #ffffff,
-    #eef0f2 55%,
-    #dfe2e6 92%
-  );
+  background: radial-gradient(circle at 70% 22%, var(--preview-mark));
   color: var(--accent);
   font-size: 2.2rem;
 }
