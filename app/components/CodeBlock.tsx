@@ -66,7 +66,7 @@ function subscribeToPageMode(onChange: () => void) {
   };
 }
 
-const serverMode = () => "dark" as const;
+const serverMode = () => "light" as const;
 
 const FALLBACK_HSL: [number, number, number] = [211, 100, 52];
 

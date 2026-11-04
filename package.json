@@ -12,6 +12,7 @@
     "preview:serve": "SKIP_BUILD=1 bash scripts/preview.sh",
     "start": "SKIP_BUILD=1 WATCH=0 bash scripts/preview.sh",
     "lint": "eslint",
+    "katana": "bash scripts/blender/build-katana.sh",
     "deploy": "wrangler pages deploy out",
     "postinstall": "node scripts/patch-bot-avatars.mjs"
   },

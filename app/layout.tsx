@@ -3,6 +3,7 @@ import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import "katex/dist/katex.min.css";
 import "./globals.css";
+import KatanaBackdrop from "./components/KatanaBackdrop";
 import SiteFrame from "./components/SiteFrame";
 import { siteDescription, siteName, siteUrl } from "../lib/site";
 
@@ -40,8 +41,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0c0e10",
-  colorScheme: "dark",
+  themeColor: "#ffffff",
+  colorScheme: "light",
   viewportFit: "cover",
 };
 
@@ -56,6 +57,7 @@ export default function RootLayout({
       className={`${GeistSans.variable} ${GeistMono.variable}`}
     >
       <body>
+        <KatanaBackdrop />
         <SiteFrame>{children}</SiteFrame>
       </body>
     </html>

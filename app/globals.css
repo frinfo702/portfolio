@@ -1,22 +1,22 @@
 @import "tailwindcss";
 
 /*
- * Night: a blue-black page, ivory text, grey for everything secondary.
+ * Paper: a white page, black text, grey for everything secondary.
  * No accent color; hierarchy comes from tone, size and hairlines.
  */
 :root {
-  --background: #0c0e10;
-  --surface: #131619;
-  --surface-raised: #1a1e22;
-  --text: #ece8df;
-  --body: #c9c6bf;
-  --muted: #7d8287;
-  --dim: #565c62;
-  --accent: #cfd7de;
-  --accent-strong: #f4f6f8;
-  --rule: #1d2125;
-  --edge: #1b1f23;
-  --underline: #3a4046;
+  --background: #ffffff;
+  --surface: #f4f5f6;
+  --surface-raised: #eceef0;
+  --text: #0a0a0a;
+  --body: #1c1d1f;
+  --muted: #6b7075;
+  --dim: #9a9fa5;
+  --accent: #2a2e33;
+  --accent-strong: #000000;
+  --rule: #e6e8eb;
+  --edge: #e3e6e9;
+  --underline: #c2c7cc;
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono",
@@ -46,7 +46,7 @@ body {
     env(safe-area-inset-right, 0px)
     calc(5rem + env(safe-area-inset-bottom, 0px))
     env(safe-area-inset-left, 0px);
-  background: var(--background);
+  background: transparent;
   color: var(--body);
   font-family: var(--font-sans);
   font-size: 1rem;
@@ -55,7 +55,7 @@ body {
 }
 
 ::selection {
-  background: rgb(207 215 222 / 0.22);
+  background: rgb(0 0 0 / 0.1);
 }
 
 a {
@@ -90,6 +90,35 @@ select {
   border-radius: 2px;
   outline: 1px solid var(--text);
   outline-offset: 3px;
+}
+
+/* Fixed ice-katana backdrop (app/components/KatanaBackdrop.tsx). The canvas
+   fades in once it has drawn; the light scrim keeps body text crisp over the blade. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--background);
+  pointer-events: none;
+}
+
+.backdrop canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 700ms ease-out;
+}
+
+.backdrop canvas[data-ready] {
+  opacity: 1;
+}
+
+.backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgb(255 255 255 / 0.28);
 }
 
 .site-shell {
@@ -548,7 +577,7 @@ select {
 .link-preview-media::after {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgb(0 0 0 / 0.25));
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.25));
   content: "";
 }
 
@@ -563,9 +592,9 @@ select {
 .link-preview-mark {
   background: radial-gradient(
     circle at 70% 22%,
-    #3d4247,
-    #1c1f21 55%,
-    #0e1011 92%
+    #ffffff,
+    #eef0f2 55%,
+    #dfe2e6 92%
   );
   color: var(--accent);
   font-size: 2.2rem;
