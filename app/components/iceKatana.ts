@@ -1,68 +1,29 @@
 import type * as Three from "three";
+import { mirrorOf, studioEnv, type BackdropScene, type Loader, type Strip, type THREE } from "./studio";
 
 // The ice katana: geometry and baked ice textures from scripts/blender/katana.py
-// (rebuild with scripts/blender/build-katana.sh). Transmission, clearcoat and reflections
+// (rebuild with npm run katana). Transmission, clearcoat and reflections
 // are what make it read as ice; on the white page it refracts the white behind it.
 //
 // Model space (metres, as in katana.py): blade along +x from the habaki (x=0) to the tip,
 // spine toward +y, flats facing +-z, hilt along -x to the kashira.
 
-type THREE = typeof Three;
-type Loader = { loadAsync(url: string): Promise<{ scene: Three.Group }> };
-
 const DIR = "/scene/katana/";
 const TIP = 0.76;
-const KASHIRA = -0.345;
-export const SWORD_LENGTH = TIP - KASHIRA;
+const KASHIRA = -0.4085; // far end of the knob (X_KASHIRA in katana.py)
+const SWORD_LENGTH = TIP - KASHIRA;
 const deg = Math.PI / 180;
 
-// White studio for reflections: bright overhead, grey floor, and long strips parallel to the
-// blade placed where its convex hira mirrors them. The dark ones draw the crisp edge lines
+// White studio: bright overhead, grey floor. The dark strips draw the crisp edge lines
 // that make clear ice visible against a white page.
-function environment(T: THREE, renderer: Three.WebGLRenderer, mirror: Three.Vector3, axis: Three.Vector3) {
-  const env = new T.Scene();
-  env.add(
-    new T.Mesh(
-      new T.SphereGeometry(50, 64, 32),
-      new T.ShaderMaterial({
-        side: T.BackSide,
-        vertexShader:
-          "varying vec3 vP; void main() { vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
-        fragmentShader: `varying vec3 vP; void main() {
-          float h = vP.y;
-          vec3 top = vec3(0.95), hor = vec3(0.6, 0.65, 0.74), gnd = vec3(0.22, 0.25, 0.32);
-          vec3 c = h > 0.0 ? mix(hor, top, pow(h, 0.6)) : mix(hor, gnd, pow(-h, 0.5));
-          gl_FragColor = vec4(c, 1.0); }`,
-      }),
-    ),
-  );
-  const strip = (a: number, w: number, color: number, k: number) => {
-    const dir = mirror.clone().applyAxisAngle(axis, a);
-    const m = new T.Mesh(
-      new T.PlaneGeometry(w, 80),
-      new T.MeshBasicMaterial({ color: new T.Color(color).multiplyScalar(k), side: T.DoubleSide }),
-    );
-    const z = dir.clone().negate();
-    const y = axis.clone().addScaledVector(z, -axis.dot(z)).normalize();
-    m.quaternion.setFromRotationMatrix(new T.Matrix4().makeBasis(y.clone().cross(z), y, z));
-    m.position.copy(dir).multiplyScalar(30);
-    env.add(m);
-  };
-  strip(0, 7, 0x6c7a90, 1); // grey card where the flats mirror the camera: the ice shows, not a white sheet
-  strip(0.3, 1.4, 0xffffff, 3); // bright key line on the hira
-  strip(-0.42, 1.6, 0x1a2230, 1); // dark line on the other slope
-  strip(1.35, 2.2, 0x0c1018, 1); // dark grazing flags: the edge and the mune read as lines
-  strip(-1.4, 2.2, 0x0c1018, 1);
-  const pm = new T.PMREMGenerator(renderer);
-  const tex = pm.fromScene(env, 0, 0.1, 100).texture;
-  pm.dispose();
-  env.traverse((o) => {
-    const mesh = o as Three.Mesh;
-    mesh.geometry?.dispose();
-    (mesh.material as Three.Material | undefined)?.dispose();
-  });
-  return tex;
-}
+const SKY = { top: [0.95, 0.95, 0.95], horizon: [0.6, 0.65, 0.74], ground: [0.22, 0.25, 0.32] };
+const STRIPS: Strip[] = [
+  [0, 7, 0x6c7a90, 1], // grey card where the flats mirror the camera: the ice shows, not a white sheet
+  [0.3, 1.4, 0xffffff, 3], // bright key line on the hira
+  [-0.42, 1.6, 0x1a2230, 1], // dark line on the other slope
+  [1.35, 2.2, 0x0c1018, 1], // dark grazing flags: the edge and the mune read as lines
+  [-1.4, 2.2, 0x0c1018, 1],
+];
 
 // Frost glows faintly (emissive masked by the frost channel of the _mat map) and the silhouette
 // picks up a cold fresnel rim, the way light pipes through ice and leaks out at its edges.
@@ -108,7 +69,7 @@ const glintFragment = /* glsl */ `
   }
 `;
 
-export async function createKatana(T: THREE, loader: Loader, renderer: Three.WebGLRenderer) {
+export async function createKatana(T: THREE, loader: Loader, renderer: Three.WebGLRenderer): Promise<BackdropScene> {
   const gltf = await loader.loadAsync(DIR + "katana.glb");
 
   const tl = new T.TextureLoader();
@@ -141,9 +102,10 @@ export async function createKatana(T: THREE, loader: Loader, renderer: Three.Web
     );
   };
   const coreTex = tex("core_col", true);
+  // the cord: flat ribbons of ice, like the ones streaming from the kashira in the reference
   const cordMat = new T.MeshPhysicalMaterial({
-    color: 0xdfe6f0, roughness: 0.7, sheen: 1, sheenRoughness: 0.4, sheenColor: new T.Color(0.8, 0.9, 1),
-    side: T.DoubleSide,
+    color: 0xcfe2fb, roughness: 0.22, transmission: 0.55, thickness: 0.002, ior: 1.31,
+    clearcoat: 1, clearcoatRoughness: 0.05, sheen: 0.6, sheenColor: new T.Color(0.85, 0.93, 1), side: T.DoubleSide,
   });
   const materials: Record<string, Three.MeshPhysicalMaterial | Three.MeshBasicMaterial> = {
     blade: ice("blade", [0.12, 0.16, 0.24], [0.1, 0.2, 0.4], {
@@ -214,84 +176,143 @@ export async function createKatana(T: THREE, loader: Loader, renderer: Three.Web
   fill.position.set(3, -1, 2);
   root.add(new T.AmbientLight(0xdfe6f2, 0.45), key, fill);
 
-  // sageo: wound 1.5 turns down the tsuka, then hanging free from the tsuba and swaying
-  const HANG = 0.24;
-  const WRAP_R = 0.018;
-  const A = new T.Vector3(), B = new T.Vector3(), grip = new T.Vector3(), side = new T.Vector3(), front = new T.Vector3();
-  let gripLen = 0;
+  // Cord tied at the kashira's eyelet: two long, soft ribbons that simply hang. Each is a chain
+  // of points (Verlet integration with length constraints, pinned at the eyelet) under gravity
+  // and a faint breeze, stepped in world space, so they drape, lag behind the sword's drift and
+  // settle; nothing is scripted to swing. The flat strip is laid along the chain, facing the camera.
+  const NODES = 90;
+  const GRAVITY = 2.4; // m/s², low: light silk in still air, not a rope
+  const DAMP = 0.965;
+  const eye = new T.Vector3(), out = new T.Vector3();
   const cords = [0, 1].map((i) => {
-    const seg = 160;
-    const geo = new T.PlaneGeometry(1, 1, seg, 1);
-    root.add(new T.Mesh(geo, cordMat));
-    return { geo, seg, hang: HANG - i * 0.04, phase: i * Math.PI };
+    const geo = new T.PlaneGeometry(1, 1, NODES - 1, 1);
+    const mesh = new T.Mesh(geo, cordMat);
+    mesh.frustumCulled = false; // vertices move every frame
+    root.add(mesh);
+    const len = 1.25 - i * 0.3;
+    return {
+      geo,
+      seg: len / (NODES - 1),
+      phase: i * 2.1,
+      lean: i ? 0.1 : -0.07, // the two settle a little apart instead of one on top of the other
+      pos: Array.from({ length: NODES }, () => new T.Vector3()),
+      prev: Array.from({ length: NODES }, () => new T.Vector3()),
+      ready: false,
+    };
   });
-  const p = new T.Vector3(), w = new T.Vector3();
-  const cordPoint = (c: (typeof cords)[number], d: number, t: number) => {
-    const along = Math.min(d, gripLen);
-    const th = (2 * Math.PI * 1.5 * along) / gripLen + c.phase;
-    p.copy(A).addScaledVector(grip, along).addScaledVector(side, Math.cos(th) * WRAP_R).addScaledVector(front, Math.sin(th) * WRAP_R);
-    if (d <= gripLen) {
-      w.copy(grip);
-      return;
+  const toLocal = new T.Matrix4();
+  const anchor = new T.Vector3(), v = new T.Vector3(), tan = new T.Vector3(), w = new T.Vector3(), q = new T.Vector3();
+  const VIEW = new T.Vector3(0, 0, 1);
+  let lastT = -1;
+
+  const simulate = (t: number) => {
+    const dt = lastT < 0 ? 1 / 30 : Math.min(Math.max(t - lastT, 0), 1 / 20);
+    lastT = t;
+    root.updateMatrixWorld(true);
+    anchor.copy(eye).applyMatrix4(root.matrixWorld);
+    for (const c of cords) {
+      if (!c.ready) {
+        // start hanging straight down, a little out from the knob
+        for (let k = 0; k < NODES; k++) {
+          c.pos[k].copy(anchor).addScaledVector(out, Math.min(k, 2) * c.seg).y -= Math.max(0, k - 2) * c.seg;
+          c.prev[k].copy(c.pos[k]);
+        }
+        c.ready = true;
+      }
+      const sub = 2, h = dt / sub;
+      for (let s2 = 0; s2 < sub; s2++) {
+        for (let k = 1; k < NODES; k++) {
+          const p = c.pos[k], o = c.prev[k];
+          v.subVectors(p, o).multiplyScalar(DAMP);
+          o.copy(p);
+          // faint breeze: slow, varying along the length (so the ribbon bends softly instead of
+          // hanging dead straight), stronger toward the free end
+          const f = k / NODES;
+          // a faint draught, not a wind: a few percent of gravity
+          const bx = (c.lean + Math.sin(t * 0.22 + c.phase + f * 4.2) * 0.16) * f;
+          const bz = Math.cos(t * 0.18 + c.phase * 1.7 + f * 3.4) * 0.09 * f;
+          p.add(v);
+          p.x += bx * h * h;
+          p.z += bz * h * h;
+          p.y -= GRAVITY * h * h;
+        }
+        c.pos[0].copy(anchor);
+        for (let it = 0; it < 14; it++) {
+          for (let k = 0; k < NODES - 1; k++) {
+            const a = c.pos[k], b = c.pos[k + 1];
+            v.subVectors(b, a);
+            const d = v.length() || 1e-6;
+            const corr = (d - c.seg) / d;
+            if (k === 0) b.addScaledVector(v, -corr);
+            else {
+              a.addScaledVector(v, corr * 0.5);
+              b.addScaledVector(v, -corr * 0.5);
+            }
+          }
+        }
+      }
+      // lay the strip along the chain, in root-local coordinates
+      toLocal.copy(root.matrixWorld).invert();
+      const attr = c.geo.attributes.position;
+      for (let k = 0; k < NODES; k++) {
+        tan.subVectors(c.pos[Math.min(k + 1, NODES - 1)], c.pos[Math.max(k - 1, 0)]).normalize();
+        w.crossVectors(tan, VIEW).normalize();
+        // Slow twists along the length that drift with time: where the silk turns edge-on it
+        // narrows, then opens again, which is what makes it read as soft rather than a flat card.
+        w.applyAxisAngle(tan, Math.sin(k * 0.07 + c.phase + t * 0.05) * 1.1 + Math.sin(k * 0.17 + c.phase * 2) * 0.4);
+        const half = 0.0011 + 0.0105 * Math.min(1, k / 6);   // thin where it is tied, then the ribbon
+        for (const side of [-1, 1]) {
+          q.copy(c.pos[k]).addScaledVector(w, side * half).applyMatrix4(toLocal);
+          attr.setXYZ(side < 0 ? k : k + NODES, q.x, q.y, q.z);
+        }
+      }
+      attr.needsUpdate = true;
+      c.geo.computeVertexNormals();
     }
-    const h = d - gripLen, sway = Math.min(h, 0.25) / 0.25;
-    p.x += ((c.phase ? 0.02 : -0.012) + Math.sin(t * 0.9 + h * 6 + c.phase) * 0.014) * sway;
-    p.z += (0.016 + Math.cos(t * 0.7 + h * 5 + c.phase) * 0.012) * sway;
-    p.y -= h;
-    const tw = Math.sin(h * 12 - t * 1.6 + c.phase) * 0.6;
-    w.set(Math.cos(tw), 0, Math.sin(tw));
   };
 
   let envMap: Three.Texture | null = null;
 
+  // Lay the sword across the view: tip toward the lower left at `angle` (degrees above the
+  // horizontal), spine up, rolled about its own axis so the shinogi catches the light.
+  // Centred on the origin; the camera looks down -z from +z.
+  const place = (angle: number) => {
+    const a = angle * deg;
+    const x = new T.Vector3(-Math.cos(a), -Math.sin(a), 0);
+    const y = new T.Vector3(-Math.sin(a), Math.cos(a), 0);
+    const r = new T.Matrix4().makeBasis(x, y, x.clone().cross(y));
+    r.premultiply(new T.Matrix4().makeRotationAxis(x, 24 * deg));
+    r.premultiply(new T.Matrix4().makeRotationAxis(y, -8 * deg));
+    const centre = new T.Vector3((TIP + KASHIRA) / 2, 0.016, 0).applyMatrix4(r);
+    sword.matrix.copy(r).setPosition(centre.negate());
+    sword.matrixWorldNeedsUpdate = true;
+
+    eye.set(KASHIRA, 0.016, 0).applyMatrix4(sword.matrix);
+    out.set(-1, 0, 0).transformDirection(sword.matrix);
+    for (const c of cords) c.ready = false; // re-hang from the new pose
+
+    const axis = new T.Vector3(1, 0, 0).transformDirection(sword.matrix);
+    const flat = new T.Vector3(0, 0, 1).transformDirection(sword.matrix);
+    envMap?.dispose();
+    envMap = studioEnv(T, renderer, mirrorOf(T, flat), axis, SKY, STRIPS);
+    for (const m of [...Object.values(materials), cordMat]) {
+      if (m instanceof T.MeshPhysicalMaterial) m.envMap = envMap;
+    }
+  };
+
+  let angle = 0;
   return {
     root,
-    // Lay the sword across the view: tip toward the lower left at `angle` (degrees above the
-    // horizontal), spine up, rolled about its own axis so the shinogi catches the light.
-    // Centred on the origin; the camera looks down -z from +z.
-    place(angle: number) {
+    // Landscape: a shallow diagonal fitted to the width. Portrait: steeper, so it is not tiny.
+    frame(aspect: number) {
+      const want = aspect < 1 ? 58 : 28;
+      if (want !== angle) place((angle = want));
       const a = angle * deg;
-      const x = new T.Vector3(-Math.cos(a), -Math.sin(a), 0);
-      const y = new T.Vector3(-Math.sin(a), Math.cos(a), 0);
-      const r = new T.Matrix4().makeBasis(x, y, x.clone().cross(y));
-      r.premultiply(new T.Matrix4().makeRotationAxis(x, 24 * deg));
-      r.premultiply(new T.Matrix4().makeRotationAxis(y, -8 * deg));
-      const centre = new T.Vector3((TIP + KASHIRA) / 2, 0.016, 0).applyMatrix4(r);
-      sword.matrix.copy(r).setPosition(centre.negate());
-      sword.matrixWorldNeedsUpdate = true;
-
-      A.set(-0.336, 0.016, 0).applyMatrix4(sword.matrix);
-      B.set(-0.03, 0.016, 0).applyMatrix4(sword.matrix);
-      grip.subVectors(B, A);
-      gripLen = grip.length();
-      grip.normalize();
-      side.set(0, 0, 1).cross(grip).normalize();
-      front.copy(grip).cross(side).normalize();
-
-      // where the flat of the blade mirrors the camera
-      const axis = new T.Vector3(1, 0, 0).transformDirection(sword.matrix);
-      const flat = new T.Vector3(0, 0, 1).transformDirection(sword.matrix);
-      const view = new T.Vector3(0, 0, -1);
-      if (flat.dot(view) > 0) flat.negate();
-      envMap?.dispose();
-      envMap = environment(T, renderer, view.reflect(flat), axis);
-      for (const m of [...Object.values(materials), cordMat]) {
-        if (m instanceof T.MeshPhysicalMaterial) m.envMap = envMap;
-      }
+      return { w: SWORD_LENGTH * Math.cos(a), h: SWORD_LENGTH * Math.sin(a) };
     },
     update(t: number) {
       time.value = t;
-      for (const c of cords) {
-        const pos = c.geo.attributes.position;
-        const len = gripLen + c.hang;
-        for (let k = 0; k < pos.count; k++) {
-          cordPoint(c, ((k % (c.seg + 1)) / c.seg) * len, t);
-          p.addScaledVector(w, (k <= c.seg ? -1 : 1) * 0.003);
-          pos.setXYZ(k, p.x, p.y, p.z);
-        }
-        pos.needsUpdate = true;
-        c.geo.computeVertexNormals();
-      }
+      simulate(t);
     },
     dispose() {
       envMap?.dispose();

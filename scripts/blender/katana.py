@@ -37,10 +37,13 @@ A_S, A_M = 0.72, 0.93         # shinogi and mune shoulder, fraction of width fro
 NIKU = 0.32                   # convexity of the hira
 EDGE_T = 0.00018              # half-thickness just behind the edge: keeps a hairline highlight
 RF = (K * K + W1 * W1) / (2 * W1)   # fukura: arc tangent to the edge, meeting the mune at the tip
-TL = 0.31
 CY = W0 * 0.5                 # hilt centreline
-X_T0 = -0.019
-X_T1 = X_T0 - TL
+# Hilt, from the tsuba back (x < 0): stepped fuchi, a short wrapped grip, a ring, then a long
+# bare faceted bar that tapers to a pointed kashira with a knob the cord is tied to.
+X_FUCHI = -0.0089
+X_WRAP0, X_WRAP1 = -0.0225, -0.155
+X_BAR0, X_BAR1 = -0.163, -0.375
+X_KASHIRA = -0.4085           # far end of the knob
 
 
 def link(ob):
@@ -214,18 +217,18 @@ def lathe(name, xs, rs, zr=0.78, seg=64, cy=CY, smooth=40):
 
 
 def tsuka_r(x):
-    t = (X_T0 - x) / TL                 # 0 at the fuchi, 1 at the kashira
-    return 0.0150 * (1 - 0.06 * sin(pi * t)) + 0.0006 * t   # slight waist
+    t = (X_WRAP0 - x) / (X_WRAP0 - X_WRAP1)    # 0 at the fuchi, 1 at the ring
+    return 0.0142 - 0.0004 * t
 
 
 def make_same():
-    xs = [X_T0 - TL * i / 120 for i in range(121)]
+    xs = [X_WRAP0 + (X_WRAP1 - X_WRAP0) * i / 60 for i in range(61)]
     return lathe('same', xs, [tsuka_r(x) for x in xs], seg=96, smooth=60)
 
 
 # ---------------------------------------------------------------- tsuka-ito
-N_CROSS = 16                  # crossings, alternating omote / ura
-ITO_X0, ITO_X1 = X_T0 - 0.003, X_T1 + 0.005
+N_CROSS = 8                   # crossings, alternating omote / ura
+ITO_X0, ITO_X1 = X_WRAP0 - 0.0008, X_WRAP1 + 0.0008
 ITO_LEN = []
 
 
@@ -233,7 +236,7 @@ def make_ito():
     """Two counter-wound flat silk ribbons. Each crossing rises over a folded-paper
     hishigami and the ribbon on top alternates, so the diamonds read as woven."""
     span = ITO_X0 - ITO_X1
-    hw = 0.31 * span / N_CROSS
+    hw = 0.36 * span / N_CROSS
     S = 1400
     prof = [(-1.0, 0.00030), (-0.85, 0.00075), (-0.5, 0.00105), (0.0, 0.00115), (0.5, 0.00105), (0.85, 0.00075), (1.0, 0.00030)]
     obs = []
@@ -267,13 +270,13 @@ def make_ito():
 
 
 # ---------------------------------------------------------------- fittings
-XT = -0.0036                  # tsuba centre plane
+XT = -0.0045                  # tsuba centre plane
 
 
 def make_tsuba():
-    """Round sukashi tsuba: raised mimi rim, recessed plate, eight pierced windows."""
+    """Thick round sukashi tsuba: wide raised rim, a hub ring, eight pierced windows."""
     R, zr = 0.0395, 0.965
-    hp, hr, hs = 0.00140, 0.00215, 0.00195     # half-thickness of plate, rim, seppa-dai
+    hp, hr, hs = 0.00200, 0.00280, 0.00250     # half-thickness of plate, rim, seppa-dai
     path = [(hs, 0.0), (hs, 0.0166), (hp, 0.0181), (hp, R - 0.0036)]
     for i in range(15):
         ph = pi / 2 - pi * i / 14
@@ -283,7 +286,7 @@ def make_tsuba():
 
     # window cutters: rounded trapezoids between straight spokes
     bm = bmesh.new()
-    r_in, r_out, spoke = 0.0207, 0.0337, 0.0046
+    r_in, r_out, spoke = 0.0212, 0.0318, 0.0060
     for k in range(8):
         tc = (k + 0.5) * pi / 4
         half = lambda r: pi / 8 - spoke / 2 / r
@@ -335,28 +338,45 @@ def make_habaki():
     return ob
 
 
+def bar_loop(w, t):
+    """Cross-section of the bare hilt bar, CCW in (y, z): narrow flats on the two edges and a
+    ridge down the middle of each broad face."""
+    return [(w, -0.35 * t), (w, 0.35 * t), (0.0, t), (-w, 0.35 * t), (-w, -0.35 * t), (0.0, -t)]
+
+
+def prism(name, rows_spec, w, t, smooth=30):
+    """Rows of (x, scale) through the bar section, capped at both ends; a repeated x with a new
+    scale makes a step."""
+    rows = [[(x, CY + y * k, z * k) for y, z in bar_loop(w, t)] for x, k in rows_spec]
+    v, f, _ = grid(rows, closed=True)
+    n = len(rows[0])
+    f.append(tuple(range(n)))
+    f.append(tuple(reversed(range((len(rows) - 1) * n, len(rows) * n))))
+    ob = mesh_obj(name, v, f)
+    cleanup(ob, smooth)
+    return ob
+
+
+BAR_W, BAR_T = 0.0150, 0.0104
+
+
 def make_fittings():
     parts = [make_habaki(), make_tsuba()]
     parts.append(lathe('seppa1', [-0.0001, -0.0001, -0.0016, -0.0016], [0.0, 0.0186, 0.0186, 0.0], zr=0.7, smooth=50))
-    parts.append(lathe('seppa2', [-0.0056, -0.0056, -0.0071, -0.0071], [0.0, 0.0183, 0.0183, 0.0], zr=0.7, smooth=50))
-    fx = [-0.0071, -0.0071, -0.0076] + [-0.0076 - 0.0114 * i / 8 for i in range(1, 9)]
-    fr = [0.0, 0.0172, 0.0172] + [0.0169 - 0.0012 * (i / 8) ** 2 for i in range(1, 9)]
-    parts.append(lathe('fuchi', fx, fr, smooth=45))
-    kx, kr = [X_T1 + 0.002], [tsuka_r(X_T1) + 0.0004]
-    for i in range(17):
-        t = i / 16
-        kx.append(X_T1 - 0.017 * t)
-        kr.append((tsuka_r(X_T1) + 0.0013) * max(cos(t * pi / 2), 0) ** 0.38)
-    parts.append(lathe('kashira', kx, kr, smooth=45))
-    # menuki: six-petal ornaments under the wrap, one on each face
-    for side, xm in ((1, X_T0 - TL * 0.40), (-1, X_T0 - TL * 0.60)):
-        z = side * (tsuka_r(xm) * 0.78 + 0.0003)
-        for k in range(6):
-            a = k * pi / 3
-            bpy.ops.mesh.primitive_uv_sphere_add(radius=1, segments=14, ring_count=7,
-                                                 location=(xm + 0.0045 * cos(a), CY + 0.0045 * sin(a), z),
-                                                 scale=(0.0034, 0.0017, 0.0013), rotation=(0, 0, a))
-            parts.append(bpy.context.active_object)
+    parts.append(lathe('seppa2', [-0.0074, -0.0074, -0.0089, -0.0089], [0.0, 0.0183, 0.0183, 0.0], zr=0.7, smooth=50))
+    # fuchi: two square-shouldered steps down from the tsuba to the wrap
+    parts.append(prism('fuchi', [(X_FUCHI, 1.24), (-0.0128, 1.24), (-0.0128, 1.13), (X_WRAP0 - 0.001, 1.13)], BAR_W, BAR_T))
+    # ring closing the wrap, then the long bare bar, tapering a little toward the end
+    parts.append(prism('ring', [(X_WRAP1 + 0.001, 1.06), (X_WRAP1 - 0.0015, 1.14), (X_BAR0 + 0.0015, 1.14), (X_BAR0, 1.06)], BAR_W, BAR_T))
+    taper = lambda x: 1 - 0.08 * (X_BAR0 - x) / (X_BAR0 - X_BAR1)
+    parts.append(prism('bar', [(X_BAR0 + 0.001, 1.0)] + [(X_BAR0 + (X_BAR1 - X_BAR0) * i / 10, taper(X_BAR0 + (X_BAR1 - X_BAR0) * i / 10)) for i in range(11)]
+                       + [(X_BAR1 - 0.011, 0.72), (X_BAR1 - 0.021, 0.33), (X_BAR1 - 0.026, 0.06)], BAR_W, BAR_T))
+    # knob at the tip, with a small eyelet for the cord
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.0033, segments=24, ring_count=12, location=(X_BAR1 - 0.0285, CY, 0))
+    parts.append(bpy.context.active_object)
+    bpy.ops.mesh.primitive_torus_add(major_radius=0.0026, minor_radius=0.0008, major_segments=32, minor_segments=10,
+                                     location=(X_KASHIRA + 0.0026, CY, 0))   # in the plane of the flats
+    parts.append(bpy.context.active_object)
     ob = join('fittings', parts)
     select(ob)
     bpy.ops.object.mode_set(mode='EDIT')
@@ -615,23 +635,28 @@ def bake(ob, graph, size, name, maps=('col', 'mat', 'nrm')):
 
 
 # ---------------------------------------------------------------- build, bake, export
-parts = [
-    (make_blade, blade_graph, (4096, 512), ('col', 'mat', 'nrm')),
-    (make_core, core_graph, (2048, 256), ('col',)),
-    (make_fittings, fittings_graph, (1536, 1536), ('col', 'mat', 'nrm')),
-    (make_same, same_graph, (1024, 512), ('col', 'mat', 'nrm')),
-    (make_ito, ito_graph, (2048, 256), ('col', 'mat', 'nrm')),
-]
-objs = []
-for build, graph, size, maps in parts:
-    ob = build()
-    print('built', ob.name, len(ob.data.vertices), 'verts')
-    bake(ob, graph, size, ob.name, maps)
-    ob.data.materials.clear()
-    objs.append(ob)
+def main():
+    parts = [
+        (make_blade, blade_graph, (4096, 512), ('col', 'mat', 'nrm')),
+        (make_core, core_graph, (2048, 256), ('col',)),
+        (make_fittings, fittings_graph, (1536, 1536), ('col', 'mat', 'nrm')),
+        (make_same, same_graph, (1024, 512), ('col', 'mat', 'nrm')),
+        (make_ito, ito_graph, (2048, 256), ('col', 'mat', 'nrm')),
+    ]
+    objs = []
+    for build, graph, size, maps in parts:
+        ob = build()
+        print('built', ob.name, len(ob.data.vertices), 'verts')
+        bake(ob, graph, size, ob.name, maps)
+        ob.data.materials.clear()
+        objs.append(ob)
 
-bpy.ops.object.select_all(action='DESELECT')
-for o in objs: o.select_set(True)
-bpy.ops.export_scene.gltf(filepath=os.path.join(OUT, 'katana.glb'), export_format='GLB', use_selection=True,
-                          export_materials='NONE', export_texcoords=True, export_normals=True)
-print('exported', os.path.getsize(os.path.join(OUT, 'katana.glb')), 'bytes')
+    bpy.ops.object.select_all(action='DESELECT')
+    for o in objs: o.select_set(True)
+    bpy.ops.export_scene.gltf(filepath=os.path.join(OUT, 'katana.glb'), export_format='GLB', use_selection=True,
+                              export_materials='NONE', export_texcoords=True, export_normals=True)
+    print('exported', os.path.getsize(os.path.join(OUT, 'katana.glb')), 'bytes')
+
+
+if __name__ == '__main__':  # blades.py imports the helpers above
+    main()

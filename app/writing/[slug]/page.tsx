@@ -82,11 +82,15 @@ export default async function WritingPostPage({ params }: Props) {
       </Link>
       <header className="article-header">
         <h1>{post.title}</h1>
-        <p>{post.description}</p>
+        {post.description && <p>{post.description}</p>}
         <div className="article-meta">
           <time dateTime={post.date}>{formatPostDate(post.date)}</time>
-          <span aria-hidden="true">·</span>
-          <span>{post.tags.join(" · ")}</span>
+          {post.tags.length > 0 && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{post.tags.join(" · ")}</span>
+            </>
+          )}
         </div>
       </header>
       <div className="markdown-body">

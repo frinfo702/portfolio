@@ -20,8 +20,11 @@ function postUrl(slug: string): string {
   return new URL(`/writing/${slug}`, siteUrl).toString();
 }
 
+// Readers poll the feed; it only needs the recent posts, not the whole archive.
+const FEED_SIZE = 30;
+
 export function GET() {
-  const posts = getWritingPosts();
+  const posts = getWritingPosts().slice(0, FEED_SIZE);
   const items = posts
     .map(
       (post) => `<item>

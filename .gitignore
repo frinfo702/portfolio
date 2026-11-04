@@ -48,3 +48,7 @@ next-env.d.ts
 
 # local git worktrees
 /design-practice
+
+# dev-only Demo / Worst case switch (app/dev-fixture/route.dev.ts)
+/.writing-fixture
+/content/fixtures/huge/
