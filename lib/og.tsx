@@ -55,8 +55,8 @@ export async function renderOgImage({
           width: "100%",
           height: "100%",
           padding: "64px 72px 56px",
-          backgroundColor: "#0c0e10",
-          color: "#ece8df",
+          backgroundColor: "#ffffff",
+          color: "#0a0a0a",
         }}
       >
         <div
@@ -83,7 +83,7 @@ export async function renderOgImage({
               fontFamily: "Geist Mono",
               fontSize: 20,
               letterSpacing: 3,
-              color: "#7d8287",
+              color: "#6b7075",
             }}
           >
             PORTFOLIO
@@ -98,7 +98,7 @@ export async function renderOgImage({
               fontFamily: "Geist Mono",
               fontSize: 20,
               letterSpacing: 4,
-              color: "#7d8287",
+              color: "#6b7075",
             }}
           >
             {label.toUpperCase()}
@@ -124,7 +124,7 @@ export async function renderOgImage({
             alignItems: "flex-end",
             width: "100%",
             paddingTop: 24,
-            borderTop: "1px solid #1d2125",
+            borderTop: "1px solid #e6e8eb",
           }}
         >
           <div
@@ -134,7 +134,7 @@ export async function renderOgImage({
               fontFamily: "Geist",
               fontSize: 24,
               lineHeight: 1.4,
-              color: "#c9c6bf",
+              color: "#1c1d1f",
             }}
           >
             {footer}
@@ -144,7 +144,7 @@ export async function renderOgImage({
               display: "flex",
               fontFamily: "Geist Mono",
               fontSize: 20,
-              color: "#565c62",
+              color: "#9a9fa5",
             }}
           >
             KENICHIROG.COM
