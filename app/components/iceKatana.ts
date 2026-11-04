@@ -75,7 +75,11 @@ const glintFragment = /* glsl */ `
 export async function createKatana(T: THREE, loader: Loader, renderer: Three.WebGLRenderer): Promise<BackdropScene> {
   const gltf = await loader.loadAsync(DIR + "katana.glb" + V);
 
-  const tl = new T.TextureLoader();
+  // every texture is requested below, synchronously; the scene is handed back only once they
+  // have all arrived, so it never shows untextured
+  const manager = new T.LoadingManager();
+  const textures = new Promise((ok) => (manager.onLoad = () => ok(null)));
+  const tl = new T.TextureLoader(manager);
   const aniso = renderer.capabilities.getMaxAnisotropy();
   const tex = (name: string, srgb = false) => {
     const t = tl.load(DIR + name + ".webp" + V);
@@ -302,6 +306,8 @@ export async function createKatana(T: THREE, loader: Loader, renderer: Three.Web
       if (m instanceof T.MeshPhysicalMaterial) m.envMap = envMap;
     }
   };
+
+  await textures;
 
   let angle = 0;
   return {

@@ -111,8 +111,9 @@ export default function KatanaBackdrop() {
       };
 
       resize();
-      draw(0);
-      canvas.dataset.ready = "";
+      draw(0); // uploads every texture and compiles the shaders: the one heavy frame
+      // reveal on the next frame, so that frame does not eat the start of the fade
+      requestAnimationFrame(() => (canvas.dataset.ready = ""));
       start();
       window.addEventListener("resize", onResize);
       window.addEventListener("pointermove", onPointer, { passive: true });

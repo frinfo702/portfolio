@@ -35,7 +35,11 @@ const POSES = {
 export async function createBlades(T: THREE, loader: Loader, renderer: Three.WebGLRenderer): Promise<BackdropScene> {
   const gltf = await loader.loadAsync(DIR + "blades.glb");
 
-  const tl = new T.TextureLoader();
+  // every texture is requested below, synchronously; the scene is handed back only once they
+  // have all arrived, so it never shows untextured
+  const manager = new T.LoadingManager();
+  const textures = new Promise((ok) => (manager.onLoad = () => ok(null)));
+  const tl = new T.TextureLoader(manager);
   const aniso = renderer.capabilities.getMaxAnisotropy();
   const cache = new Map<string, Three.Texture>();
   const tex = (name: string, srgb = false) => {
@@ -134,6 +138,8 @@ export async function createBlades(T: THREE, loader: Loader, renderer: Three.Web
 
   let shape: keyof typeof POSES | null = null;
   let size = new T.Vector3();
+  await textures;
+
   return {
     root,
     frame(aspect: number) {
