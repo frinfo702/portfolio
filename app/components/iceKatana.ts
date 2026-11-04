@@ -9,6 +9,9 @@ import { mirrorOf, studioEnv, type BackdropScene, type Loader, type Strip, type 
 // spine toward +y, flats facing +-z, hilt along -x to the kashira.
 
 const DIR = "/scene/katana/";
+// Bump when the baked files change: browsers that cached them under the old day-long max-age
+// would otherwise pair stale textures with a new model (dark patches on the hilt).
+const V = "?v=2";
 const TIP = 0.76;
 const KASHIRA = -0.4085; // far end of the knob (X_KASHIRA in katana.py)
 const SWORD_LENGTH = TIP - KASHIRA;
@@ -70,12 +73,12 @@ const glintFragment = /* glsl */ `
 `;
 
 export async function createKatana(T: THREE, loader: Loader, renderer: Three.WebGLRenderer): Promise<BackdropScene> {
-  const gltf = await loader.loadAsync(DIR + "katana.glb");
+  const gltf = await loader.loadAsync(DIR + "katana.glb" + V);
 
   const tl = new T.TextureLoader();
   const aniso = renderer.capabilities.getMaxAnisotropy();
   const tex = (name: string, srgb = false) => {
-    const t = tl.load(DIR + name + ".webp");
+    const t = tl.load(DIR + name + ".webp" + V);
     t.flipY = false;
     t.anisotropy = aniso;
     t.colorSpace = srgb ? T.SRGBColorSpace : T.NoColorSpace;
